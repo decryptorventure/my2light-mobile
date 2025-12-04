@@ -2,7 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.0.0] - 2025-12-04
+## [2.2.1] - 2025-12-04
+
+### 🔧 Hotfix - Dependency Issues
+
+**Fixed app crashes on Expo Go:**
+- Downgraded `react-native-reanimated` from 4.1.5 to 3.10.1
+- Added missing `react-refresh` module
+- Removed reanimated from AnimatedPressable, AnimatedCard, FadeInView, SlideInView
+- Simplified animations to use native React Native components
+
+**Impact:**
+- ✅ App runs without crashes on Expo Go
+- ✅ All functionality preserved
+- ⚠️ Reduced animation effects (temporary)
+
+## [2.2.0] - 2025-12-04
 
 ### 🎉 Major Architectural Refactor
 

@@ -1,23 +1,15 @@
 /**
- * AnimatedPressable - Animated button with scale effect on press
+ * AnimatedPressable - Simplified version without reanimated (temporary fix)
  * @module components/ui/AnimatedPressable
  */
 
 import React, { useCallback } from "react";
-import { Pressable, PressableProps, StyleProp, ViewStyle } from "react-native";
-import Animated, {
-    useSharedValue,
-    useAnimatedStyle,
-    withSpring,
-    withTiming,
-} from "react-native-reanimated";
+import { TouchableOpacity, TouchableOpacityProps, StyleProp, ViewStyle } from "react-native";
 import haptics from "../../lib/haptics";
-
-const AnimatedPressableComponent = Animated.createAnimatedComponent(Pressable);
 
 type HapticStyle = "light" | "medium" | "heavy" | "success" | "warning" | "error";
 
-interface AnimatedPressableProps extends Omit<PressableProps, "style"> {
+interface AnimatedPressableProps extends Omit<TouchableOpacityProps, "style"> {
     style?: StyleProp<ViewStyle>;
     scaleValue?: number;
     hapticStyle?: HapticStyle;
@@ -27,8 +19,6 @@ interface AnimatedPressableProps extends Omit<PressableProps, "style"> {
 
 export function AnimatedPressable({
     onPress,
-    onPressIn,
-    onPressOut,
     style,
     scaleValue = 0.96,
     hapticStyle = "light",
@@ -36,26 +26,6 @@ export function AnimatedPressable({
     children,
     ...props
 }: AnimatedPressableProps) {
-    const scale = useSharedValue(1);
-    const opacity = useSharedValue(1);
-
-    const animatedStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: scale.value }],
-        opacity: opacity.value,
-    }));
-
-    const handlePressIn = useCallback((event: any) => {
-        scale.value = withSpring(scaleValue, { damping: 15, stiffness: 400 });
-        opacity.value = withTiming(0.9, { duration: 100 });
-        onPressIn?.(event);
-    }, [scaleValue, onPressIn]);
-
-    const handlePressOut = useCallback((event: any) => {
-        scale.value = withSpring(1, { damping: 15, stiffness: 400 });
-        opacity.value = withTiming(1, { duration: 100 });
-        onPressOut?.(event);
-    }, [onPressOut]);
-
     const handlePress = useCallback((event: any) => {
         if (hapticEnabled) {
             haptics[hapticStyle]();
@@ -64,14 +34,13 @@ export function AnimatedPressable({
     }, [onPress, hapticStyle, hapticEnabled]);
 
     return (
-        <AnimatedPressableComponent
+        <TouchableOpacity
             onPress={handlePress}
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
-            style={[style, animatedStyle]}
+            style={style}
+            activeOpacity={0.7}
             {...props}
         >
             {children}
-        </AnimatedPressableComponent>
+        </TouchableOpacity>
     );
 }
