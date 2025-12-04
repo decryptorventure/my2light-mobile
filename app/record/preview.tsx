@@ -1,13 +1,17 @@
+/**
+ * Video Preview Screen
+ * @description Preview recorded video with list of marked highlights
+ * @module app/record/preview
+ */
+
 import { useState } from "react";
 import {
     View,
     Text,
     StyleSheet,
     TouchableOpacity,
-    Alert,
-    TextInput,
     ScrollView,
-    ActivityIndicator,
+    Alert,
 } from "react-native";
 import { Video, ResizeMode } from "expo-av";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -15,25 +19,62 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import * as MediaLibrary from "expo-media-library";
 import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
+import { useRecordingStore } from "../../stores/recordingStore";
+import { Card } from "../../components/ui";
+import haptics from "../../lib/haptics";
 
+/**
+ * VideoPreviewScreen - Review highlights and upload
+ * Features:
+ * - Video player with full controls
+ * - List of marked highlights with timestamps
+ * - Merge highlights option
+ * - Upload to library button
+ */
 export default function VideoPreviewScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const { uri } = useLocalSearchParams<{ uri: string }>();
 
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [isPublic, setIsPublic] = useState(true);
-    const [uploading, setUploading] = useState(false);
+    const { highlights, selectedHighlightIds, toggleHighlightSelection, selectAllHighlights } = useRecordingStore();
     const [saving, setSaving] = useState(false);
+
+    // Format time as MM:SS
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    };
+
+    // Calculate time range for highlight
+    const getHighlightTimeRange = (highlight: any) => {
+        const endTime = highlight.timestamp + highlight.duration;
+        return `${formatTime(highlight.timestamp)} - ${formatTime(endTime)}`;
+    };
+
+    const handleClose = () => {
+        Alert.alert(
+            "Xác nhận",
+            "Bạn có chắc muốn hủy video này?",
+            [
+                { text: "Không", style: "cancel" },
+                {
+                    text: "Hủy video",
+                    style: "destructive",
+                    onPress: () => router.replace("/(tabs)")
+                },
+            ]
+        );
+    };
 
     const handleSaveToDevice = async () => {
         if (!uri) return;
 
         try {
             setSaving(true);
-            const { status } = await MediaLibrary.requestPermissionsAsync();
+            haptics.light();
 
+            const { status } = await MediaLibrary.requestPermissionsAsync();
             if (status !== "granted") {
                 Alert.alert("Lỗi", "Cần quyền truy cập thư viện để lưu video");
                 return;
@@ -49,38 +90,29 @@ export default function VideoPreviewScreen() {
         }
     };
 
-    const handleUpload = async () => {
-        if (!uri) return;
-
-        try {
-            setUploading(true);
-
-            // TODO: Implement actual upload to Supabase
-            // For now, simulate upload
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            Alert.alert(
-                "Thành công!",
-                "Video đã được upload. Tính năng đầy đủ sẽ được thêm sau.",
-                [{ text: "OK", onPress: () => router.replace("/(tabs)") }]
-            );
-        } catch (error) {
-            console.error("Upload error:", error);
-            Alert.alert("Lỗi", "Không thể upload video");
-        } finally {
-            setUploading(false);
+    const handleMergeHighlights = () => {
+        if (highlights.length === 0) {
+            Alert.alert("Thông báo", "Chưa có highlight nào được đánh dấu");
+            return;
         }
+        haptics.medium();
+        selectAllHighlights();
+        // TODO: Implement video merge logic
+        Alert.alert("Thông báo", "Tính năng ghép highlight đang được phát triển");
     };
 
-    const handleDiscard = () => {
-        Alert.alert(
-            "Xác nhận",
-            "Bạn có chắc muốn hủy video này?",
-            [
-                { text: "Không", style: "cancel" },
-                { text: "Hủy video", style: "destructive", onPress: () => router.back() },
-            ]
-        );
+    const handleUpload = () => {
+        haptics.medium();
+        router.push({
+            pathname: "/record/upload",
+            params: { uri }
+        });
+    };
+
+    const handlePlayHighlight = (highlight: any) => {
+        haptics.light();
+        // TODO: Seek video to highlight timestamp
+        console.log("Play highlight at:", highlight.timestamp);
     };
 
     if (!uri) {
@@ -97,6 +129,17 @@ export default function VideoPreviewScreen() {
 
     return (
         <View style={styles.container}>
+            {/* Header */}
+            <View style={[styles.header, { paddingTop: insets.top + spacing.md }]}>
+                <TouchableOpacity style={styles.headerButton} onPress={handleClose}>
+                    <Ionicons name="close" size={24} color={colors.text} />
+                </TouchableOpacity>
+                <Text style={styles.title}>Xem lại Video</Text>
+                <TouchableOpacity style={styles.headerButton} onPress={handleSaveToDevice} disabled={saving}>
+                    <Ionicons name="download-outline" size={24} color={colors.text} />
+                </TouchableOpacity>
+            </View>
+
             {/* Video Player */}
             <Video
                 source={{ uri }}
@@ -104,113 +147,67 @@ export default function VideoPreviewScreen() {
                 useNativeControls
                 resizeMode={ResizeMode.CONTAIN}
                 isLooping
-                shouldPlay
             />
 
-            {/* Form */}
-            <ScrollView
-                style={[styles.form, { paddingBottom: insets.bottom + 100 }]}
-                showsVerticalScrollIndicator={false}
-            >
-                {/* Title */}
-                <View style={styles.inputGroup}>
-                    <Text style={styles.label}>Tiêu đề</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Nhập tiêu đề video..."
-                        placeholderTextColor={colors.textMuted}
-                        value={title}
-                        onChangeText={setTitle}
-                        maxLength={100}
-                    />
-                </View>
+            {/* Highlight List */}
+            <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
+                <Text style={styles.sectionTitle}>
+                    DANH SÁCH HIGHLIGHT ({highlights.length})
+                </Text>
 
-                {/* Description */}
-                <View style={styles.inputGroup}>
-                    <Text style={styles.label}>Mô tả (tùy chọn)</Text>
-                    <TextInput
-                        style={[styles.input, styles.textArea]}
-                        placeholder="Mô tả về video của bạn..."
-                        placeholderTextColor={colors.textMuted}
-                        value={description}
-                        onChangeText={setDescription}
-                        multiline
-                        numberOfLines={3}
-                        maxLength={500}
-                    />
-                </View>
-
-                {/* Privacy Toggle */}
-                <TouchableOpacity
-                    style={styles.privacyRow}
-                    onPress={() => setIsPublic(!isPublic)}
-                >
-                    <View style={styles.privacyLeft}>
-                        <Ionicons
-                            name={isPublic ? "globe-outline" : "lock-closed-outline"}
-                            size={24}
-                            color={colors.text}
-                        />
-                        <View>
-                            <Text style={styles.privacyTitle}>{isPublic ? "Công khai" : "Riêng tư"}</Text>
-                            <Text style={styles.privacyDesc}>
-                                {isPublic ? "Mọi người có thể xem" : "Chỉ bạn xem được"}
-                            </Text>
-                        </View>
-                    </View>
-                    <Ionicons
-                        name={isPublic ? "toggle" : "toggle-outline"}
-                        size={32}
-                        color={isPublic ? colors.accent : colors.textMuted}
-                    />
-                </TouchableOpacity>
-
-                {/* Actions */}
-                <View style={styles.actions}>
-                    <TouchableOpacity
-                        style={styles.saveBtn}
-                        onPress={handleSaveToDevice}
-                        disabled={saving}
-                    >
-                        {saving ? (
-                            <ActivityIndicator size="small" color={colors.text} />
-                        ) : (
-                            <>
-                                <Ionicons name="download-outline" size={20} color={colors.text} />
-                                <Text style={styles.saveBtnText}>Lưu vào máy</Text>
-                            </>
-                        )}
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={styles.uploadBtn}
-                        onPress={handleUpload}
-                        disabled={uploading}
-                    >
-                        {uploading ? (
-                            <ActivityIndicator size="small" color={colors.background} />
-                        ) : (
-                            <>
-                                <Ionicons name="cloud-upload-outline" size={20} color={colors.background} />
-                                <Text style={styles.uploadBtnText}>Upload</Text>
-                            </>
-                        )}
-                    </TouchableOpacity>
-                </View>
-
-                <TouchableOpacity style={styles.discardBtn} onPress={handleDiscard}>
-                    <Ionicons name="trash-outline" size={18} color={colors.error} />
-                    <Text style={styles.discardBtnText}>Hủy video</Text>
-                </TouchableOpacity>
+                {highlights.length === 0 ? (
+                    <Card style={styles.emptyCard}>
+                        <Ionicons name="flash-off-outline" size={32} color={colors.textMuted} />
+                        <Text style={styles.emptyText}>Chưa có highlight nào</Text>
+                        <Text style={styles.emptyHint}>
+                            Bấm nút ⚡ khi quay để đánh dấu highlight
+                        </Text>
+                    </Card>
+                ) : (
+                    highlights.map((highlight, index) => (
+                        <TouchableOpacity
+                            key={highlight.id}
+                            style={[
+                                styles.highlightItem,
+                                selectedHighlightIds.includes(highlight.id) && styles.highlightItemSelected,
+                            ]}
+                            onPress={() => toggleHighlightSelection(highlight.id)}
+                            activeOpacity={0.7}
+                        >
+                            <View style={styles.highlightNumber}>
+                                <Text style={styles.highlightNumberText}>{index + 1}</Text>
+                            </View>
+                            <View style={styles.highlightInfo}>
+                                <Text style={styles.highlightName}>{highlight.name}</Text>
+                                <Text style={styles.highlightTime}>
+                                    {getHighlightTimeRange(highlight)}
+                                </Text>
+                            </View>
+                            <TouchableOpacity
+                                style={styles.playButton}
+                                onPress={() => handlePlayHighlight(highlight)}
+                            >
+                                <Ionicons name="play" size={20} color={colors.text} />
+                            </TouchableOpacity>
+                        </TouchableOpacity>
+                    ))
+                )}
             </ScrollView>
 
-            {/* Close Button */}
-            <TouchableOpacity
-                style={[styles.closeBtn, { top: insets.top + spacing.md }]}
-                onPress={handleDiscard}
-            >
-                <Ionicons name="close" size={24} color="#fff" />
-            </TouchableOpacity>
+            {/* Bottom Actions */}
+            <View style={[styles.bottomActions, { paddingBottom: insets.bottom + spacing.lg }]}>
+                <TouchableOpacity style={styles.mergeButton} onPress={handleMergeHighlights}>
+                    <Ionicons name="flash" size={20} color={colors.text} />
+                    <Text style={styles.mergeButtonText}>
+                        Ghép {highlights.length} Highlights
+                    </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.uploadButton} onPress={handleUpload}>
+                    <Ionicons name="cloud-upload-outline" size={20} color={colors.background} />
+                    <Text style={styles.uploadButtonText}>Đăng lên Thư viện</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 }
@@ -237,79 +234,125 @@ const styles = StyleSheet.create({
         color: colors.primary,
         fontSize: fontSize.md,
     },
-    video: {
-        width: "100%",
-        height: 300,
-        backgroundColor: "#000",
-    },
-    closeBtn: {
-        position: "absolute",
-        left: spacing.lg,
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: "rgba(0,0,0,0.6)",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 10,
-    },
-    form: {
-        flex: 1,
-        padding: spacing.lg,
-    },
-    inputGroup: {
-        marginBottom: spacing.lg,
-    },
-    label: {
-        color: colors.textSecondary,
-        fontSize: fontSize.sm,
-        fontWeight: fontWeight.medium,
-        marginBottom: spacing.sm,
-    },
-    input: {
-        backgroundColor: colors.surface,
-        borderRadius: borderRadius.md,
-        padding: spacing.md,
-        color: colors.text,
-        fontSize: fontSize.md,
-        borderWidth: 1,
-        borderColor: colors.border,
-    },
-    textArea: {
-        minHeight: 80,
-        textAlignVertical: "top",
-    },
-    privacyRow: {
+
+    // Header
+    header: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
-        backgroundColor: colors.surface,
-        padding: spacing.md,
-        borderRadius: borderRadius.md,
-        marginBottom: spacing.xl,
+        paddingHorizontal: spacing.lg,
+        paddingBottom: spacing.md,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.border,
     },
-    privacyLeft: {
-        flexDirection: "row",
+    headerButton: {
+        width: 40,
+        height: 40,
+        justifyContent: "center",
         alignItems: "center",
-        gap: spacing.md,
     },
-    privacyTitle: {
+    title: {
+        fontSize: fontSize.lg,
+        fontWeight: fontWeight.bold,
+        color: colors.text,
+    },
+
+    // Video
+    video: {
+        width: "100%",
+        height: 220,
+        backgroundColor: "#000",
+    },
+
+    // Content
+    content: {
+        flex: 1,
+    },
+    contentContainer: {
+        padding: spacing.lg,
+    },
+    sectionTitle: {
+        fontSize: fontSize.xs,
+        fontWeight: fontWeight.semibold,
+        color: colors.textMuted,
+        marginBottom: spacing.md,
+        letterSpacing: 0.5,
+    },
+    emptyCard: {
+        alignItems: "center",
+        padding: spacing.xl,
+        gap: spacing.sm,
+    },
+    emptyText: {
         color: colors.text,
         fontSize: fontSize.md,
         fontWeight: fontWeight.medium,
     },
-    privacyDesc: {
+    emptyHint: {
         color: colors.textMuted,
-        fontSize: fontSize.xs,
+        fontSize: fontSize.sm,
+        textAlign: "center",
+    },
+
+    // Highlight Item
+    highlightItem: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: colors.surface,
+        borderRadius: borderRadius.lg,
+        padding: spacing.md,
+        marginBottom: spacing.sm,
+        borderWidth: 1,
+        borderColor: colors.border,
+    },
+    highlightItemSelected: {
+        borderColor: colors.accent,
+        backgroundColor: `${colors.accent}10`,
+    },
+    highlightNumber: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: colors.surfaceLight,
+        justifyContent: "center",
+        alignItems: "center",
+        marginRight: spacing.md,
+    },
+    highlightNumberText: {
+        color: colors.accent,
+        fontSize: fontSize.md,
+        fontWeight: fontWeight.bold,
+    },
+    highlightInfo: {
+        flex: 1,
+    },
+    highlightName: {
+        fontSize: fontSize.md,
+        fontWeight: fontWeight.semibold,
+        color: colors.text,
+    },
+    highlightTime: {
+        fontSize: fontSize.sm,
+        color: colors.textMuted,
         marginTop: 2,
     },
-    actions: {
-        flexDirection: "row",
-        gap: spacing.md,
-        marginBottom: spacing.lg,
+    playButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: colors.surfaceLight,
+        justifyContent: "center",
+        alignItems: "center",
     },
-    saveBtn: {
-        flex: 1,
+
+    // Bottom Actions
+    bottomActions: {
+        padding: spacing.lg,
+        gap: spacing.sm,
+        borderTopWidth: 1,
+        borderTopColor: colors.border,
+    },
+    mergeButton: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
@@ -320,35 +363,23 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: colors.border,
     },
-    saveBtnText: {
+    mergeButtonText: {
         color: colors.text,
         fontSize: fontSize.md,
         fontWeight: fontWeight.medium,
     },
-    uploadBtn: {
-        flex: 1,
+    uploadButton: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
         gap: spacing.sm,
         backgroundColor: colors.accent,
-        paddingVertical: spacing.md,
+        paddingVertical: spacing.lg,
         borderRadius: borderRadius.md,
     },
-    uploadBtnText: {
+    uploadButtonText: {
         color: colors.background,
         fontSize: fontSize.md,
         fontWeight: fontWeight.semibold,
-    },
-    discardBtn: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: spacing.xs,
-        paddingVertical: spacing.md,
-    },
-    discardBtnText: {
-        color: colors.error,
-        fontSize: fontSize.sm,
     },
 });
