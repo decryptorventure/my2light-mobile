@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
     View,
     Text,
@@ -9,68 +9,44 @@ import {
     TouchableOpacity,
     Dimensions,
     TextInput,
+    ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
-import { supabase } from "../../lib/supabase";
-import { useAuthStore } from "../../stores/authStore";
+import { useHighlights, useCurrentUser, useUnreadNotificationCount } from "../../hooks/useApi";
+import haptics from "../../lib/haptics";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = (width - spacing.lg * 2 - spacing.md) / 2;
 
-interface Highlight {
-    id: string;
-    title: string;
-    thumbnail_url: string | null;
-    duration_sec: number;
-    views: number;
-    user_name: string;
-    user_avatar: string | null;
-    created_at: string;
-}
-
 export default function HomeScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
-    const { user } = useAuthStore();
-    const [highlights, setHighlights] = useState<Highlight[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [refreshing, setRefreshing] = useState(false);
 
-    useEffect(() => {
-        fetchHighlights();
-    }, []);
+    // Real data from API
+    const { data: highlights, isLoading, refetch } = useHighlights(20);
+    const { data: currentUser } = useCurrentUser();
+    const { data: unreadCount } = useUnreadNotificationCount();
 
-    const fetchHighlights = async () => {
-        try {
-            const { data, error } = await supabase
-                .from("highlights")
-                .select("*")
-                .order("created_at", { ascending: false })
-                .limit(10);
-
-            if (error) throw error;
-            setHighlights(data || []);
-        } catch (error) {
-            console.error("Error fetching highlights:", error);
-        } finally {
-            setLoading(false);
-            setRefreshing(false);
-        }
-    };
-
-    const onRefresh = () => {
+    const onRefresh = async () => {
         setRefreshing(true);
-        fetchHighlights();
+        haptics.light();
+        await refetch();
+        setRefreshing(false);
     };
 
     const formatDuration = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
         return `${mins}:${secs.toString().padStart(2, "0")}`;
+    };
+
+    const formatCredits = (credits: number) => {
+        return credits.toLocaleString("vi-VN") + "đ";
     };
 
     return (
@@ -84,21 +60,27 @@ export default function HomeScreen() {
             >
                 {/* Header */}
                 <View style={styles.header}>
-                    <Text style={styles.greeting}>Chào mừng trở lại,</Text>
+                    <Text style={styles.greeting}>Chào {currentUser?.name || "bạn"},</Text>
                     <View style={styles.headerRight}>
                         <TouchableOpacity style={styles.notificationBtn} onPress={() => router.push("/notifications")}>
                             <Ionicons name="notifications-outline" size={22} color={colors.text} />
-                            <View style={styles.notificationBadge}>
-                                <Text style={styles.badgeText}>1</Text>
-                            </View>
+                            {(unreadCount || 0) > 0 && (
+                                <View style={styles.notificationBadge}>
+                                    <Text style={styles.badgeText}>{unreadCount}</Text>
+                                </View>
+                            )}
                         </TouchableOpacity>
                         <View style={styles.balanceBadge}>
-                            <Text style={styles.balanceText}>200.000đ</Text>
+                            <Text style={styles.balanceText}>{formatCredits(currentUser?.credits || 0)}</Text>
                         </View>
-                        <TouchableOpacity style={styles.avatarBtn}>
-                            <View style={styles.avatar}>
-                                <Ionicons name="person" size={18} color={colors.textMuted} />
-                            </View>
+                        <TouchableOpacity style={styles.avatarBtn} onPress={() => router.push("/(tabs)/profile")}>
+                            {currentUser?.avatar ? (
+                                <Image source={{ uri: currentUser.avatar }} style={styles.avatarImage} />
+                            ) : (
+                                <View style={styles.avatar}>
+                                    <Ionicons name="person" size={18} color={colors.textMuted} />
+                                </View>
+                            )}
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -139,11 +121,12 @@ export default function HomeScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    {loading ? (
+                    {isLoading ? (
                         <View style={styles.loadingContainer}>
+                            <ActivityIndicator size="small" color={colors.accent} />
                             <Text style={styles.loadingText}>Đang tải...</Text>
                         </View>
-                    ) : highlights.length === 0 ? (
+                    ) : !highlights || highlights.length === 0 ? (
                         <View style={styles.emptyState}>
                             <Ionicons name="videocam-outline" size={48} color={colors.textMuted} />
                             <Text style={styles.emptyTitle}>Chưa có highlight nào</Text>
@@ -156,10 +139,15 @@ export default function HomeScreen() {
                             contentContainerStyle={styles.highlightsScroll}
                         >
                             {highlights.map((highlight) => (
-                                <TouchableOpacity key={highlight.id} style={styles.highlightCard} activeOpacity={0.9}>
+                                <TouchableOpacity
+                                    key={highlight.id}
+                                    style={styles.highlightCard}
+                                    activeOpacity={0.9}
+                                    onPress={() => router.push(`/video/${highlight.id}`)}
+                                >
                                     <View style={styles.thumbnailContainer}>
-                                        {highlight.thumbnail_url ? (
-                                            <Image source={{ uri: highlight.thumbnail_url }} style={styles.thumbnail} />
+                                        {highlight.thumbnailUrl ? (
+                                            <Image source={{ uri: highlight.thumbnailUrl }} style={styles.thumbnail} />
                                         ) : (
                                             <View style={styles.placeholderThumbnail}>
                                                 <Ionicons name="play" size={40} color="rgba(255,255,255,0.8)" />
@@ -170,12 +158,12 @@ export default function HomeScreen() {
                                                 <Ionicons name="person" size={12} color={colors.textMuted} />
                                             </View>
                                             <Text style={styles.userName} numberOfLines={1}>
-                                                {highlight.user_name || "User"}
+                                                {highlight.userName || "User"}
                                             </Text>
                                         </View>
                                         <View style={styles.titleOverlay}>
                                             <Text style={styles.highlightTitle} numberOfLines={2}>
-                                                {highlight.title || `Highlight ${new Date(highlight.created_at).toLocaleDateString("vi-VN")}`}
+                                                {highlight.courtName || `Highlight`}
                                             </Text>
                                         </View>
                                         <View style={styles.bottomOverlay}>
@@ -185,7 +173,7 @@ export default function HomeScreen() {
                                             </View>
                                             <View style={styles.durationBadge}>
                                                 <Text style={styles.durationText}>
-                                                    {formatDuration(highlight.duration_sec || 0)}
+                                                    {formatDuration(highlight.durationSec || 0)}
                                                 </Text>
                                             </View>
                                         </View>
@@ -292,6 +280,13 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: colors.accent,
     },
+    avatarImage: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        borderWidth: 2,
+        borderColor: colors.accent,
+    },
     actionCards: {
         flexDirection: "row",
         paddingHorizontal: spacing.lg,
@@ -369,6 +364,7 @@ const styles = StyleSheet.create({
     loadingContainer: {
         padding: spacing.xl,
         alignItems: "center",
+        gap: spacing.sm,
     },
     loadingText: {
         color: colors.textMuted,

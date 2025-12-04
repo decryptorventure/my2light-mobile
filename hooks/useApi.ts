@@ -17,6 +17,7 @@ export const queryKeys = {
     },
     user: {
         current: ['user', 'current'] as const,
+        credits: ['user', 'credits'] as const,
     },
     bookings: {
         all: ['bookings'] as const,
@@ -26,6 +27,15 @@ export const queryKeys = {
     matches: {
         all: ['matches'] as const,
         open: () => [...queryKeys.matches.all, 'open'] as const,
+    },
+    notifications: {
+        all: ['notifications'] as const,
+        list: () => [...queryKeys.notifications.all, 'list'] as const,
+        unreadCount: () => [...queryKeys.notifications.all, 'unreadCount'] as const,
+    },
+    transactions: {
+        all: ['transactions'] as const,
+        list: () => [...queryKeys.transactions.all, 'list'] as const,
     },
 };
 
@@ -136,6 +146,17 @@ export function useUpdateUserProfile() {
     });
 }
 
+export function useUserCredits() {
+    return useQuery({
+        queryKey: queryKeys.user.credits,
+        queryFn: async () => {
+            const result = await ApiService.getUserCredits();
+            return result.data;
+        },
+        staleTime: 60000,
+    });
+}
+
 // ============ BOOKING HOOKS ============
 export function useBookingHistory() {
     return useQuery({
@@ -180,5 +201,62 @@ export function useCreateMatchRequest() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: queryKeys.matches.all });
         },
+    });
+}
+
+// ============ NOTIFICATION HOOKS ============
+export function useNotifications(limit: number = 20) {
+    return useQuery({
+        queryKey: queryKeys.notifications.list(),
+        queryFn: async () => {
+            const result = await ApiService.getNotifications(limit);
+            return result.data;
+        },
+        staleTime: 30000,
+    });
+}
+
+export function useUnreadNotificationCount() {
+    return useQuery({
+        queryKey: queryKeys.notifications.unreadCount(),
+        queryFn: async () => {
+            const result = await ApiService.getUnreadNotificationCount();
+            return result.data;
+        },
+        staleTime: 30000,
+    });
+}
+
+export function useMarkNotificationRead() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (notificationId: string) => ApiService.markNotificationRead(notificationId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+        },
+    });
+}
+
+export function useMarkAllNotificationsRead() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: () => ApiService.markAllNotificationsRead(),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+        },
+    });
+}
+
+// ============ TRANSACTION HOOKS ============
+export function useTransactions(limit: number = 50) {
+    return useQuery({
+        queryKey: queryKeys.transactions.list(),
+        queryFn: async () => {
+            const result = await ApiService.getTransactions(limit);
+            return result.data;
+        },
+        staleTime: 60000,
     });
 }

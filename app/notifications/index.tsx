@@ -1,3 +1,9 @@
+/**
+ * Notifications Screen
+ * @description Displays user notifications with real-time updates from Supabase
+ * @module app/notifications
+ */
+
 import { useState } from "react";
 import {
     View,
@@ -6,85 +12,72 @@ import {
     ScrollView,
     TouchableOpacity,
     RefreshControl,
+    ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
+import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "../../hooks/useApi";
+import haptics from "../../lib/haptics";
 
-interface Notification {
-    id: string;
-    type: "success" | "warning" | "error" | "info";
-    title: string;
-    message: string;
-    timestamp: number;
-    read: boolean;
-}
-
-const mockNotifications: Notification[] = [
-    {
-        id: "1",
-        type: "success",
-        title: "Đặt sân thành công",
-        message: "Bạn đã đặt sân Tennis Tân Bình lúc 16:00 ngày 20/12/2024",
-        timestamp: Date.now() - 3600000,
-        read: false,
-    },
-    {
-        id: "2",
-        type: "info",
-        title: "Có kèo mới phù hợp",
-        message: "Một người chơi trình độ Beginner đang tìm đối ở gần bạn",
-        timestamp: Date.now() - 7200000,
-        read: false,
-    },
-    {
-        id: "3",
-        type: "warning",
-        title: "Sắp đến giờ chơi",
-        message: "Bạn có lịch chơi tại Sân Cầu Lông City Sport trong 1 giờ nữa",
-        timestamp: Date.now() - 86400000,
-        read: true,
-    },
-];
-
+/**
+ * NotificationsScreen - Display and manage user notifications
+ * - Fetches real notifications from Supabase
+ * - Supports mark as read (single/all)
+ * - Pull-to-refresh functionality
+ */
 export default function NotificationsScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
-    const [notifications, setNotifications] = useState(mockNotifications);
     const [refreshing, setRefreshing] = useState(false);
 
-    const onRefresh = () => {
+    // Real data from API
+    const { data: notifications, isLoading, refetch } = useNotifications(50);
+    const markAsReadMutation = useMarkNotificationRead();
+    const markAllReadMutation = useMarkAllNotificationsRead();
+
+    const onRefresh = async () => {
         setRefreshing(true);
-        setTimeout(() => setRefreshing(false), 1000);
+        haptics.light();
+        await refetch();
+        setRefreshing(false);
     };
 
-    const markAsRead = (id: string) => {
-        setNotifications((prev) =>
-            prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-        );
+    const handleMarkAsRead = (id: string) => {
+        haptics.light();
+        markAsReadMutation.mutate(id);
     };
 
-    const markAllAsRead = () => {
-        setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    const handleMarkAllAsRead = () => {
+        haptics.medium();
+        markAllReadMutation.mutate();
     };
 
-    const getIcon = (type: Notification["type"]) => {
+    const getIcon = (type: string) => {
         switch (type) {
+            case "booking_confirmed":
             case "success":
                 return <Ionicons name="checkmark-circle" size={20} color="#22c55e" />;
+            case "booking_reminder":
             case "warning":
                 return <Ionicons name="warning" size={20} color="#f59e0b" />;
-            case "error":
-                return <Ionicons name="close-circle" size={20} color="#ef4444" />;
+            case "match_found":
+            case "info":
+                return <Ionicons name="people" size={20} color="#3b82f6" />;
+            case "highlight_liked":
+                return <Ionicons name="heart" size={20} color="#ef4444" />;
+            case "credit_added":
+                return <Ionicons name="wallet" size={20} color="#a3e635" />;
             default:
-                return <Ionicons name="information-circle" size={20} color="#3b82f6" />;
+                return <Ionicons name="notifications" size={20} color={colors.accent} />;
         }
     };
 
-    const formatTime = (timestamp: number) => {
+    const formatTime = (dateString: string) => {
+        const date = new Date(dateString);
         const now = Date.now();
-        const diff = now - timestamp;
+        const diff = now - date.getTime();
         const hours = Math.floor(diff / 3600000);
         const days = Math.floor(diff / 86400000);
 
@@ -101,7 +94,7 @@ export default function NotificationsScreen() {
                     <Ionicons name="chevron-back" size={24} color={colors.text} />
                 </TouchableOpacity>
                 <Text style={styles.title}>Thông báo</Text>
-                <TouchableOpacity onPress={markAllAsRead}>
+                <TouchableOpacity onPress={handleMarkAllAsRead} disabled={markAllReadMutation.isPending}>
                     <Text style={styles.markAllText}>Đọc tất cả</Text>
                 </TouchableOpacity>
             </View>
@@ -112,20 +105,25 @@ export default function NotificationsScreen() {
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />
                 }
             >
-                {notifications.length === 0 ? (
+                {isLoading ? (
+                    <View style={styles.loadingState}>
+                        <ActivityIndicator size="small" color={colors.accent} />
+                        <Text style={styles.loadingText}>Đang tải thông báo...</Text>
+                    </View>
+                ) : !notifications || notifications.length === 0 ? (
                     <View style={styles.emptyState}>
                         <Ionicons name="notifications-off-outline" size={64} color={colors.surfaceLight} />
                         <Text style={styles.emptyText}>Chưa có thông báo nào.</Text>
                     </View>
                 ) : (
-                    notifications.map((notification) => (
+                    notifications.map((notification: any) => (
                         <TouchableOpacity
                             key={notification.id}
                             style={[
                                 styles.notificationCard,
-                                notification.read && styles.notificationCardRead,
+                                notification.isRead && styles.notificationCardRead,
                             ]}
-                            onPress={() => markAsRead(notification.id)}
+                            onPress={() => handleMarkAsRead(notification.id)}
                             activeOpacity={0.8}
                         >
                             <View style={styles.notificationIcon}>{getIcon(notification.type)}</View>
@@ -134,18 +132,18 @@ export default function NotificationsScreen() {
                                     <Text
                                         style={[
                                             styles.notificationTitle,
-                                            notification.read && styles.notificationTitleRead,
+                                            notification.isRead && styles.notificationTitleRead,
                                         ]}
                                     >
                                         {notification.title}
                                     </Text>
                                     <Text style={styles.notificationTime}>
-                                        {formatTime(notification.timestamp)}
+                                        {formatTime(notification.createdAt)}
                                     </Text>
                                 </View>
                                 <Text style={styles.notificationMessage}>{notification.message}</Text>
                             </View>
-                            {!notification.read && <View style={styles.unreadDot} />}
+                            {!notification.isRead && <View style={styles.unreadDot} />}
                         </TouchableOpacity>
                     ))
                 )}
@@ -189,6 +187,15 @@ const styles = StyleSheet.create({
     scrollContent: {
         padding: spacing.lg,
         paddingBottom: 100,
+    },
+    loadingState: {
+        alignItems: "center",
+        paddingVertical: spacing.xxl,
+        gap: spacing.sm,
+    },
+    loadingText: {
+        color: colors.textMuted,
+        fontSize: fontSize.sm,
     },
     emptyState: {
         alignItems: "center",

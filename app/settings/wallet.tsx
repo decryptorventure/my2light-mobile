@@ -1,4 +1,10 @@
-import { useState, useEffect } from "react";
+/**
+ * Wallet Screen
+ * @description Displays user credit balance and transaction history from Supabase
+ * @module app/settings/wallet
+ */
+
+import { useState } from "react";
 import {
     View,
     Text,
@@ -6,72 +12,49 @@ import {
     ScrollView,
     TouchableOpacity,
     RefreshControl,
+    ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
-import { useAuthStore } from "../../stores/authStore";
-import { Card, Button } from "../../components/ui";
+import { useTransactions, useUserCredits } from "../../hooks/useApi";
+import { Card } from "../../components/ui";
+import haptics from "../../lib/haptics";
 
-interface Transaction {
-    id: string;
-    type: "topup" | "booking" | "refund";
-    amount: number;
-    description: string;
-    timestamp: number;
-    status: "completed" | "pending" | "failed";
-}
-
-const mockTransactions: Transaction[] = [
-    {
-        id: "init",
-        type: "topup",
-        amount: 500000,
-        description: "Tặng thưởng thành viên mới",
-        timestamp: Date.now() - 100000000,
-        status: "completed",
-    },
-    {
-        id: "2",
-        type: "booking",
-        amount: -150000,
-        description: "Đặt sân Tennis Tân Bình",
-        timestamp: Date.now() - 86400000,
-        status: "completed",
-    },
-    {
-        id: "3",
-        type: "topup",
-        amount: 200000,
-        description: "Nạp tiền qua MoMo",
-        timestamp: Date.now() - 172800000,
-        status: "completed",
-    },
-];
-
+/**
+ * WalletScreen - Display user wallet and transactions
+ * Features:
+ * - Real credit balance from profiles.credits
+ * - Transaction history from transactions table
+ * - Pull-to-refresh functionality
+ */
 export default function WalletScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
-    const { user } = useAuthStore();
-    const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
     const [refreshing, setRefreshing] = useState(false);
-    const [balance, setBalance] = useState(200000);
 
-    const onRefresh = () => {
+    // Real data from API
+    const { data: credits, isLoading: creditsLoading, refetch: refetchCredits } = useUserCredits();
+    const { data: transactions, isLoading: txLoading, refetch: refetchTx } = useTransactions(50);
+
+    const onRefresh = async () => {
         setRefreshing(true);
-        setTimeout(() => setRefreshing(false), 1000);
+        haptics.light();
+        await Promise.all([refetchCredits(), refetchTx()]);
+        setRefreshing(false);
     };
 
-    const totalTopUp = transactions
-        .filter((t) => t.type === "topup")
-        .reduce((sum, t) => sum + t.amount, 0);
+    // Calculate totals from transactions
+    const totalTopUp = (transactions || [])
+        .filter((t: any) => t.type === "topup" || t.type === "credit")
+        .reduce((sum: number, t: any) => sum + Math.abs(t.amount), 0);
 
-    const totalSpend = Math.abs(
-        transactions
-            .filter((t) => t.type === "booking")
-            .reduce((sum, t) => sum + t.amount, 0)
-    );
+    const totalSpend = (transactions || [])
+        .filter((t: any) => t.type === "booking" || t.type === "debit")
+        .reduce((sum: number, t: any) => sum + Math.abs(t.amount), 0);
+
+    const isLoading = creditsLoading || txLoading;
 
     return (
         <View style={styles.container}>
@@ -98,10 +81,16 @@ export default function WalletScreen() {
                         </View>
                         <View>
                             <Text style={styles.balanceLabel}>Số dư khả dụng</Text>
-                            <Text style={styles.balanceAmount}>{balance.toLocaleString()}đ</Text>
+                            {creditsLoading ? (
+                                <ActivityIndicator size="small" color={colors.background} />
+                            ) : (
+                                <Text style={styles.balanceAmount}>
+                                    {(credits || 0).toLocaleString()}đ
+                                </Text>
+                            )}
                         </View>
                     </View>
-                    <TouchableOpacity style={styles.topUpButton}>
+                    <TouchableOpacity style={styles.topUpButton} onPress={() => haptics.medium()}>
                         <Ionicons name="add" size={20} color="#fff" />
                         <Text style={styles.topUpButtonText}>Nạp tiền</Text>
                     </TouchableOpacity>
@@ -130,17 +119,24 @@ export default function WalletScreen() {
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Lịch sử giao dịch</Text>
-                        <Text style={styles.transactionCount}>{transactions.length} giao dịch</Text>
+                        <Text style={styles.transactionCount}>
+                            {(transactions || []).length} giao dịch
+                        </Text>
                     </View>
 
-                    {transactions.length === 0 ? (
+                    {isLoading ? (
+                        <View style={styles.loadingState}>
+                            <ActivityIndicator size="small" color={colors.accent} />
+                            <Text style={styles.loadingText}>Đang tải...</Text>
+                        </View>
+                    ) : !transactions || transactions.length === 0 ? (
                         <Card style={styles.emptyCard}>
                             <Ionicons name="wallet-outline" size={48} color={colors.textMuted} />
                             <Text style={styles.emptyTitle}>Chưa có giao dịch</Text>
                             <Text style={styles.emptyText}>Lịch sử giao dịch sẽ hiển thị ở đây</Text>
                         </Card>
                     ) : (
-                        transactions.map((transaction) => (
+                        transactions.map((transaction: any) => (
                             <TransactionItem key={transaction.id} transaction={transaction} />
                         ))
                     )}
@@ -150,35 +146,45 @@ export default function WalletScreen() {
     );
 }
 
-function TransactionItem({ transaction }: { transaction: Transaction }) {
+/**
+ * TransactionItem - Individual transaction row
+ */
+function TransactionItem({ transaction }: { transaction: any }) {
     const isPositive = transaction.amount > 0;
-    const date = new Date(transaction.timestamp);
+    const date = new Date(transaction.createdAt);
 
     const getIcon = () => {
         switch (transaction.type) {
             case "topup":
+            case "credit":
                 return <Ionicons name="trending-up" size={20} color="#22c55e" />;
             case "booking":
+            case "debit":
                 return <Ionicons name="trending-down" size={20} color="#ef4444" />;
             case "refund":
-                return <Ionicons name="trending-up" size={20} color="#3b82f6" />;
+                return <Ionicons name="refresh" size={20} color="#3b82f6" />;
+            default:
+                return <Ionicons name="swap-horizontal" size={20} color={colors.accent} />;
         }
     };
 
     const getStatusStyle = () => {
         switch (transaction.status) {
             case "completed":
+            case "success":
                 return { bg: "rgba(34, 197, 94, 0.2)", text: "#22c55e" };
             case "pending":
                 return { bg: "rgba(245, 158, 11, 0.2)", text: "#f59e0b" };
             case "failed":
                 return { bg: "rgba(239, 68, 68, 0.2)", text: "#ef4444" };
+            default:
+                return { bg: "rgba(34, 197, 94, 0.2)", text: "#22c55e" };
         }
     };
 
     const statusStyle = getStatusStyle();
     const statusText =
-        transaction.status === "completed"
+        transaction.status === "completed" || transaction.status === "success"
             ? "Thành công"
             : transaction.status === "pending"
                 ? "Chờ xử lý"
@@ -188,7 +194,9 @@ function TransactionItem({ transaction }: { transaction: Transaction }) {
         <Card style={styles.transactionCard}>
             <View style={styles.transactionIcon}>{getIcon()}</View>
             <View style={styles.transactionContent}>
-                <Text style={styles.transactionDesc}>{transaction.description}</Text>
+                <Text style={styles.transactionDesc}>
+                    {transaction.description || "Giao dịch"}
+                </Text>
                 <View style={styles.transactionMeta}>
                     <Ionicons name="calendar-outline" size={10} color={colors.textMuted} />
                     <Text style={styles.transactionDate}>
@@ -334,6 +342,15 @@ const styles = StyleSheet.create({
     transactionCount: {
         fontSize: fontSize.xs,
         color: colors.textMuted,
+    },
+    loadingState: {
+        alignItems: "center",
+        paddingVertical: spacing.xl,
+        gap: spacing.sm,
+    },
+    loadingText: {
+        color: colors.textMuted,
+        fontSize: fontSize.sm,
     },
     emptyCard: {
         alignItems: "center",
