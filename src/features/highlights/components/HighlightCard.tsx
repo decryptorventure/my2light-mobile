@@ -4,12 +4,13 @@
  */
 
 import React, { memo, useCallback } from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
-import { HapticTouchable } from "./HapticTouchable";
-import type { Highlight } from "../../types";
+import { colors, spacing, fontSize, fontWeight, borderRadius } from "@/shared/constants/theme";
+import { HapticTouchable } from "@/shared/components/HapticTouchable";
+import type { Highlight } from "@/features/highlights/types/highlight.types";
 
 interface HighlightCardProps {
     highlight: Highlight;
@@ -37,7 +38,13 @@ function HighlightCardComponent({ highlight, cardWidth }: HighlightCardProps) {
         >
             <View style={styles.thumbnailContainer}>
                 {highlight.thumbnailUrl ? (
-                    <Image source={{ uri: highlight.thumbnailUrl }} style={styles.thumbnail} />
+                    <Image
+                        source={{ uri: highlight.thumbnailUrl }}
+                        style={styles.thumbnail}
+                        contentFit="cover"
+                        transition={200}
+                        cachePolicy="memory-disk"
+                    />
                 ) : (
                     <View style={styles.placeholderThumbnail}>
                         <Ionicons name="play" size={40} color="rgba(255,255,255,0.8)" />
