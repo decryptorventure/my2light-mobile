@@ -1,21 +1,22 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
     View,
     Text,
     StyleSheet,
     ScrollView,
+    FlatList,
     RefreshControl,
     Image,
     TouchableOpacity,
     Dimensions,
     TextInput,
-    ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
 import { useHighlights, useCurrentUser, useUnreadNotificationCount } from "../../hooks/useApi";
+import { HighlightCard, HighlightCardSkeleton, AnimatedPressable, FadeInView } from "../../components/ui";
 import haptics from "../../lib/haptics";
 
 const { width } = Dimensions.get("window");
@@ -87,18 +88,24 @@ export default function HomeScreen() {
 
                 {/* Action Cards */}
                 <View style={styles.actionCards}>
-                    <TouchableOpacity style={[styles.actionCard, styles.actionCardGreen]} activeOpacity={0.8} onPress={() => router.push("/qr")}>
+                    <AnimatedPressable
+                        style={[styles.actionCard, styles.actionCardGreen]}
+                        onPress={() => router.push("/qr")}
+                        hapticStyle="medium"
+                        scaleValue={0.95}
+                    >
                         <View style={styles.actionCardIcon}>
                             <Ionicons name="qr-code-outline" size={36} color="#fff" />
                         </View>
                         <Text style={styles.actionCardTitle}>QUÉT QR</Text>
                         <Text style={styles.actionCardTitle}>VÀO SÂN</Text>
-                    </TouchableOpacity>
+                    </AnimatedPressable>
 
-                    <TouchableOpacity
+                    <AnimatedPressable
                         style={[styles.actionCard, styles.actionCardOrange]}
-                        activeOpacity={0.8}
                         onPress={() => router.push("/record")}
+                        hapticStyle="medium"
+                        scaleValue={0.95}
                     >
                         <View style={styles.actionCardIconWrapper}>
                             <Ionicons name="videocam" size={36} color="#fff" />
@@ -106,7 +113,7 @@ export default function HomeScreen() {
                         </View>
                         <Text style={styles.actionCardTitle}>TỰ QUAY</Text>
                         <Text style={styles.actionCardTitle}>(AI VOICE)</Text>
-                    </TouchableOpacity>
+                    </AnimatedPressable>
                 </View>
 
                 {/* Highlights Section */}
@@ -122,10 +129,17 @@ export default function HomeScreen() {
                     </View>
 
                     {isLoading ? (
-                        <View style={styles.loadingContainer}>
-                            <ActivityIndicator size="small" color={colors.accent} />
-                            <Text style={styles.loadingText}>Đang tải...</Text>
-                        </View>
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.highlightsScroll}
+                        >
+                            {[1, 2, 3].map((i) => (
+                                <View key={i} style={{ width: CARD_WIDTH, marginRight: spacing.md }}>
+                                    <HighlightCardSkeleton />
+                                </View>
+                            ))}
+                        </ScrollView>
                     ) : !highlights || highlights.length === 0 ? (
                         <View style={styles.emptyState}>
                             <Ionicons name="videocam-outline" size={48} color={colors.textMuted} />
@@ -133,54 +147,25 @@ export default function HomeScreen() {
                             <Text style={styles.emptyText}>Hãy quay video đầu tiên!</Text>
                         </View>
                     ) : (
-                        <ScrollView
+                        <FlatList
                             horizontal
+                            data={highlights}
+                            keyExtractor={(item) => item.id}
+                            renderItem={({ item }) => (
+                                <HighlightCard highlight={item} cardWidth={CARD_WIDTH} />
+                            )}
                             showsHorizontalScrollIndicator={false}
                             contentContainerStyle={styles.highlightsScroll}
-                        >
-                            {highlights.map((highlight) => (
-                                <TouchableOpacity
-                                    key={highlight.id}
-                                    style={styles.highlightCard}
-                                    activeOpacity={0.9}
-                                    onPress={() => router.push(`/video/${highlight.id}`)}
-                                >
-                                    <View style={styles.thumbnailContainer}>
-                                        {highlight.thumbnailUrl ? (
-                                            <Image source={{ uri: highlight.thumbnailUrl }} style={styles.thumbnail} />
-                                        ) : (
-                                            <View style={styles.placeholderThumbnail}>
-                                                <Ionicons name="play" size={40} color="rgba(255,255,255,0.8)" />
-                                            </View>
-                                        )}
-                                        <View style={styles.userOverlay}>
-                                            <View style={styles.userAvatarSmall}>
-                                                <Ionicons name="person" size={12} color={colors.textMuted} />
-                                            </View>
-                                            <Text style={styles.userName} numberOfLines={1}>
-                                                {highlight.userName || "User"}
-                                            </Text>
-                                        </View>
-                                        <View style={styles.titleOverlay}>
-                                            <Text style={styles.highlightTitle} numberOfLines={2}>
-                                                {highlight.courtName || `Highlight`}
-                                            </Text>
-                                        </View>
-                                        <View style={styles.bottomOverlay}>
-                                            <View style={styles.viewsContainer}>
-                                                <Ionicons name="play" size={12} color="#fff" />
-                                                <Text style={styles.viewsText}>{highlight.views || 0}</Text>
-                                            </View>
-                                            <View style={styles.durationBadge}>
-                                                <Text style={styles.durationText}>
-                                                    {formatDuration(highlight.durationSec || 0)}
-                                                </Text>
-                                            </View>
-                                        </View>
-                                    </View>
-                                </TouchableOpacity>
-                            ))}
-                        </ScrollView>
+                            initialNumToRender={4}
+                            maxToRenderPerBatch={3}
+                            windowSize={5}
+                            removeClippedSubviews={true}
+                            getItemLayout={(_, index) => ({
+                                length: CARD_WIDTH + spacing.md,
+                                offset: (CARD_WIDTH + spacing.md) * index,
+                                index,
+                            })}
+                        />
                     )}
                 </View>
 

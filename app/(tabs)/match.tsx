@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
     View,
     Text,
     StyleSheet,
-    ScrollView,
+    FlatList,
     TouchableOpacity,
     RefreshControl,
 } from "react-native";
@@ -12,7 +12,7 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
 import { useMatchRequests } from "../../hooks/useApi";
-import { MatchCardSkeleton, EmptyState } from "../../components/ui";
+import { MatchCardSkeleton, EmptyState, AnimatedPressable } from "../../components/ui";
 import haptics from "../../lib/haptics";
 
 interface MatchRequest {
@@ -108,10 +108,10 @@ export default function MatchScreen() {
                     <Text style={styles.title}>Tìm Đối Thủ</Text>
                     <Text style={styles.subtitle}>Cặp kèo Pickleball nhanh chóng</Text>
                 </View>
-                <TouchableOpacity style={styles.createButton} onPress={() => router.push("/create-match")}>
+                <AnimatedPressable style={styles.createButton} onPress={() => router.push("/create-match")} hapticStyle="medium" scaleValue={0.95}>
                     <Ionicons name="add" size={20} color={colors.background} />
                     <Text style={styles.createButtonText}>Tạo kèo</Text>
-                </TouchableOpacity>
+                </AnimatedPressable>
             </View>
 
             {/* Filters */}
@@ -127,14 +127,15 @@ export default function MatchScreen() {
             </View>
 
             {/* Match List */}
-            <ScrollView
+            <FlatList
+                data={matches}
+                keyExtractor={(item) => item.id}
                 contentContainerStyle={styles.scrollContent}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />
                 }
-            >
-                {mockMatches.map((match) => (
-                    <View key={match.id} style={styles.matchCard}>
+                renderItem={({ item: match }) => (
+                    <View style={styles.matchCard}>
                         <View style={styles.matchHeader}>
                             <View style={styles.matchUserInfo}>
                                 <View style={styles.matchAvatar}>
@@ -151,9 +152,9 @@ export default function MatchScreen() {
                                     </View>
                                 </View>
                             </View>
-                            <TouchableOpacity style={styles.acceptButton}>
+                            <AnimatedPressable style={styles.acceptButton} hapticStyle="success" scaleValue={0.95}>
                                 <Text style={styles.acceptButtonText}>Nhận kèo</Text>
-                            </TouchableOpacity>
+                            </AnimatedPressable>
                         </View>
 
                         <View style={styles.matchDetails}>
@@ -173,8 +174,17 @@ export default function MatchScreen() {
 
                         <Text style={styles.matchNote}>{match.note}</Text>
                     </View>
-                ))}
-            </ScrollView>
+                )}
+                ListEmptyComponent={
+                    <EmptyState
+                        icon="people-outline"
+                        title="Chưa có kèo nào"
+                        message="Hãy tạo kèo đầu tiên!"
+                    />
+                }
+                initialNumToRender={5}
+                maxToRenderPerBatch={3}
+            />
         </View>
     );
 }
