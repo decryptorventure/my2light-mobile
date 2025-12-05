@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
-import { useHighlights, useCurrentUser, useUnreadNotificationCount } from "../../hooks/useApi";
+import { useHighlights, useCurrentUser, useUnreadNotificationCount, useCourts } from "../../hooks/useApi";
 import { HighlightCard, HighlightCardSkeleton, AnimatedPressable, FadeInView } from "../../components/ui";
 import haptics from "../../lib/haptics";
 
@@ -32,11 +32,12 @@ export default function HomeScreen() {
     const { data: highlights, isLoading, refetch } = useHighlights(20);
     const { data: currentUser } = useCurrentUser();
     const { data: unreadCount } = useUnreadNotificationCount();
+    const { data: courts, isLoading: courtsLoading, refetch: refetchCourts } = useCourts();
 
     const onRefresh = async () => {
         setRefreshing(true);
         haptics.light();
-        await refetch();
+        await Promise.all([refetch(), refetchCourts()]);
         setRefreshing(false);
     };
 
@@ -188,7 +189,7 @@ export default function HomeScreen() {
                             <Ionicons name="location" size={18} color={colors.primary} />
                             <Text style={styles.sectionTitle}>Sân Gần Bạn</Text>
                         </View>
-                        <Text style={styles.courtCount}>0 sân</Text>
+                        <Text style={styles.courtCount}>{courts?.length || 0} sân</Text>
                     </View>
 
                     <View style={styles.searchContainer}>
@@ -201,6 +202,50 @@ export default function HomeScreen() {
                             onChangeText={setSearchQuery}
                         />
                     </View>
+
+                    {/* Courts List */}
+                    {courtsLoading ? (
+                        <View style={styles.emptyState}>
+                            <Text style={styles.emptyText}>Đang tải...</Text>
+                        </View>
+                    ) : !courts || courts.length === 0 ? (
+                        <View style={styles.emptyState}>
+                            <Ionicons name="location-outline" size={48} color={colors.textMuted} />
+                            <Text style={styles.emptyTitle}>Chưa có sân nào</Text>
+                            <Text style={styles.emptyText}>Các sân mới sẽ hiển thị ở đây</Text>
+                        </View>
+                    ) : (
+                        courts.filter(c =>
+                            !searchQuery ||
+                            c.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            c.address?.toLowerCase().includes(searchQuery.toLowerCase())
+                        ).slice(0, 5).map((court: any) => (
+                            <TouchableOpacity
+                                key={court.id}
+                                style={styles.courtCard}
+                                onPress={() => router.push(`/court/${court.id}`)}
+                            >
+                                <View style={styles.courtInfo}>
+                                    <Text style={styles.courtName}>{court.name}</Text>
+                                    <Text style={styles.courtAddress} numberOfLines={1}>{court.address}</Text>
+                                    <View style={styles.courtMeta}>
+                                        <View style={styles.priceBadge}>
+                                            <Text style={styles.priceText}>
+                                                {(court.price_per_hour || 0).toLocaleString()}đ/giờ
+                                            </Text>
+                                        </View>
+                                        {court.rating > 0 && (
+                                            <View style={styles.ratingContainer}>
+                                                <Ionicons name="star" size={12} color="#f59e0b" />
+                                                <Text style={styles.ratingText}>{court.rating.toFixed(1)}</Text>
+                                            </View>
+                                        )}
+                                    </View>
+                                </View>
+                                <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+                            </TouchableOpacity>
+                        ))
+                    )}
                 </View>
             </ScrollView>
         </View>
@@ -513,6 +558,57 @@ const styles = StyleSheet.create({
         flex: 1,
         color: colors.text,
         fontSize: fontSize.md,
+        fontWeight: fontWeight.medium,
+    },
+    // Court card styles
+    courtCard: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: colors.surface,
+        marginHorizontal: spacing.lg,
+        marginTop: spacing.sm,
+        padding: spacing.md,
+        borderRadius: borderRadius.lg,
+        gap: spacing.md,
+    },
+    courtInfo: {
+        flex: 1,
+    },
+    courtName: {
+        color: colors.text,
+        fontSize: fontSize.md,
+        fontWeight: fontWeight.semibold,
+        marginBottom: 2,
+    },
+    courtAddress: {
+        color: colors.textMuted,
+        fontSize: fontSize.sm,
+        marginBottom: spacing.xs,
+    },
+    courtMeta: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: spacing.sm,
+    },
+    priceBadge: {
+        backgroundColor: `${colors.accent}20`,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: 2,
+        borderRadius: borderRadius.sm,
+    },
+    priceText: {
+        color: colors.accent,
+        fontSize: fontSize.xs,
+        fontWeight: fontWeight.semibold,
+    },
+    ratingContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 2,
+    },
+    ratingText: {
+        color: "#f59e0b",
+        fontSize: fontSize.xs,
         fontWeight: fontWeight.medium,
     },
 });

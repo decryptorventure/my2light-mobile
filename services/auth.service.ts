@@ -4,11 +4,19 @@ import { User, ApiResponse } from '../types';
 export const AuthService = {
     getCurrentUser: async (): Promise<ApiResponse<User>> => {
         try {
-            const { data: { session } } = await supabase.auth.getSession();
+            console.log("📱 AuthService.getCurrentUser called");
+
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+            console.log("📱 Session check:", session ? `User ${session.user.id.slice(0, 8)}...` : "NO SESSION");
+            if (sessionError) console.error("📱 Session error:", sessionError);
 
             if (!session?.user) {
+                console.log("📱 No session - returning not authenticated");
                 return { success: false, data: null as any, error: 'Not authenticated' };
             }
+
+            console.log("📱 Fetching profile for user:", session.user.id);
 
             // Try fetching profile from DB
             const { data, error } = await supabase
@@ -17,14 +25,18 @@ export const AuthService = {
                 .eq('id', session.user.id)
                 .single();
 
+            console.log("📱 Profile fetch result:", data ? "FOUND" : "NOT FOUND", error?.message || "");
+
             // Calculate fallback display name from email
             const emailName = session.user.email?.split('@')[0] || 'User';
             const displayName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
 
             if (error || !data) {
+                console.log("📱 Creating new profile...");
                 // Profile doesn't exist - create it
                 const newProfile = {
                     id: session.user.id,
+                    email: session.user.email,
                     name: displayName,
                     avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.user.id}`,
                     phone: '',
@@ -39,9 +51,11 @@ export const AuthService = {
                     .insert(newProfile);
 
                 if (insertError) {
-                    console.error('Failed to create profile:', insertError);
-                    return { success: false, data: null as any, error: 'Failed to create profile' };
+                    console.error('📱 Failed to create profile:', insertError.message, insertError.code);
+                    return { success: false, data: null as any, error: 'Failed to create profile: ' + insertError.message };
                 }
+
+                console.log("📱 Profile created successfully!");
 
                 return {
                     success: true,
@@ -55,7 +69,7 @@ export const AuthService = {
                         courtsVisited: 0,
                         credits: newProfile.credits,
                         membershipTier: 'free',
-                        hasOnboarded: false  // New user hasn't onboarded
+                        hasOnboarded: false
                     }
                 };
             }
@@ -99,12 +113,13 @@ export const AuthService = {
                 isPublic: data.is_public,
                 followersCount: data.followers_count || 0,
                 followingCount: data.following_count || 0,
-                hasOnboarded: data.has_onboarded ?? false  // Check if user has onboarded
+                hasOnboarded: data.has_onboarded ?? false
             };
 
+            console.log("📱 User loaded successfully:", user.name);
             return { success: true, data: user };
         } catch (e) {
-            console.error('getCurrentUser error:', e);
+            console.error('📱 getCurrentUser error:', e);
             return { success: false, data: null as any, error: 'Failed to fetch user' };
         }
     },
@@ -118,23 +133,35 @@ export const AuthService = {
         bio: string;
         is_public: boolean;
     }>): Promise<ApiResponse<boolean>> => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return { success: false, data: false };
+        console.log("📱 updateUserProfile called with:", Object.keys(updates));
+
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+        console.log("📱 Auth check:", user ? `Found ${user.id.slice(0, 8)}...` : "NO USER");
+        if (authError) console.error("📱 Auth error:", authError);
+
+        if (!user) {
+            console.log("📱 Not authenticated for update");
+            return { success: false, data: false, error: 'Not authenticated' };
+        }
 
         try {
+            console.log("📱 Updating profile for user:", user.id);
+
             const { error: updateError } = await supabase
                 .from('profiles')
                 .update(updates)
                 .eq('id', user.id);
 
             if (updateError) {
-                console.error("Update profile error", updateError);
+                console.error("📱 Update profile error:", updateError.message, updateError.code);
                 return { success: false, data: false, error: updateError.message };
             }
 
+            console.log("📱 Profile updated successfully!");
             return { success: true, data: true };
         } catch (e) {
-            console.error("Exception in updateUserProfile", e);
+            console.error("📱 Exception in updateUserProfile:", e);
             return { success: false, data: false, error: 'Internal error' };
         }
     }

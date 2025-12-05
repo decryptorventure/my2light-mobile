@@ -59,11 +59,11 @@ export const AdminService = {
 
         try {
             // First check if already registered
-            const { data: existing } = await supabase
+            const { data: existing, error: checkError } = await supabase
                 .from("court_owners")
                 .select("id")
                 .eq("user_id", user.id)
-                .single();
+                .maybeSingle();
 
             if (existing) {
                 return { success: false, data: false, error: "Bạn đã đăng ký làm chủ sân rồi" };
@@ -228,8 +228,7 @@ export const AdminService = {
                 .select(`
                     *,
                     court:courts(name),
-                    package:packages(name),
-                    player:profiles(name, phone, avatar)
+                    package:packages(name)
                 `)
                 .in("court_id", courtIds)
                 .order("start_time", { ascending: false });
@@ -239,21 +238,33 @@ export const AdminService = {
                 return { success: false, data: [] };
             }
 
-            const result: BookingManagement[] = (bookings || []).map((b: any) => ({
-                id: b.id,
-                userId: b.user_id,
-                courtId: b.court_id,
-                packageId: b.package_id,
-                startTime: new Date(b.start_time).getTime(),
-                endTime: new Date(b.end_time).getTime(),
-                status: b.status,
-                totalAmount: b.total_amount,
-                courtName: b.court?.name || "Unknown",
-                packageName: b.package?.name,
-                playerName: b.player?.name || "Player",
-                playerPhone: b.player?.phone || "",
-                playerAvatar: b.player?.avatar,
-            }));
+            // Fetch player profiles separately
+            const userIds = [...new Set((bookings || []).map((b: any) => b.user_id))];
+            const { data: profiles } = await supabase
+                .from("profiles")
+                .select("id, name, phone, avatar")
+                .in("id", userIds);
+
+            const profileMap = new Map((profiles || []).map((p: any) => [p.id, p]));
+
+            const result: BookingManagement[] = (bookings || []).map((b: any) => {
+                const player = profileMap.get(b.user_id);
+                return {
+                    id: b.id,
+                    userId: b.user_id,
+                    courtId: b.court_id,
+                    packageId: b.package_id,
+                    startTime: new Date(b.start_time).getTime(),
+                    endTime: new Date(b.end_time).getTime(),
+                    status: b.status,
+                    totalAmount: b.total_amount,
+                    courtName: b.court?.name || "Unknown",
+                    packageName: b.package?.name,
+                    playerName: player?.name || "Player",
+                    playerPhone: player?.phone || "",
+                    playerAvatar: player?.avatar,
+                };
+            });
 
             return { success: true, data: result };
         } catch (e) {

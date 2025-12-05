@@ -2,6 +2,7 @@ import { supabase } from '../lib/supabase';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as VideoThumbnails from 'expo-video-thumbnails';
 import { ApiResponse } from '../types';
+import { AVPlaybackStatus, Video } from 'expo-av';
 
 export interface UploadProgress {
     loaded: number;
@@ -16,17 +17,45 @@ export interface UploadResult {
 }
 
 /**
+ * Get video duration in seconds using expo-av
+ */
+async function getVideoDuration(uri: string): Promise<number> {
+    try {
+        // Create a temporary video component to get duration
+        const { sound, status } = await Video.createAsync(
+            { uri },
+            { shouldPlay: false }
+        );
+
+        if (status.isLoaded && status.durationMillis) {
+            const durationSec = Math.round(status.durationMillis / 1000);
+            console.log('📏 Video duration:', durationSec, 'seconds');
+            await sound?.unloadAsync();
+            return durationSec;
+        }
+
+        await sound?.unloadAsync();
+        return 0;
+    } catch (error) {
+        console.warn('Could not get video duration:', error);
+        return 0;
+    }
+}
+
+/**
  * Generate thumbnail from video at specific time
  */
 async function generateThumbnail(videoUri: string, timeMs: number = 1000): Promise<string | null> {
     try {
+        console.log('📸 Generating thumbnail from video at', timeMs, 'ms');
         const { uri } = await VideoThumbnails.getThumbnailAsync(videoUri, {
             time: timeMs,
-            quality: 0.7,
+            quality: 0.8,
         });
+        console.log('📸 Thumbnail generated:', uri ? 'success' : 'failed');
         return uri;
     } catch (error) {
-        console.warn('Thumbnail generation failed:', error);
+        console.error('❌ Thumbnail generation failed:', error);
         return null;
     }
 }
@@ -40,22 +69,25 @@ async function uploadThumbnail(
     timestamp: number
 ): Promise<string | null> {
     try {
+        console.log('📤 Reading thumbnail file...');
         const base64 = await FileSystem.readAsStringAsync(thumbnailUri, {
             encoding: FileSystem.EncodingType.Base64,
         });
 
         const byteArray = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
-        const fileName = `thumbnails/${userId}/${timestamp}.jpg`;
+        // Store thumbnails in user's folder in videos bucket
+        const fileName = `${userId}/thumb_${timestamp}.jpg`;
 
+        console.log('📤 Uploading thumbnail to:', fileName);
         const { error } = await supabase.storage
             .from('videos')
             .upload(fileName, byteArray, {
                 contentType: 'image/jpeg',
-                upsert: false,
+                upsert: true, // Allow overwrite
             });
 
         if (error) {
-            console.warn('Thumbnail upload failed:', error.message);
+            console.error('❌ Thumbnail upload failed:', error.message);
             return null;
         }
 
@@ -63,9 +95,10 @@ async function uploadThumbnail(
             .from('videos')
             .getPublicUrl(fileName);
 
+        console.log('✅ Thumbnail uploaded successfully:', publicUrl);
         return publicUrl;
     } catch (error) {
-        console.warn('Thumbnail upload error:', error);
+        console.error('❌ Thumbnail upload error:', error);
         return null;
     }
 }
@@ -79,10 +112,16 @@ export async function uploadVideo(
     onProgress?: (progress: UploadProgress) => void
 ): Promise<ApiResponse<UploadResult>> {
     try {
+        console.log('🎬 Starting video upload process...');
+        console.log('🎬 Video URI:', localUri);
+
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
+            console.error('❌ User not authenticated');
             return { success: false, data: {} as UploadResult, error: 'Not authenticated' };
         }
+
+        console.log('✅ User authenticated:', user.id.slice(0, 8));
 
         // Get file info
         const fileInfo = await FileSystem.getInfoAsync(localUri);
@@ -90,31 +129,37 @@ export async function uploadVideo(
             return { success: false, data: {} as UploadResult, error: 'File not found' };
         }
 
+        console.log('📁 File size:', Math.round((fileInfo as any).size / 1024 / 1024 * 100) / 100, 'MB');
+
         // Generate unique filename
         const timestamp = Date.now();
         const fileName = `${user.id}/${timestamp}.mp4`;
 
-        // Step 1: Generate thumbnail (at 1 second mark)
+        // Step 1: Get video duration
         onProgress?.({ loaded: 0, total: 100, percentage: 5 });
-        console.log('📸 Generating thumbnail...');
+        const durationSec = await getVideoDuration(localUri);
+
+        // Step 2: Generate and upload thumbnail
+        onProgress?.({ loaded: 0, total: 100, percentage: 10 });
         const thumbnailUri = await generateThumbnail(localUri, 1000);
 
         let thumbnailUrl: string | undefined;
         if (thumbnailUri) {
-            console.log('📤 Uploading thumbnail...');
-            onProgress?.({ loaded: 0, total: 100, percentage: 10 });
+            onProgress?.({ loaded: 0, total: 100, percentage: 15 });
             thumbnailUrl = (await uploadThumbnail(thumbnailUri, user.id, timestamp)) || undefined;
-            console.log('✅ Thumbnail uploaded:', thumbnailUrl);
+        } else {
+            console.warn('⚠️ No thumbnail generated, video will have no preview');
         }
 
-        // Step 2: Read and upload video
-        console.log('📤 Uploading video...');
-        onProgress?.({ loaded: 0, total: 100, percentage: 15 });
+        // Step 3: Upload video
+        console.log('📤 Uploading video file...');
+        onProgress?.({ loaded: 0, total: 100, percentage: 20 });
 
         const base64 = await FileSystem.readAsStringAsync(localUri, {
             encoding: FileSystem.EncodingType.Base64,
         });
 
+        console.log('📤 Video encoded to base64, uploading to storage...');
         const byteArray = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
 
         const { data, error } = await supabase.storage
@@ -125,7 +170,7 @@ export async function uploadVideo(
             });
 
         if (error) {
-            console.error('Upload error:', error);
+            console.error('❌ Video upload error:', error);
             return { success: false, data: {} as UploadResult, error: error.message };
         }
 
@@ -135,18 +180,22 @@ export async function uploadVideo(
             .getPublicUrl(fileName);
 
         onProgress?.({ loaded: 100, total: 100, percentage: 100 });
-        console.log('✅ Video uploaded:', publicUrl);
+
+        console.log('✅ Upload complete!');
+        console.log('   Video URL:', publicUrl);
+        console.log('   Thumbnail URL:', thumbnailUrl || 'none');
+        console.log('   Duration:', durationSec, 'seconds');
 
         return {
             success: true,
             data: {
                 videoUrl: publicUrl,
                 thumbnailUrl,
-                durationSec: undefined, // Duration can be set manually or from video metadata
+                durationSec: durationSec || undefined,
             },
         };
     } catch (error) {
-        console.error('Upload video error:', error);
+        console.error('❌ Upload video error:', error);
         return {
             success: false,
             data: {} as UploadResult,

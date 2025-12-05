@@ -7,11 +7,12 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "expo-router";
 import { PushNotificationService } from "../services/push.service";
 import * as Notifications from "expo-notifications";
+import type { Subscription } from "expo-notifications";
 
 export function usePushNotifications() {
     const router = useRouter();
-    const notificationListener = useRef<Notifications.Subscription>();
-    const responseListener = useRef<Notifications.Subscription>();
+    const notificationListener = useRef<Subscription>();
+    const responseListener = useRef<Subscription>();
 
     useEffect(() => {
         // Register for push notifications
@@ -43,10 +44,10 @@ export function usePushNotifications() {
 
         return () => {
             if (notificationListener.current) {
-                Notifications.removeNotificationSubscription(notificationListener.current);
+                notificationListener.current.remove();
             }
             if (responseListener.current) {
-                Notifications.removeNotificationSubscription(responseListener.current);
+                responseListener.current.remove();
             }
         };
     }, [router]);

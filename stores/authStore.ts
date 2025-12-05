@@ -57,12 +57,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     signIn: async (email: string, password: string) => {
         set({ loading: true });
         try {
+            console.log("🔐 signIn: Starting login for", email);
+
             const { data, error } = await supabase.auth.signInWithPassword({
                 email,
                 password,
             });
 
-            if (error) throw error;
+            if (error) {
+                console.error("🔐 signIn error:", error.message);
+                throw error;
+            }
+
+            console.log("🔐 signIn: Success, session:", data.session ? "YES" : "NO");
+
+            // Wait a moment for AsyncStorage to persist
+            await new Promise(resolve => setTimeout(resolve, 500));
 
             set({
                 user: data.user,
@@ -80,12 +90,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     signUp: async (email: string, password: string) => {
         set({ loading: true });
         try {
+            console.log("🔐 signUp: Starting registration for", email);
+
             const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
             });
 
-            if (error) throw error;
+            if (error) {
+                console.error("🔐 signUp error:", error.message);
+                throw error;
+            }
+
+            console.log("🔐 signUp: Success, user:", data.user?.id?.slice(0, 8), "session:", data.session ? "YES" : "NO");
+
+            // Wait a moment for AsyncStorage to persist
+            await new Promise(resolve => setTimeout(resolve, 500));
 
             set({
                 user: data.user,
@@ -95,6 +115,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
             return { error: null };
         } catch (error) {
+            console.error("🔐 signUp exception:", error);
             set({ loading: false });
             return { error: error as Error };
         }
