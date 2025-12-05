@@ -2,6 +2,43 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.0] - 2025-12-05
+
+### 🎬 TikTok-Style Video Feed & Bug Fixes
+
+#### ✨ Video Features
+- **TikTok-style Video Feed** (`/feed`): Vertical swipe navigation between videos
+  - Full-screen video playback with auto-play/pause on scroll
+  - Highlight markers on progress bar
+  - Action buttons: Like, Comment, Share, Highlights
+  - Back button (X) to exit
+- **Tab Thư viện (Library)**: User's own video grid with swipe-only-your-videos feature
+- **Tab Cộng đồng (Social)**: Real highlights feed from all users (no more mock data)
+
+#### 🔧 Auth & Onboarding Fixes
+- **Fixed onboarding detection**: Now uses `hasOnboarded` flag instead of checking name
+- **Fixed account switching bug**: Query cache cleared on sign out
+- **Fixed stale data issue**: Old user data no longer persists after logout
+
+#### 🎨 UI Improvements
+- Library tab redesigned with profile header, stats (videos, followers, following, likes)
+- Social tab now shows real user activities with timestamps
+- Profile page stats updated with real data (highlights, hours played, courts visited)
+- Video player UI with play/pause overlay, user info, description
+
+#### 🐛 Bug Fixes
+- Fixed JSX syntax error in profile.tsx
+- Fixed navigation to feed with proper index parameter
+- Removed all mock data from social feed
+
+#### 📦 Technical Changes
+- Added `useUserHighlights` hook support in feed
+- Added `hasOnboarded` field to User type
+- Updated auth service to return `hasOnboarded` from database
+- Feed now supports `userId` param for user-specific video feeds
+
+---
+
 ## [2.2.1] - 2025-12-04
 
 ### 🔧 Hotfix - Dependency Issues

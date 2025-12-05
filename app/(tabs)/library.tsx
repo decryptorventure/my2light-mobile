@@ -1,32 +1,54 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
     View,
     Text,
     StyleSheet,
-    ScrollView,
     TouchableOpacity,
     RefreshControl,
+    Image,
+    FlatList,
+    Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
 import { useAuthStore } from "../../stores/authStore";
+import { useCurrentUser, useUserHighlights } from "../../hooks/useApi";
+import type { Highlight } from "../../types";
+
+const { width } = Dimensions.get("window");
+const VIDEO_CARD_SIZE = (width - spacing.lg * 2 - spacing.sm * 2) / 3;
 
 type TabType = "posts" | "saved" | "liked";
 
 export default function LibraryScreen() {
     const insets = useSafeAreaInsets();
     const router = useRouter();
-    const { user } = useAuthStore();
+    const { user: authUser } = useAuthStore();
+    const { data: profile, refetch: refetchProfile } = useCurrentUser();
+    const { data: myHighlights, refetch: refetchHighlights, isLoading } = useUserHighlights(profile?.id || "");
+
     const [activeTab, setActiveTab] = useState<TabType>("posts");
     const [refreshing, setRefreshing] = useState(false);
 
-    const userName = user?.email?.split("@")[0] || "User";
+    const userName = profile?.name || authUser?.email?.split("@")[0] || "User";
 
-    const onRefresh = () => {
+    const onRefresh = useCallback(async () => {
         setRefreshing(true);
-        setTimeout(() => setRefreshing(false), 1000);
+        await Promise.all([refetchProfile(), refetchHighlights()]);
+        setRefreshing(false);
+    }, [refetchProfile, refetchHighlights]);
+
+    const handleVideoPress = (index: number) => {
+        // Navigate to feed with userId to show only user's own videos
+        router.push({
+            pathname: "/feed",
+            params: {
+                startIndex: String(index),
+                userId: profile?.id || ""
+            }
+        });
     };
 
     const tabs: { key: TabType; icon: keyof typeof Ionicons.glyphMap }[] = [
@@ -35,6 +57,30 @@ export default function LibraryScreen() {
         { key: "liked", icon: "heart-outline" },
     ];
 
+    const totalLikes = myHighlights?.reduce((sum, h) => sum + (h.likes || 0), 0) || 0;
+
+    const renderVideoItem = ({ item, index }: { item: Highlight; index: number }) => (
+        <TouchableOpacity
+            style={styles.videoCard}
+            onPress={() => handleVideoPress(index)}
+            activeOpacity={0.8}
+        >
+            {item.thumbnailUrl ? (
+                <Image source={{ uri: item.thumbnailUrl }} style={styles.videoThumbnail} />
+            ) : (
+                <View style={styles.videoPlaceholder}>
+                    <Ionicons name="play" size={24} color="rgba(255,255,255,0.8)" />
+                </View>
+            )}
+            <View style={styles.videoOverlay}>
+                <View style={styles.viewsContainer}>
+                    <Ionicons name="play" size={10} color="#fff" />
+                    <Text style={styles.viewsText}>{item.views || 0}</Text>
+                </View>
+            </View>
+        </TouchableOpacity>
+    );
+
     return (
         <View style={styles.container}>
             {/* Header */}
@@ -42,92 +88,108 @@ export default function LibraryScreen() {
                 <TouchableOpacity onPress={() => router.back()}>
                     <Ionicons name="chevron-back" size={24} color={colors.text} />
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <Text style={styles.headerTitle}>Thư viện</Text>
+                <TouchableOpacity onPress={() => router.push("/settings/edit-profile")}>
                     <Ionicons name="settings-outline" size={24} color={colors.text} />
                 </TouchableOpacity>
             </View>
 
-            <ScrollView
+            <FlatList
+                data={activeTab === "posts" ? myHighlights : []}
+                keyExtractor={(item) => item.id}
+                numColumns={3}
+                renderItem={renderVideoItem}
                 contentContainerStyle={styles.scrollContent}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />
                 }
-            >
-                {/* Profile Section */}
-                <View style={styles.profileSection}>
-                    <View style={styles.avatarContainer}>
-                        <View style={styles.avatar}>
-                            <Ionicons name="person" size={48} color={colors.textMuted} />
+                ListHeaderComponent={
+                    <>
+                        {/* Profile Section */}
+                        <View style={styles.profileSection}>
+                            <View style={styles.avatarContainer}>
+                                {profile?.avatar ? (
+                                    <Image source={{ uri: profile.avatar }} style={styles.avatar} />
+                                ) : (
+                                    <View style={styles.avatar}>
+                                        <Ionicons name="person" size={48} color={colors.textMuted} />
+                                    </View>
+                                )}
+                            </View>
+                            <Text style={styles.userName}>@{userName}</Text>
+                            {profile?.bio && <Text style={styles.bio}>{profile.bio}</Text>}
                         </View>
-                        <TouchableOpacity style={styles.editAvatarButton}>
-                            <Ionicons name="pencil" size={14} color="#fff" />
-                        </TouchableOpacity>
-                    </View>
-                    <Text style={styles.userName}>@</Text>
-                    <Text style={styles.bio}>Badminton Player & Enthusiast 🏸</Text>
-                </View>
 
-                {/* Stats */}
-                <View style={styles.statsRow}>
-                    <View style={styles.statItem}>
-                        <Text style={styles.statValue}>0</Text>
-                        <Text style={styles.statLabel}>Posts</Text>
-                    </View>
-                    <View style={styles.statItem}>
-                        <Text style={styles.statValue}>0</Text>
-                        <Text style={styles.statLabel}>Followers</Text>
-                    </View>
-                    <View style={styles.statItem}>
-                        <Text style={styles.statValue}>0</Text>
-                        <Text style={styles.statLabel}>Following</Text>
-                    </View>
-                    <View style={styles.statItem}>
-                        <Text style={styles.statValue}>0</Text>
-                        <Text style={styles.statLabel}>Likes</Text>
-                    </View>
-                </View>
+                        {/* Stats */}
+                        <View style={styles.statsRow}>
+                            <View style={styles.statItem}>
+                                <Text style={styles.statValue}>{myHighlights?.length || 0}</Text>
+                                <Text style={styles.statLabel}>Video</Text>
+                            </View>
+                            <View style={styles.statItem}>
+                                <Text style={styles.statValue}>{profile?.followersCount || 0}</Text>
+                                <Text style={styles.statLabel}>Followers</Text>
+                            </View>
+                            <View style={styles.statItem}>
+                                <Text style={styles.statValue}>{profile?.followingCount || 0}</Text>
+                                <Text style={styles.statLabel}>Following</Text>
+                            </View>
+                            <View style={styles.statItem}>
+                                <Text style={styles.statValue}>{totalLikes}</Text>
+                                <Text style={styles.statLabel}>Likes</Text>
+                            </View>
+                        </View>
 
-                {/* Action Buttons */}
-                <View style={styles.actionButtons}>
-                    <TouchableOpacity style={styles.editButton}>
-                        <Text style={styles.editButtonText}>Edit Profile</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.shareButton}>
-                        <Text style={styles.shareButtonText}>Share Profile</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.moreButton}>
-                        <Ionicons name="ellipsis-horizontal" size={20} color={colors.text} />
-                    </TouchableOpacity>
-                </View>
+                        {/* Action Buttons */}
+                        <View style={styles.actionButtons}>
+                            <TouchableOpacity
+                                style={styles.editButton}
+                                onPress={() => router.push("/settings/edit-profile")}
+                            >
+                                <Text style={styles.editButtonText}>Chỉnh sửa</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.recordButton}
+                                onPress={() => router.push("/record/settings")}
+                            >
+                                <Ionicons name="add" size={20} color={colors.background} />
+                                <Text style={styles.recordButtonText}>Quay video</Text>
+                            </TouchableOpacity>
+                        </View>
 
-                {/* Tabs */}
-                <View style={styles.tabsContainer}>
-                    {tabs.map((tab) => (
-                        <TouchableOpacity
-                            key={tab.key}
-                            style={[styles.tab, activeTab === tab.key && styles.tabActive]}
-                            onPress={() => setActiveTab(tab.key)}
-                        >
-                            <Ionicons
-                                name={tab.icon}
-                                size={24}
-                                color={activeTab === tab.key ? colors.text : colors.textMuted}
-                            />
-                        </TouchableOpacity>
-                    ))}
-                </View>
-
-                {/* Content */}
-                <View style={styles.contentSection}>
+                        {/* Tabs */}
+                        <View style={styles.tabsContainer}>
+                            {tabs.map((tab) => (
+                                <TouchableOpacity
+                                    key={tab.key}
+                                    style={[styles.tab, activeTab === tab.key && styles.tabActive]}
+                                    onPress={() => setActiveTab(tab.key)}
+                                >
+                                    <Ionicons
+                                        name={tab.icon}
+                                        size={24}
+                                        color={activeTab === tab.key ? colors.text : colors.textMuted}
+                                    />
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </>
+                }
+                ListEmptyComponent={
                     <View style={styles.emptyState}>
-                        <Ionicons name="camera-outline" size={64} color={colors.surfaceLight} />
-                        <Text style={styles.emptyTitle}>Chưa có bài đăng nào</Text>
-                        <TouchableOpacity onPress={() => router.push("/record")}>
-                            <Text style={styles.createLink}>Tạo highlight ngay</Text>
-                        </TouchableOpacity>
+                        <Ionicons name="videocam-outline" size={64} color={colors.surfaceLight} />
+                        <Text style={styles.emptyTitle}>
+                            {activeTab === "posts" ? "Chưa có video nào" :
+                                activeTab === "saved" ? "Chưa lưu video nào" : "Chưa thích video nào"}
+                        </Text>
+                        {activeTab === "posts" && (
+                            <TouchableOpacity onPress={() => router.push("/record/settings")}>
+                                <Text style={styles.createLink}>Tạo highlight ngay</Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
-                </View>
-            </ScrollView>
+                }
+            />
         </View>
     );
 }
@@ -144,6 +206,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.lg,
         paddingBottom: spacing.md,
     },
+    headerTitle: {
+        fontSize: fontSize.lg,
+        fontWeight: fontWeight.bold,
+        color: colors.text,
+    },
     scrollContent: {
         paddingBottom: 100,
     },
@@ -152,7 +219,6 @@ const styles = StyleSheet.create({
         paddingVertical: spacing.lg,
     },
     avatarContainer: {
-        position: "relative",
         marginBottom: spacing.md,
     },
     avatar: {
@@ -165,19 +231,6 @@ const styles = StyleSheet.create({
         borderWidth: 3,
         borderColor: colors.accent,
     },
-    editAvatarButton: {
-        position: "absolute",
-        bottom: 4,
-        right: 4,
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        backgroundColor: colors.accent,
-        justifyContent: "center",
-        alignItems: "center",
-        borderWidth: 2,
-        borderColor: colors.background,
-    },
     userName: {
         fontSize: fontSize.xl,
         fontWeight: fontWeight.bold,
@@ -187,6 +240,8 @@ const styles = StyleSheet.create({
         fontSize: fontSize.sm,
         color: colors.textSecondary,
         marginTop: spacing.xs,
+        textAlign: "center",
+        paddingHorizontal: spacing.xl,
     },
     statsRow: {
         flexDirection: "row",
@@ -215,35 +270,30 @@ const styles = StyleSheet.create({
     },
     editButton: {
         flex: 1,
-        backgroundColor: colors.accent,
+        backgroundColor: colors.surface,
         paddingVertical: spacing.md,
         borderRadius: borderRadius.full,
         alignItems: "center",
     },
     editButtonText: {
-        color: colors.background,
-        fontSize: fontSize.md,
-        fontWeight: fontWeight.semibold,
-    },
-    shareButton: {
-        flex: 1,
-        backgroundColor: colors.surface,
-        paddingVertical: spacing.md,
-        borderRadius: borderRadius.full,
-        alignItems: "center",
-    },
-    shareButtonText: {
         color: colors.text,
         fontSize: fontSize.md,
         fontWeight: fontWeight.semibold,
     },
-    moreButton: {
-        width: 48,
-        height: 48,
-        backgroundColor: colors.surface,
+    recordButton: {
+        flex: 1,
+        flexDirection: "row",
+        backgroundColor: colors.accent,
+        paddingVertical: spacing.md,
         borderRadius: borderRadius.full,
-        justifyContent: "center",
         alignItems: "center",
+        justifyContent: "center",
+        gap: spacing.xs,
+    },
+    recordButtonText: {
+        color: colors.background,
+        fontSize: fontSize.md,
+        fontWeight: fontWeight.semibold,
     },
     tabsContainer: {
         flexDirection: "row",
@@ -261,9 +311,40 @@ const styles = StyleSheet.create({
     tabActive: {
         borderBottomColor: colors.text,
     },
-    contentSection: {
-        flex: 1,
-        paddingTop: spacing.xl,
+    // Video Grid
+    videoCard: {
+        width: VIDEO_CARD_SIZE,
+        height: VIDEO_CARD_SIZE * 1.3,
+        margin: spacing.xs,
+        borderRadius: borderRadius.sm,
+        overflow: "hidden",
+        backgroundColor: colors.surface,
+    },
+    videoThumbnail: {
+        width: "100%",
+        height: "100%",
+    },
+    videoPlaceholder: {
+        width: "100%",
+        height: "100%",
+        backgroundColor: colors.surface,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    videoOverlay: {
+        position: "absolute",
+        bottom: spacing.xs,
+        left: spacing.xs,
+    },
+    viewsContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 2,
+    },
+    viewsText: {
+        color: "#fff",
+        fontSize: 10,
+        fontWeight: fontWeight.medium,
     },
     emptyState: {
         alignItems: "center",
@@ -276,7 +357,7 @@ const styles = StyleSheet.create({
     },
     createLink: {
         fontSize: fontSize.md,
-        color: colors.text,
+        color: colors.accent,
         fontWeight: fontWeight.semibold,
         marginTop: spacing.sm,
     },

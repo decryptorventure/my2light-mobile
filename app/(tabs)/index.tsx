@@ -151,8 +151,8 @@ export default function HomeScreen() {
                             horizontal
                             data={highlights}
                             keyExtractor={(item) => item.id}
-                            renderItem={({ item }) => (
-                                <HighlightCard highlight={item} cardWidth={CARD_WIDTH} />
+                            renderItem={({ item, index }) => (
+                                <HighlightCard highlight={item} cardWidth={CARD_WIDTH} index={index} />
                             )}
                             showsHorizontalScrollIndicator={false}
                             contentContainerStyle={styles.highlightsScroll}

@@ -82,7 +82,9 @@ export const HighlightService = {
         videoUrl?: string,
         duration?: number,
         title?: string,
-        description?: string
+        description?: string,
+        highlightEvents?: { id: string; timestamp: number; duration: number; name: string }[],
+        thumbnailUrl?: string
     ): Promise<ApiResponse<Highlight>> => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('Not authenticated');
@@ -90,14 +92,15 @@ export const HighlightService = {
         const { data, error } = await supabase.from('highlights').insert({
             user_id: user.id,
             court_id: courtId,
-            thumbnail_url: '',
+            thumbnail_url: thumbnailUrl || '',
             video_url: videoUrl || '',
             duration_sec: duration || 30,
             title: title || 'Highlight mới',
             description: description || '',
             likes: 0,
             views: 0,
-            is_public: true
+            is_public: true,
+            highlight_events: highlightEvents || null
         }).select().single();
 
         if (error) throw error;

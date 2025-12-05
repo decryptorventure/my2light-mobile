@@ -54,7 +54,8 @@ export const AuthService = {
                         hoursPlayed: 0,
                         courtsVisited: 0,
                         credits: newProfile.credits,
-                        membershipTier: 'free'
+                        membershipTier: 'free',
+                        hasOnboarded: false  // New user hasn't onboarded
                     }
                 };
             }
@@ -97,7 +98,8 @@ export const AuthService = {
                 bio: data.bio,
                 isPublic: data.is_public,
                 followersCount: data.followers_count || 0,
-                followingCount: data.following_count || 0
+                followingCount: data.following_count || 0,
+                hasOnboarded: data.has_onboarded ?? false  // Check if user has onboarded
             };
 
             return { success: true, data: user };

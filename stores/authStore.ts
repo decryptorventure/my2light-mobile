@@ -36,11 +36,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             });
 
             // Listen for auth changes
-            supabase.auth.onAuthStateChange((_event, session) => {
+            supabase.auth.onAuthStateChange((event, session) => {
                 set({
                     session,
                     user: session?.user || null,
                 });
+
+                // Clear any cached user data when auth state changes
+                if (event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
+                    // Signal that cache should be cleared (handled in _layout.tsx)
+                    console.log('Auth state changed:', event);
+                }
             });
         } catch (error) {
             console.error("Auth initialization error:", error);

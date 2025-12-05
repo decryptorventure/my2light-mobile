@@ -14,6 +14,7 @@ import type { Highlight } from "../../types";
 interface HighlightCardProps {
     highlight: Highlight;
     cardWidth: number;
+    index?: number; // For feed navigation
 }
 
 const formatDuration = (seconds: number) => {
@@ -22,12 +23,18 @@ const formatDuration = (seconds: number) => {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
 };
 
-function HighlightCardComponent({ highlight, cardWidth }: HighlightCardProps) {
+function HighlightCardComponent({ highlight, cardWidth, index = 0 }: HighlightCardProps) {
     const router = useRouter();
 
     const handlePress = useCallback(() => {
-        router.push(`/video/${highlight.id}`);
-    }, [highlight.id, router]);
+        // Navigate to feed with starting index for swipe navigation
+        router.push({
+            pathname: "/feed",
+            params: {
+                startIndex: String(index)
+            }
+        });
+    }, [index, router]);
 
     return (
         <HapticTouchable

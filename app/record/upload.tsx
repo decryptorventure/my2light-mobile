@@ -24,6 +24,15 @@ import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../const
 import { useCourts, useCreateHighlight } from "../../hooks/useApi";
 import { Card } from "../../components/ui";
 import haptics from "../../lib/haptics";
+import { uploadVideo } from "../../services/upload";
+import { HighlightService } from "../../services/highlight.service";
+
+interface HighlightEvent {
+    id: string;
+    timestamp: number;
+    duration: number;
+    name: string;
+}
 
 /**
  * UploadInfoScreen - Enter video details
@@ -32,22 +41,35 @@ import haptics from "../../lib/haptics";
  * - Description input
  * - Court selection from API
  * - Upload to Supabase
+ * - Merge mode: pass highlight events to server for processing
  */
 export default function UploadInfoScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
-    const { uri } = useLocalSearchParams<{ uri: string }>();
+    const { uri, mergeMode, highlightEvents } = useLocalSearchParams<{
+        uri: string;
+        mergeMode?: string;
+        highlightEvents?: string;
+    }>();
+
+    // Parse highlight events from params
+    const isMergeMode = mergeMode === "true";
+    const parsedHighlightEvents: HighlightEvent[] = highlightEvents
+        ? JSON.parse(highlightEvents)
+        : [];
 
     // Form state
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [selectedCourtId, setSelectedCourtId] = useState<string | null>(null);
+    const [uploading, setUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     // API
     const { data: courts, isLoading: courtsLoading } = useCourts();
     const createHighlight = useCreateHighlight();
 
-    // Generate default title
+    // Generate default title with highlight count if merge mode
     useEffect(() => {
         const now = new Date();
         const timeStr = now.toLocaleTimeString("vi-VN", {
@@ -56,7 +78,12 @@ export default function UploadInfoScreen() {
             second: "2-digit"
         });
         const dateStr = now.toLocaleDateString("vi-VN");
-        setTitle(`Highlight ${timeStr} ${dateStr}`);
+
+        if (isMergeMode && parsedHighlightEvents.length > 0) {
+            setTitle(`${parsedHighlightEvents.length} Highlights ${dateStr}`);
+        } else {
+            setTitle(`Highlight ${timeStr} ${dateStr}`);
+        }
     }, []);
 
     const handleBack = () => {
@@ -81,11 +108,47 @@ export default function UploadInfoScreen() {
         }
 
         haptics.medium();
+        setUploading(true);
+        setUploadProgress(0);
 
         try {
-            // TODO: Implement actual upload
-            // For now, simulate upload
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            // Step 1: Upload video to Supabase Storage
+            setUploadProgress(10);
+            console.log("📤 Uploading video to Supabase Storage...");
+
+            const uploadResult = await uploadVideo(uri, (progress) => {
+                // Map upload progress to 10-80%
+                setUploadProgress(10 + Math.round(progress.percentage * 0.7));
+            });
+
+            if (!uploadResult.success || !uploadResult.data.videoUrl) {
+                throw new Error(uploadResult.error || "Upload failed");
+            }
+
+            console.log("✅ Video uploaded:", uploadResult.data.videoUrl);
+            setUploadProgress(85);
+
+            // Step 2: Create highlight record in database
+            console.log("📝 Creating highlight record...");
+            console.log("🎬 Merge mode:", isMergeMode);
+            console.log("⚡ Highlight events:", parsedHighlightEvents.length);
+
+            const courtId = selectedCourtId === "other" ? null : selectedCourtId;
+
+            // TODO: Server-side merge will use highlight_events to cut and merge
+            // For now, saving with metadata for future processing
+            await HighlightService.createHighlight(
+                courtId || "",
+                uploadResult.data.videoUrl,
+                uploadResult.data.durationSec || 30,
+                title.trim(),
+                description.trim(),
+                isMergeMode ? parsedHighlightEvents : undefined,
+                uploadResult.data.thumbnailUrl // Pass generated thumbnail
+            );
+
+            setUploadProgress(100);
+            console.log("✅ Highlight created successfully!");
 
             Alert.alert(
                 "Thành công! 🎉",
@@ -99,7 +162,12 @@ export default function UploadInfoScreen() {
             );
         } catch (error) {
             console.error("Upload error:", error);
-            Alert.alert("Lỗi", "Không thể upload video. Vui lòng thử lại.");
+            Alert.alert(
+                "Lỗi",
+                error instanceof Error ? error.message : "Không thể upload video. Vui lòng thử lại."
+            );
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -218,15 +286,28 @@ export default function UploadInfoScreen() {
 
             {/* Submit Button */}
             <View style={[styles.bottomContainer, { paddingBottom: insets.bottom + spacing.lg }]}>
+                {/* Progress Bar */}
+                {uploading && (
+                    <View style={styles.progressContainer}>
+                        <View style={styles.progressBar}>
+                            <View style={[styles.progressFill, { width: `${uploadProgress}%` }]} />
+                        </View>
+                        <Text style={styles.progressText}>
+                            {uploadProgress < 80 ? "Đang tải video..." : "Đang lưu..."}
+                            {" "}{uploadProgress}%
+                        </Text>
+                    </View>
+                )}
+
                 <TouchableOpacity
                     style={[
                         styles.submitButton,
-                        createHighlight.isPending && styles.submitButtonDisabled,
+                        uploading && styles.submitButtonDisabled,
                     ]}
                     onPress={handleSubmit}
-                    disabled={createHighlight.isPending}
+                    disabled={uploading}
                 >
-                    {createHighlight.isPending ? (
+                    {uploading ? (
                         <ActivityIndicator size="small" color={colors.background} />
                     ) : (
                         <>
@@ -349,6 +430,26 @@ const styles = StyleSheet.create({
         padding: spacing.lg,
         borderTopWidth: 1,
         borderTopColor: colors.border,
+    },
+    progressContainer: {
+        marginBottom: spacing.md,
+    },
+    progressBar: {
+        height: 6,
+        backgroundColor: colors.surface,
+        borderRadius: 3,
+        overflow: "hidden" as const,
+    },
+    progressFill: {
+        height: "100%",
+        backgroundColor: colors.accent,
+        borderRadius: 3,
+    },
+    progressText: {
+        color: colors.textMuted,
+        fontSize: fontSize.sm,
+        textAlign: "center" as const,
+        marginTop: spacing.sm,
     },
     submitButton: {
         flexDirection: "row",

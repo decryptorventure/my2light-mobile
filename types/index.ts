@@ -16,6 +16,7 @@ export interface User {
     isPublic?: boolean;
     followersCount?: number;
     followingCount?: number;
+    hasOnboarded?: boolean; // Track if user completed onboarding
 }
 
 export interface Court {

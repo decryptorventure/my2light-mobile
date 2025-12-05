@@ -4,7 +4,7 @@
  * @module app/record/preview
  */
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
     View,
     Text,
@@ -12,8 +12,9 @@ import {
     TouchableOpacity,
     ScrollView,
     Alert,
+    ActivityIndicator,
 } from "react-native";
-import { Video, ResizeMode } from "expo-av";
+import { Video, ResizeMode, AVPlaybackStatus } from "expo-av";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -26,18 +27,24 @@ import haptics from "../../lib/haptics";
 /**
  * VideoPreviewScreen - Review highlights and upload
  * Features:
- * - Video player with full controls
+ * - Video player with seek to highlight
  * - List of marked highlights with timestamps
- * - Merge highlights option
- * - Upload to library button
+ * - Merge mode: upload only selected highlights
+ * - Full video: upload entire recording
  */
 export default function VideoPreviewScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const { uri } = useLocalSearchParams<{ uri: string }>();
 
-    const { highlights, selectedHighlightIds, toggleHighlightSelection, selectAllHighlights } = useRecordingStore();
+    // Video ref for seeking
+    const videoRef = useRef<Video>(null);
+
+    const { highlights, selectedHighlightIds, toggleHighlightSelection, selectAllHighlights, clearSelection } = useRecordingStore();
     const [saving, setSaving] = useState(false);
+    const [mergeMode, setMergeMode] = useState(false);
+    const [currentHighlight, setCurrentHighlight] = useState<string | null>(null);
+    const [videoStatus, setVideoStatus] = useState<AVPlaybackStatus | null>(null);
 
     // Format time as MM:SS
     const formatTime = (seconds: number) => {
@@ -90,29 +97,61 @@ export default function VideoPreviewScreen() {
         }
     };
 
-    const handleMergeHighlights = () => {
-        if (highlights.length === 0) {
-            Alert.alert("Thông báo", "Chưa có highlight nào được đánh dấu");
-            return;
-        }
+    // Toggle merge mode
+    const handleToggleMergeMode = () => {
         haptics.medium();
-        selectAllHighlights();
-        // TODO: Implement video merge logic
-        Alert.alert("Thông báo", "Tính năng ghép highlight đang được phát triển");
+        setMergeMode(!mergeMode);
+        if (!mergeMode) {
+            // Entering merge mode - select all highlights
+            selectAllHighlights();
+        } else {
+            // Exiting merge mode
+            clearSelection();
+        }
     };
 
+    // Upload with or without highlight merge
     const handleUpload = () => {
         haptics.medium();
+
+        // Build highlight events for upload
+        const selectedHighlights = highlights.filter(h =>
+            selectedHighlightIds.includes(h.id)
+        );
+
         router.push({
             pathname: "/record/upload",
-            params: { uri }
+            params: {
+                uri,
+                mergeMode: mergeMode ? "true" : "false",
+                highlightEvents: JSON.stringify(selectedHighlights.map(h => ({
+                    id: h.id,
+                    timestamp: h.timestamp,
+                    duration: h.duration,
+                    name: h.name
+                })))
+            }
         });
     };
 
-    const handlePlayHighlight = (highlight: any) => {
+    // Seek video to highlight timestamp
+    const handlePlayHighlight = async (highlight: any) => {
         haptics.light();
-        // TODO: Seek video to highlight timestamp
-        console.log("Play highlight at:", highlight.timestamp);
+        setCurrentHighlight(highlight.id);
+
+        if (videoRef.current) {
+            try {
+                // Seek to highlight start time (milliseconds)
+                await videoRef.current.setPositionAsync(highlight.timestamp * 1000);
+                await videoRef.current.playAsync();
+            } catch (error) {
+                console.error("Seek error:", error);
+            }
+        }
+    };
+
+    const handlePlaybackStatusUpdate = (status: AVPlaybackStatus) => {
+        setVideoStatus(status);
     };
 
     if (!uri) {
@@ -142,11 +181,13 @@ export default function VideoPreviewScreen() {
 
             {/* Video Player */}
             <Video
+                ref={videoRef}
                 source={{ uri }}
                 style={styles.video}
                 useNativeControls
                 resizeMode={ResizeMode.CONTAIN}
                 isLooping
+                onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
             />
 
             {/* Highlight List */}
@@ -196,16 +237,30 @@ export default function VideoPreviewScreen() {
 
             {/* Bottom Actions */}
             <View style={[styles.bottomActions, { paddingBottom: insets.bottom + spacing.lg }]}>
-                <TouchableOpacity style={styles.mergeButton} onPress={handleMergeHighlights}>
-                    <Ionicons name="flash" size={20} color={colors.text} />
-                    <Text style={styles.mergeButtonText}>
-                        Ghép {highlights.length} Highlights
-                    </Text>
-                </TouchableOpacity>
+                {highlights.length > 0 && (
+                    <TouchableOpacity
+                        style={[styles.mergeButton, mergeMode && styles.mergeButtonActive]}
+                        onPress={handleToggleMergeMode}
+                    >
+                        <Ionicons
+                            name={mergeMode ? "checkmark-circle" : "flash"}
+                            size={20}
+                            color={mergeMode ? colors.accent : colors.text}
+                        />
+                        <Text style={[styles.mergeButtonText, mergeMode && styles.mergeButtonTextActive]}>
+                            {mergeMode
+                                ? `Đã chọn ${selectedHighlightIds.length}/${highlights.length}`
+                                : `Ghép ${highlights.length} Highlights`
+                            }
+                        </Text>
+                    </TouchableOpacity>
+                )}
 
                 <TouchableOpacity style={styles.uploadButton} onPress={handleUpload}>
                     <Ionicons name="cloud-upload-outline" size={20} color={colors.background} />
-                    <Text style={styles.uploadButtonText}>Đăng lên Thư viện</Text>
+                    <Text style={styles.uploadButtonText}>
+                        {mergeMode ? "Đăng Highlights đã chọn" : "Đăng Video đầy đủ"}
+                    </Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -367,6 +422,13 @@ const styles = StyleSheet.create({
         color: colors.text,
         fontSize: fontSize.md,
         fontWeight: fontWeight.medium,
+    },
+    mergeButtonActive: {
+        borderColor: colors.accent,
+        backgroundColor: `${colors.accent}15`,
+    },
+    mergeButtonTextActive: {
+        color: colors.accent,
     },
     uploadButton: {
         flexDirection: "row",

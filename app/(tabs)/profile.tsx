@@ -13,7 +13,7 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
 import { useAuthStore } from "../../stores/authStore";
-import { useCurrentUser } from "../../hooks/useApi";
+import { useCurrentUser, useUserHighlights } from "../../hooks/useApi";
 
 type TabType = "info" | "history";
 
@@ -44,9 +44,12 @@ export default function ProfileScreen() {
     const userCredits = profile?.credits || 0;
     const membershipTier = profile?.membershipTier?.toUpperCase() || "FREE";
 
+    // Fetch user's highlights for stats only
+    const { data: myHighlights, refetch: refetchHighlights } = useUserHighlights(profile?.id || "");
+
     const onRefresh = async () => {
         setRefreshing(true);
-        await refetch();
+        await Promise.all([refetch(), refetchHighlights()]);
         setRefreshing(false);
     };
 
@@ -61,18 +64,31 @@ export default function ProfileScreen() {
                 {/* Profile Header */}
                 <View style={styles.profileHeader}>
                     <View style={styles.avatarContainer}>
-                        <View style={styles.avatar}>
-                            <Ionicons name="person" size={48} color={colors.textMuted} />
-                        </View>
+                        {profile?.avatar ? (
+                            <Image source={{ uri: profile.avatar }} style={styles.avatar} />
+                        ) : (
+                            <View style={styles.avatar}>
+                                <Ionicons name="person" size={48} color={colors.textMuted} />
+                            </View>
+                        )}
                         <View style={styles.onlineIndicator} />
                     </View>
                     <Text style={styles.userName}>{userName}</Text>
                     <View style={styles.memberBadgeRow}>
                         <View style={styles.memberBadge}>
-                            <Text style={styles.memberBadgeText}>FREE MEMBER</Text>
+                            <Text style={styles.memberBadgeText}>{membershipTier} MEMBER</Text>
                         </View>
-                        <Text style={styles.noPhone}>Chưa có SĐT</Text>
+                        <Text style={styles.noPhone}>{profile?.phone || "Chưa có SĐT"}</Text>
                     </View>
+
+                    {/* Edit Profile Button */}
+                    <TouchableOpacity
+                        style={styles.editProfileButton}
+                        onPress={() => router.push("/settings/edit-profile")}
+                    >
+                        <Ionicons name="pencil" size={16} color={colors.text} />
+                        <Text style={styles.editProfileText}>Chỉnh sửa hồ sơ</Text>
+                    </TouchableOpacity>
                 </View>
 
                 {/* Achievements */}
@@ -130,21 +146,21 @@ export default function ProfileScreen() {
                     <View style={styles.statCircle}>
                         <View style={styles.statCircleInner}>
                             <Ionicons name="flash" size={24} color={colors.accent} />
-                            <Text style={styles.statValue}>0</Text>
+                            <Text style={styles.statValue}>{myHighlights?.length || 0}</Text>
                         </View>
                         <Text style={styles.statLabel}>HIGHLIGHT</Text>
                     </View>
                     <View style={styles.statCircle}>
                         <View style={styles.statCircleInner}>
                             <Ionicons name="time-outline" size={24} color={colors.accent} />
-                            <Text style={styles.statValue}>0</Text>
+                            <Text style={styles.statValue}>{profile?.hoursPlayed || 0}</Text>
                         </View>
                         <Text style={styles.statLabel}>GIỜ CHƠI</Text>
                     </View>
                     <View style={styles.statCircle}>
                         <View style={styles.statCircleInner}>
                             <Ionicons name="location-outline" size={24} color={colors.accent} />
-                            <Text style={styles.statValue}>0</Text>
+                            <Text style={styles.statValue}>{profile?.courtsVisited || 0}</Text>
                         </View>
                         <Text style={styles.statLabel}>SÂN ĐÃ ĐẾN</Text>
                     </View>
@@ -438,6 +454,21 @@ const styles = StyleSheet.create({
     signOutText: {
         color: colors.error,
         fontSize: fontSize.md,
+        fontWeight: fontWeight.medium,
+    },
+    editProfileButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: spacing.md,
+        backgroundColor: colors.surface,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.sm,
+        borderRadius: borderRadius.full,
+        gap: spacing.xs,
+    },
+    editProfileText: {
+        color: colors.text,
+        fontSize: fontSize.sm,
         fontWeight: fontWeight.medium,
     },
 });
