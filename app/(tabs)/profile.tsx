@@ -11,9 +11,12 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
 import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
 import { useAuthStore } from "../../stores/authStore";
 import { useCurrentUser, useUserHighlights } from "../../hooks/useApi";
+import { AdminService } from "../../services/admin.service";
+import haptics from "../../lib/haptics";
 
 type TabType = "info" | "history";
 
@@ -44,13 +47,35 @@ export default function ProfileScreen() {
     const userCredits = profile?.credits || 0;
     const membershipTier = profile?.membershipTier?.toUpperCase() || "FREE";
 
+    // Check if user is court owner
+    const { data: ownerProfile, refetch: refetchOwner } = useQuery({
+        queryKey: ["admin", "ownerProfile"],
+        queryFn: async () => {
+            const result = await AdminService.getCourtOwnerProfile();
+            return result.data;
+        },
+        staleTime: 60000,
+    });
+
+    const isCourtOwner = ownerProfile && ownerProfile.status === "approved";
+    const isPendingOwner = ownerProfile && ownerProfile.status === "pending";
+
     // Fetch user's highlights for stats only
     const { data: myHighlights, refetch: refetchHighlights } = useUserHighlights(profile?.id || "");
 
     const onRefresh = async () => {
         setRefreshing(true);
-        await Promise.all([refetch(), refetchHighlights()]);
+        await Promise.all([refetch(), refetchHighlights(), refetchOwner()]);
         setRefreshing(false);
+    };
+
+    const handleCourtOwnerAction = () => {
+        haptics.light();
+        if (isCourtOwner) {
+            router.push("/admin/dashboard");
+        } else {
+            router.push("/become-owner");
+        }
     };
 
     return (
@@ -186,16 +211,38 @@ export default function ProfileScreen() {
                     <View style={styles.courtCard}>
                         <View style={styles.courtCardLeft}>
                             <View style={styles.courtIcon}>
-                                <Ionicons name="tennisball" size={24} color={colors.primary} />
+                                <Ionicons
+                                    name={isCourtOwner ? "business" : "tennisball"}
+                                    size={24}
+                                    color={isCourtOwner ? colors.accent : colors.primary}
+                                />
                             </View>
                             <View>
-                                <Text style={styles.courtTitle}>Dashboard Chủ Sân</Text>
-                                <Text style={styles.courtSubtitle}>Quản lý sân và booking</Text>
+                                <Text style={styles.courtTitle}>
+                                    {isCourtOwner ? "Dashboard Chủ Sân" : isPendingOwner ? "Đang chờ duyệt" : "Trở thành Chủ Sân"}
+                                </Text>
+                                <Text style={styles.courtSubtitle}>
+                                    {isCourtOwner
+                                        ? "Quản lý sân và booking"
+                                        : isPendingOwner
+                                            ? "Hồ sơ đang được xét duyệt"
+                                            : "Đăng ký để quản lý sân của bạn"
+                                    }
+                                </Text>
                             </View>
                         </View>
                     </View>
-                    <TouchableOpacity style={styles.dashboardButton}>
-                        <Text style={styles.dashboardButtonText}>Mở Dashboard</Text>
+                    <TouchableOpacity
+                        style={[
+                            styles.dashboardButton,
+                            isPendingOwner && styles.dashboardButtonDisabled
+                        ]}
+                        onPress={handleCourtOwnerAction}
+                        disabled={isPendingOwner}
+                    >
+                        <Text style={styles.dashboardButtonText}>
+                            {isCourtOwner ? "Mở Dashboard" : isPendingOwner ? "Đang chờ duyệt..." : "Đăng ký ngay"}
+                        </Text>
                     </TouchableOpacity>
                 </View>
 
@@ -442,6 +489,10 @@ const styles = StyleSheet.create({
         color: colors.background,
         fontSize: fontSize.md,
         fontWeight: fontWeight.semibold,
+    },
+    dashboardButtonDisabled: {
+        backgroundColor: colors.surfaceLight,
+        opacity: 0.6,
     },
     signOutButton: {
         flexDirection: "row",

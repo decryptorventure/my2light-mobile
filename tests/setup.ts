@@ -1,15 +1,3 @@
-import '@testing-library/react-native/extend-expect';
-
-// Mock Expo constants
-jest.mock('expo-constants', () => ({
-    manifest: {
-        extra: {
-            supabaseUrl: 'https://test.supabase.co',
-            supabaseAnonKey: 'test-key',
-        },
-    },
-}));
-
 // Mock Supabase
 jest.mock('../lib/supabase', () => ({
     supabase: {
@@ -25,18 +13,18 @@ jest.mock('../lib/supabase', () => ({
             select: jest.fn().mockReturnThis(),
             insert: jest.fn().mockReturnThis(),
             update: jest.fn().mockReturnThis(),
+            delete: jest.fn().mockReturnThis(),
             eq: jest.fn().mockReturnThis(),
+            neq: jest.fn().mockReturnThis(),
+            in: jest.fn().mockReturnThis(),
+            gte: jest.fn().mockReturnThis(),
+            lte: jest.fn().mockReturnThis(),
+            lt: jest.fn().mockReturnThis(),
+            order: jest.fn().mockReturnThis(),
+            limit: jest.fn().mockReturnThis(),
             single: jest.fn(),
+            maybeSingle: jest.fn(),
         })),
     },
 }));
 
-// Mock Expo Router
-jest.mock('expo-router', () => ({
-    useRouter: () => ({
-        push: jest.fn(),
-        replace: jest.fn(),
-        back: jest.fn(),
-    }),
-    useSegments: () => [],
-}));

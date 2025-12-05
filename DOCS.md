@@ -2,7 +2,7 @@
 
 > 📄 Document này là context chính cho các phiên làm việc. Cập nhật mỗi lần release.
 
-**Last Updated:** 2025-12-05 | **Version:** 2.2.1 | **Status:** Production-Ready
+**Last Updated:** 2025-12-05 | **Version:** 2.3.0 | **Status:** Feature Complete
 
 ---
 
@@ -21,6 +21,7 @@
 | Data Fetching | React Query | 5.90 |
 | Storage | MMKV | 4.1 |
 | Network | NetInfo | 11.4 |
+| Notifications | Expo Notifications | 0.29 |
 
 ---
 
@@ -32,8 +33,11 @@ my2light-mobile/
 ├── app/                    # Expo Router screens
 │   ├── (auth)/             # Login, Register
 │   ├── (tabs)/             # Main 5 tabs
+│   ├── admin/              # Admin Dashboard & Management
+│   ├── become-owner/       # Court Owner Registration
 │   ├── record/             # Camera & Preview
 │   ├── video/              # Video Player
+│   ├── notifications/      # Notifications Screen
 │   └── _layout.tsx         # Root layout
 │
 ├── src/                    # Source code (Feature-based)
@@ -51,8 +55,10 @@ my2light-mobile/
 │       ├── supabase.ts     # Client
 │       └── haptics.ts      # Haptic feedback
 │
-├── services/               # API Services (7 modules)
+├── services/               # API Services (8 modules)
 │   ├── auth.service.ts
+│   ├── admin.service.ts    # Court Owner & Admin features
+│   ├── push.service.ts     # Push Notifications
 │   ├── highlight.service.ts
 │   ├── court.service.ts
 │   ├── booking.service.ts
@@ -64,7 +70,8 @@ my2light-mobile/
 ├── constants/theme.ts      # Design tokens
 ├── stores/                 # Zustand stores
 ├── hooks/                  # Custom hooks
-└── tests/                  # Jest tests
+├── tests/                  # Jest tests
+└── assets/                 # Images & Fonts
 ```
 
 ### Path Aliases (tsconfig.json)
@@ -87,7 +94,15 @@ my2light-mobile/
 | 💬 Social | Community | `app/(tabs)/social.tsx` | Mạng xã hội |
 | 🔴 Record | Camera Modal | `app/record/index.tsx` | Quay video |
 | ⚔️ Match | Find/Create | `app/(tabs)/match.tsx` | Tìm đối thủ |
-| 👤 Profile | User Stats | `app/(tabs)/profile.tsx` | Cá nhân |
+| 👤 Profile | User Stats | `app/(tabs)/profile.tsx` | Cá nhân & Quản lý sân |
+
+### Admin & Court Owner Screens
+- `app/admin/dashboard.tsx` - Dashboard tổng quan
+- `app/admin/courts.tsx` - Quản lý danh sách sân
+- `app/admin/bookings.tsx` - Quản lý lịch đặt sân
+- `app/admin/agenda.tsx` - Lịch biểu (Calendar View)
+- `app/admin/reports.tsx` - Báo cáo doanh thu
+- `app/become-owner/index.tsx` - Đăng ký làm chủ sân
 
 ### Other Key Screens
 - `app/record/preview.tsx` - Preview & upload video
@@ -125,6 +140,14 @@ my2light-mobile/
 - [x] Offline action queue
 - [x] Auth session persistence
 
+### ✅ Admin & Court Management (v2.3)
+- [x] Court Owner Registration Flow
+- [x] Admin Dashboard (Stats, Charts)
+- [x] Court CRUD (Create, Read, Update, Delete)
+- [x] Booking Management (Approve/Cancel)
+- [x] Revenue Reports & Export
+- [x] Push Notifications (Expo Push API)
+
 ---
 
 ## ⚠️ Known Issues & Trade-offs
@@ -154,6 +177,9 @@ my2light-mobile/
   "expo-camera": "~17.0.9",
   "expo-av": "~16.0.7",
   "expo-image": "~3.0.10",
+  "expo-notifications": "~0.29.11",
+  "expo-device": "~7.0.2",
+  "expo-constants": "~17.0.3",
   "@supabase/supabase-js": "^2.86.0",
   "@tanstack/react-query": "^5.90.11",
   "zustand": "^5.0.9",
@@ -170,10 +196,11 @@ my2light-mobile/
 ### Core Tables
 | Table | Description | Key Fields |
 |-------|-------------|------------|
-| `profiles` | User profiles | id, username, avatar, rating |
+| `profiles` | User profiles | id, username, avatar, rating, **role** |
+| `court_owners` | Court Owner Info | id, user_id, business_name, **status**, **is_verified** |
 | `highlights` | Video highlights | id, user_id, video_url, thumbnail |
-| `courts` | Court locations | id, name, address, lat, lng |
-| `bookings` | Court bookings | id, user_id, court_id, date |
+| `courts` | Court locations | id, owner_id, name, address, lat, lng |
+| `bookings` | Court bookings | id, user_id, court_id, date, status |
 | `match_requests` | Match finding | id, user_id, court_id, status |
 | `notifications` | User notifications | id, user_id, type, message |
 | `transactions` | Wallet transactions | id, user_id, amount, type |
@@ -185,6 +212,7 @@ my2light-mobile/
 ```env
 EXPO_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIs...
+EXPO_PUBLIC_PROJECT_ID=your-expo-project-id
 ```
 
 ---
@@ -211,6 +239,7 @@ npm install --legacy-peer-deps
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.3.0 | 2025-12-05 | Admin Dashboard, Court Management, Push Notifications |
 | 2.2.1 | 2025-12-04 | Hotfix Expo Go crashes |
 | 2.2.0 | 2025-12-04 | Offline support, MMKV storage |
 | 2.1.0 | 2025-12-04 | Performance (expo-image) |

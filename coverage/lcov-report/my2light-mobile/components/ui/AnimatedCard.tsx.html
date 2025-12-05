@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
@@ -134,33 +134,7 @@
 <a name='L69'></a><a href='#L69'>69</a>
 <a name='L70'></a><a href='#L70'>70</a>
 <a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a>
-<a name='L73'></a><a href='#L73'>73</a>
-<a name='L74'></a><a href='#L74'>74</a>
-<a name='L75'></a><a href='#L75'>75</a>
-<a name='L76'></a><a href='#L76'>76</a>
-<a name='L77'></a><a href='#L77'>77</a>
-<a name='L78'></a><a href='#L78'>78</a>
-<a name='L79'></a><a href='#L79'>79</a>
-<a name='L80'></a><a href='#L80'>80</a>
-<a name='L81'></a><a href='#L81'>81</a>
-<a name='L82'></a><a href='#L82'>82</a>
-<a name='L83'></a><a href='#L83'>83</a>
-<a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a>
-<a name='L88'></a><a href='#L88'>88</a>
-<a name='L89'></a><a href='#L89'>89</a>
-<a name='L90'></a><a href='#L90'>90</a>
-<a name='L91'></a><a href='#L91'>91</a>
-<a name='L92'></a><a href='#L92'>92</a>
-<a name='L93'></a><a href='#L93'>93</a>
-<a name='L94'></a><a href='#L94'>94</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L72'></a><a href='#L72'>72</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -185,7 +159,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -194,9 +167,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -233,72 +203,50 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * AnimatedCard - Card with entrance and press animations
+ * AnimatedCard - Simplified card component (temporary fix without reanimated)
  * @module components/ui/AnimatedCard
  */
 &nbsp;
-import React, { useEffect } from "react";
-import { ViewStyle, StyleProp } from "react-native";
-import Animated, {
-    useSharedValue,
-    useAnimatedStyle,
-    withSpring,
-    withDelay,
-    FadeIn,
-    FadeInDown,
-    Layout,
-} from "react-native-reanimated";
+import React from "react";
+import { View, ViewProps, StyleProp, ViewStyle } from "react-native";
 import { colors, borderRadius, spacing } from "../../constants/theme";
 &nbsp;
-interface AnimatedCardProps {
+interface AnimatedCardProps extends ViewProps {
     children: React.ReactNode;
     style?: StyleProp&lt;ViewStyle&gt;;
     delay?: number;
     index?: number;
 }
 &nbsp;
-export function <span class="fstat-no" title="function not covered" >AnimatedCard(</span>{ children, style, delay = <span class="branch-0 cbranch-no" title="branch not covered" >0,</span> index = <span class="branch-0 cbranch-no" title="branch not covered" >0 </span>}: AnimatedCardProps) {
-    // Stagger animation based on index
-    const calculatedDelay = <span class="cstat-no" title="statement not covered" >delay + index * 50;</span>
-&nbsp;
+export function <span class="fstat-no" title="function not covered" >AnimatedCard(</span>{
+    children,
+    style,
+    delay = <span class="branch-0 cbranch-no" title="branch not covered" >0,</span>
+    index = <span class="branch-0 cbranch-no" title="branch not covered" >0,</span>
+    ...props
+}: AnimatedCardProps) {
 <span class="cstat-no" title="statement not covered" >    return (</span>
-        &lt;Animated.View
-            entering={FadeInDown.delay(calculatedDelay).springify().damping(15)}
-            layout={Layout.springify().damping(15)}
-            style={[defaultStyles.card, style]}
+        &lt;View
+            style={[
+                {
+                    backgroundColor: colors.surface,
+                    borderRadius: borderRadius.lg,
+                    padding: spacing.md,
+                },
+                style,
+            ]}
+            {...props}
         &gt;
             {children}
-        &lt;/Animated.View&gt;
+        &lt;/View&gt;
     );
 }
 &nbsp;
-const defaultStyles = <span class="cstat-no" title="statement not covered" >{</span>
-    card: {
-        backgroundColor: colors.surface,
-        borderRadius: borderRadius.lg,
-        padding: spacing.md,
-    } as ViewStyle,
-};
-&nbsp;
 /**
- * FadeInView - Simple fade in animation wrapper
+ * FadeInView - Simplified without animation (temporary fix)
  */
 export function <span class="fstat-no" title="function not covered" >FadeInView(</span>{
     children,
@@ -309,18 +257,11 @@ export function <span class="fstat-no" title="function not covered" >FadeInView(
     delay?: number;
     style?: StyleProp&lt;ViewStyle&gt;;
 }) {
-<span class="cstat-no" title="statement not covered" >    return (</span>
-        &lt;Animated.View
-            entering={FadeIn.delay(delay).duration(300)}
-            style={style}
-        &gt;
-            {children}
-        &lt;/Animated.View&gt;
-    );
+<span class="cstat-no" title="statement not covered" >    return &lt;View style={style}&gt;{children}&lt;/View&gt;;</span>
 }
 &nbsp;
 /**
- * SlideInView - Slide up animation wrapper
+ * SlideInView - Simplified without animation (temporary fix)
  */
 export function <span class="fstat-no" title="function not covered" >SlideInView(</span>{
     children,
@@ -333,14 +274,7 @@ export function <span class="fstat-no" title="function not covered" >SlideInView
     distance?: number;
     style?: StyleProp&lt;ViewStyle&gt;;
 }) {
-<span class="cstat-no" title="statement not covered" >    return (</span>
-        &lt;Animated.View
-            entering={FadeInDown.delay(delay).springify().damping(14)}
-            style={style}
-        &gt;
-            {children}
-        &lt;/Animated.View&gt;
-    );
+<span class="cstat-no" title="statement not covered" >    return &lt;View style={style}&gt;{children}&lt;/View&gt;;</span>
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -349,7 +283,7 @@ export function <span class="fstat-no" title="function not covered" >SlideInView
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-04T16:03:22.308Z
+                at 2025-12-05T05:11:30.253Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

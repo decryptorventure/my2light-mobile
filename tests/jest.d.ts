@@ -1,9 +1,10 @@
-// Temporary Jest type declarations until dependencies are installed
-declare const jest: any;
-declare const describe: any;
-declare const it: any;
-declare const expect: any;
-declare const beforeEach: any;
-declare const afterEach: any;
-declare const beforeAll: any;
-declare const afterAll: any;
+/// <reference types="@types/jest" />
+
+declare namespace jest {
+    interface Mock<T = any, Y extends any[] = any, C = any> extends Function {
+        mockReturnValue: (val: any) => Mock;
+        mockResolvedValue: (val: any) => Mock;
+        mockReturnThis: () => Mock;
+        mockImplementation: (fn: (...args: any[]) => any) => Mock;
+    }
+}

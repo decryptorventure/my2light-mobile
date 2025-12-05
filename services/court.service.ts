@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { Court, ApiResponse } from '../types';
+import { Court, Package, ApiResponse } from '../types';
 
 export const CourtService = {
     getCourts: async (): Promise<ApiResponse<Court[]>> => {
@@ -69,5 +69,38 @@ export const CourtService = {
                 totalReviews: data.total_reviews || 0
             }
         };
+    },
+
+    getPackages: async (): Promise<ApiResponse<Package[]>> => {
+        try {
+            const { data, error } = await supabase
+                .from('packages')
+                .select('*')
+                .eq('is_active', true)
+                .order('price', { ascending: true });
+
+            if (error || !data) {
+                console.error('getPackages error:', error);
+                return { success: false, data: [] };
+            }
+
+            const packages: Package[] = data.map((p: any) => ({
+                id: p.id,
+                name: p.name,
+                price: p.price,
+                durationMinutes: p.duration_minutes,
+                description: p.description || '',
+                isBestValue: p.is_best_value || false,
+                features: p.features || [],
+                type: p.type || 'per_booking',
+                sessionCount: p.session_count,
+                validityDays: p.validity_days
+            }));
+
+            return { success: true, data: packages };
+        } catch (e) {
+            console.error('getPackages error:', e);
+            return { success: false, data: [] };
+        }
     }
 };

@@ -116,6 +116,18 @@ export default function HomeScreen() {
                     </AnimatedPressable>
                 </View>
 
+                {/* My Bookings Quick Link */}
+                <TouchableOpacity
+                    style={styles.myBookingsLink}
+                    onPress={() => router.push("/my-bookings")}
+                >
+                    <View style={styles.myBookingsIconContainer}>
+                        <Ionicons name="calendar-outline" size={20} color={colors.accent} />
+                    </View>
+                    <Text style={styles.myBookingsText}>Lịch đặt sân của tôi</Text>
+                    <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+                </TouchableOpacity>
+
                 {/* Highlights Section */}
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
@@ -478,5 +490,29 @@ const styles = StyleSheet.create({
         color: colors.text,
         fontSize: fontSize.md,
         paddingVertical: spacing.md,
+    },
+    myBookingsLink: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: colors.surface,
+        marginHorizontal: spacing.lg,
+        marginTop: spacing.md,
+        padding: spacing.md,
+        borderRadius: borderRadius.lg,
+        gap: spacing.sm,
+    },
+    myBookingsIconContainer: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: `${colors.accent}20`,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    myBookingsText: {
+        flex: 1,
+        color: colors.text,
+        fontSize: fontSize.md,
+        fontWeight: fontWeight.medium,
     },
 });

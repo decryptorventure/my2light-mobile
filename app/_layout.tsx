@@ -5,6 +5,7 @@ import { useAuthStore } from "../stores/authStore";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthService } from "../services/auth.service";
+import { usePushNotifications } from "../hooks/usePushNotifications";
 
 // Create a client with sensible defaults
 const queryClient = new QueryClient({
@@ -22,6 +23,9 @@ function RootLayoutNav() {
     const segments = useSegments();
     const router = useRouter();
     const [checkingOnboarding, setCheckingOnboarding] = useState(false);
+
+    // Register for push notifications
+    usePushNotifications();
 
     // Initialize auth on app load
     useEffect(() => {
@@ -159,6 +163,30 @@ function RootLayoutNav() {
                     options={{
                         presentation: "fullScreenModal",
                         animation: "fade",
+                    }}
+                />
+                <Stack.Screen
+                    name="booking"
+                    options={{
+                        animation: "slide_from_right",
+                    }}
+                />
+                <Stack.Screen
+                    name="my-bookings"
+                    options={{
+                        animation: "slide_from_right",
+                    }}
+                />
+                <Stack.Screen
+                    name="become-owner"
+                    options={{
+                        animation: "slide_from_right",
+                    }}
+                />
+                <Stack.Screen
+                    name="admin"
+                    options={{
+                        animation: "slide_from_right",
                     }}
                 />
             </Stack>
