@@ -22,6 +22,8 @@ import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../const
 import { CourtService } from "../../services/court.service";
 import { BookingService } from "../../services/booking.service";
 import { useAuthStore } from "../../stores/authStore";
+import { useSlotAvailability } from "../../hooks/useBookingRealtime";
+import { useUserCredits } from "../../hooks/useApi";
 import { Court, Package } from "../../types";
 import haptics from "../../lib/haptics";
 
@@ -44,6 +46,15 @@ export default function BookingScreen() {
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
+
+    // Real-time slot availability
+    const { slots: availableSlots, isLoading: slotsLoading, refetch: refetchSlots } = useSlotAvailability(
+        id || null,
+        selectedDate
+    );
+
+    // User credits from database
+    const { data: userCredits = 0 } = useUserCredits();
 
     const progress = step === "datetime" ? 33 : step === "package" ? 66 : 100;
 
@@ -86,25 +97,6 @@ export default function BookingScreen() {
         return dates;
     };
 
-    // Generate time slots (06:00 - 22:00)
-    const generateTimeSlots = () => {
-        const slots: string[] = [];
-        const now = new Date();
-        const isToday = selectedDate.toDateString() === now.toDateString();
-        const currentHour = now.getHours();
-
-        for (let hour = 6; hour <= 22; hour++) {
-            // Skip past hours for today
-            if (isToday && hour <= currentHour) continue;
-
-            slots.push(`${hour.toString().padStart(2, "0")}:00`);
-            if (hour < 22) {
-                slots.push(`${hour.toString().padStart(2, "0")}:30`);
-            }
-        }
-        return slots;
-    };
-
     const handleNext = () => {
         haptics.light();
         if (step === "datetime" && selectedTime) {
@@ -142,11 +134,12 @@ export default function BookingScreen() {
                 packageId: selectedPackage || undefined,
             });
 
-            if (result.success) {
+            if (result.success && result.data) {
                 haptics.success();
                 router.replace({
                     pathname: "/booking/success",
                     params: {
+                        bookingId: result.data.id,
                         courtName: court.name,
                         date: selectedDate.toLocaleDateString("vi-VN", {
                             weekday: "long",
@@ -156,6 +149,7 @@ export default function BookingScreen() {
                         time: selectedTime,
                         totalPrice: String(totalPrice),
                         packageName: selectedPkg?.name || "",
+                        status: "pending", // New: pass pending status
                     },
                 });
             } else {
@@ -175,8 +169,8 @@ export default function BookingScreen() {
     const selectedPkg = packages.find((p) => p.id === selectedPackage);
     const packagePrice = selectedPkg?.price || 0;
     const totalPrice = courtPrice + packagePrice;
-    const userCredits = user?.credits || 0;
     const canAfford = userCredits >= totalPrice;
+
 
     const canProceed = () => {
         if (step === "datetime") return !!selectedTime;
@@ -200,7 +194,6 @@ export default function BookingScreen() {
     }
 
     const dates = generateDates();
-    const timeSlots = generateTimeSlots();
 
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -321,40 +314,48 @@ export default function BookingScreen() {
 
                         {/* Time Selection */}
                         <Text style={[styles.sectionTitle, { marginTop: spacing.xl }]}>
-                            <Ionicons name="time" size={18} color={colors.info} /> Chọn giờ
+                            <Ionicons name="time" size={18} color={colors.accent} /> Chọn giờ
                         </Text>
-                        <View style={styles.timeGrid}>
-                            {timeSlots.map((slot, i) => {
-                                const isSelected = selectedTime === slot;
-                                // Mock some disabled slots
-                                const isDisabled = i % 7 === 0 && i !== 0;
 
-                                return (
-                                    <TouchableOpacity
-                                        key={i}
-                                        style={[
-                                            styles.timeSlot,
-                                            isSelected && styles.timeSlotSelected,
-                                            isDisabled && styles.timeSlotDisabled,
-                                        ]}
-                                        disabled={isDisabled}
-                                        onPress={() => {
-                                            setSelectedTime(slot);
-                                            haptics.light();
-                                        }}
-                                    >
-                                        <Text
+                        <View style={styles.timeGrid}>
+                            {slotsLoading ? (
+                                <View style={styles.slotsLoading}>
+                                    <ActivityIndicator size="small" color={colors.accent} />
+                                    <Text style={styles.slotsLoadingText}>Đang tải...</Text>
+                                </View>
+                            ) : availableSlots.length === 0 ? (
+                                <View style={styles.noSlots}>
+                                    <Ionicons name="calendar-outline" size={32} color={colors.textMuted} />
+                                    <Text style={styles.noSlotsText}>Không còn khung giờ trống</Text>
+                                </View>
+                            ) : (
+                                availableSlots.map((slot, i) => {
+                                    const isSelected = selectedTime === slot;
+
+                                    return (
+                                        <TouchableOpacity
+                                            key={i}
                                             style={[
-                                                styles.timeText,
-                                                isSelected && styles.timeTextSelected,
-                                                isDisabled && styles.timeTextDisabled,
+                                                styles.timeSlot,
+                                                isSelected && styles.timeSlotSelected,
                                             ]}
+                                            onPress={() => {
+                                                setSelectedTime(slot);
+                                                haptics.light();
+                                            }}
                                         >
-                                            {slot}
-                                        </Text>
-                                    </TouchableOpacity>
-                                );
-                            })}
+                                            <Text
+                                                style={[
+                                                    styles.timeText,
+                                                    isSelected && styles.timeTextSelected,
+                                                ]}
+                                            >
+                                                {slot}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    );
+                                })
+                            )}
                         </View>
                     </View>
                 )}
@@ -870,4 +871,27 @@ const styles = StyleSheet.create({
         fontSize: fontSize.md,
         fontWeight: fontWeight.semibold,
     },
+    slotsLoading: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingVertical: spacing.xl,
+    },
+    slotsLoadingText: {
+        color: colors.textMuted,
+        fontSize: fontSize.sm,
+        marginTop: spacing.sm,
+    },
+    noSlots: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingVertical: spacing.xl,
+    },
+    noSlotsText: {
+        color: colors.textMuted,
+        fontSize: fontSize.sm,
+        marginTop: spacing.sm,
+    },
 });
+

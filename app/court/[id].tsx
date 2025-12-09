@@ -11,8 +11,12 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
 import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
 import { useCourtById } from "../../hooks/useApi";
+import { ReviewService } from "../../services/review.service";
+import ReviewForm from "../../components/reviews/ReviewForm";
+import ReviewList from "../../components/reviews/ReviewList";
 import haptics from "../../lib/haptics";
 
 export default function CourtDetailScreen() {
@@ -20,14 +24,48 @@ export default function CourtDetailScreen() {
     const insets = useSafeAreaInsets();
     const { id } = useLocalSearchParams<{ id: string }>();
     const [refreshing, setRefreshing] = useState(false);
+    const [showReviewForm, setShowReviewForm] = useState(false);
 
     const { data: court, isLoading, refetch } = useCourtById(id || "");
 
+    // Reviews query
+    const { data: reviews = [], refetch: refetchReviews } = useQuery({
+        queryKey: ["reviews", id],
+        queryFn: async () => {
+            if (!id) return [];
+            const result = await ReviewService.getCourtReviews(id);
+            return result.data || [];
+        },
+        enabled: !!id,
+    });
+
+    // Review stats query
+    const { data: reviewStats } = useQuery({
+        queryKey: ["reviewStats", id],
+        queryFn: async () => {
+            if (!id) return undefined;
+            const result = await ReviewService.getReviewStats(id);
+            return result.data;
+        },
+        enabled: !!id,
+    });
+
+    // User's existing review
+    const { data: myReview } = useQuery({
+        queryKey: ["myReview", id],
+        queryFn: async () => {
+            if (!id) return null;
+            const result = await ReviewService.getUserReview(id);
+            return result.data;
+        },
+        enabled: !!id,
+    });
+
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
-        await refetch();
+        await Promise.all([refetch(), refetchReviews()]);
         setRefreshing(false);
-    }, [refetch]);
+    }, [refetch, refetchReviews]);
 
     const handleBook = () => {
         haptics.medium();
@@ -152,6 +190,26 @@ export default function CourtDetailScreen() {
                         </View>
                     </View>
                 )}
+
+                {/* Reviews Section */}
+                <View style={styles.reviewsSection}>
+                    <View style={styles.reviewsHeader}>
+                        <Text style={styles.sectionTitle}>Đánh giá & Nhận xét</Text>
+                        <TouchableOpacity
+                            style={styles.writeReviewBtn}
+                            onPress={() => {
+                                haptics.light();
+                                setShowReviewForm(true);
+                            }}
+                        >
+                            <Ionicons name="create-outline" size={16} color={colors.accent} />
+                            <Text style={styles.writeReviewText}>
+                                {myReview ? 'Sửa đánh giá' : 'Viết đánh giá'}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                    <ReviewList reviews={reviews} stats={reviewStats} />
+                </View>
             </ScrollView>
 
             {/* Book Button */}
@@ -164,6 +222,20 @@ export default function CourtDetailScreen() {
                     <Text style={styles.bookBtnText}>Đặt sân ngay</Text>
                 </TouchableOpacity>
             </View>
+
+            {/* Review Form Modal */}
+            <ReviewForm
+                visible={showReviewForm}
+                onClose={() => setShowReviewForm(false)}
+                courtId={id || ''}
+                courtName={court.name}
+                existingRating={myReview?.rating}
+                existingComment={myReview?.comment}
+                onSuccess={() => {
+                    refetchReviews();
+                    refetch(); // Refresh court to get updated rating
+                }}
+            />
         </View>
     );
 }
@@ -358,5 +430,28 @@ const styles = StyleSheet.create({
         color: colors.background,
         fontSize: fontSize.md,
         fontWeight: fontWeight.bold,
+    },
+    reviewsSection: {
+        paddingHorizontal: spacing.lg,
+        paddingTop: spacing.lg,
+        paddingBottom: spacing.xl,
+    },
+    reviewsHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: spacing.md,
+    },
+    writeReviewBtn: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: spacing.xs,
+        paddingVertical: spacing.xs,
+        paddingHorizontal: spacing.sm,
+    },
+    writeReviewText: {
+        color: colors.accent,
+        fontSize: fontSize.sm,
+        fontWeight: fontWeight.semibold,
     },
 });

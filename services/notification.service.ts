@@ -1,5 +1,8 @@
 import { supabase } from '../lib/supabase';
 import { ApiResponse } from '../types';
+import { logger } from '../lib/logger';
+
+const notifLogger = logger.create('Notification');
 
 export const NotificationService = {
     getNotifications: async (limit = 20): Promise<ApiResponse<any[]>> => {
@@ -15,7 +18,7 @@ export const NotificationService = {
                 .limit(limit);
 
             if (error) {
-                console.error('getNotifications error:', error);
+                notifLogger.error('getNotifications error', error);
                 return { success: false, data: [] };
             }
 
@@ -32,7 +35,7 @@ export const NotificationService = {
                 }))
             };
         } catch (e) {
-            console.error('getNotifications exception:', e);
+            notifLogger.error('getNotifications exception', e);
             return { success: false, data: [] };
         }
     },

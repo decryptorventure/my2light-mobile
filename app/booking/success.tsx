@@ -20,12 +20,16 @@ export default function BookingSuccessScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const params = useLocalSearchParams<{
+        bookingId?: string;
         courtName: string;
         date: string;
         time: string;
         totalPrice: string;
         packageName?: string;
+        status?: string;
     }>();
+
+    const isPending = params.status === "pending";
 
     const handleViewBookings = () => {
         haptics.light();
@@ -41,16 +45,33 @@ export default function BookingSuccessScreen() {
         <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
             {/* Success Icon */}
             <View style={styles.iconContainer}>
-                <View style={styles.iconCircle}>
-                    <Ionicons name="checkmark" size={64} color={colors.background} />
+                <View style={[styles.iconCircle, isPending && styles.iconCirclePending]}>
+                    <Ionicons
+                        name={isPending ? "time" : "checkmark"}
+                        size={64}
+                        color={colors.background}
+                    />
                 </View>
             </View>
 
             {/* Title */}
-            <Text style={styles.title}>Đặt sân thành công! 🎉</Text>
-            <Text style={styles.subtitle}>
-                Bạn đã đặt sân thành công. Hãy đến sân đúng giờ nhé!
+            <Text style={styles.title}>
+                {isPending ? "Đang chờ duyệt! ⏳" : "Đặt sân thành công! 🎉"}
             </Text>
+            <Text style={styles.subtitle}>
+                {isPending
+                    ? "Yêu cầu đặt sân của bạn đang chờ chủ sân xác nhận. Bạn sẽ nhận được thông báo khi được duyệt."
+                    : "Bạn đã đặt sân thành công. Hãy đến sân đúng giờ nhé!"
+                }
+            </Text>
+
+            {/* Pending Status Badge */}
+            {isPending && (
+                <View style={styles.pendingBadge}>
+                    <Ionicons name="hourglass-outline" size={16} color={colors.warning} />
+                    <Text style={styles.pendingText}>Chờ xác nhận từ chủ sân</Text>
+                </View>
+            )}
 
             {/* Booking Details Card */}
             <View style={styles.card}>
@@ -89,18 +110,45 @@ export default function BookingSuccessScreen() {
                         {parseInt(params.totalPrice || "0").toLocaleString()}đ
                     </Text>
                 </View>
+
+                {isPending && (
+                    <>
+                        <View style={styles.divider} />
+                        <View style={styles.cardRow}>
+                            <Text style={styles.cardLabel}>Trạng thái</Text>
+                            <View style={styles.statusBadge}>
+                                <Text style={styles.statusText}>Chờ duyệt</Text>
+                            </View>
+                        </View>
+                    </>
+                )}
             </View>
 
             {/* Tips */}
             <View style={styles.tips}>
-                <View style={styles.tipItem}>
-                    <Ionicons name="time-outline" size={20} color={colors.accent} />
-                    <Text style={styles.tipText}>Đến trước 15 phút để chuẩn bị</Text>
-                </View>
-                <View style={styles.tipItem}>
-                    <Ionicons name="videocam-outline" size={20} color={colors.accent} />
-                    <Text style={styles.tipText}>Camera sẽ tự động bắt đầu quay</Text>
-                </View>
+                {isPending ? (
+                    <>
+                        <View style={styles.tipItem}>
+                            <Ionicons name="notifications-outline" size={20} color={colors.accent} />
+                            <Text style={styles.tipText}>Bạn sẽ nhận thông báo khi được duyệt</Text>
+                        </View>
+                        <View style={styles.tipItem}>
+                            <Ionicons name="wallet-outline" size={20} color={colors.accent} />
+                            <Text style={styles.tipText}>Tiền sẽ được hoàn lại nếu bị từ chối</Text>
+                        </View>
+                    </>
+                ) : (
+                    <>
+                        <View style={styles.tipItem}>
+                            <Ionicons name="time-outline" size={20} color={colors.accent} />
+                            <Text style={styles.tipText}>Đến trước 15 phút để chuẩn bị</Text>
+                        </View>
+                        <View style={styles.tipItem}>
+                            <Ionicons name="videocam-outline" size={20} color={colors.accent} />
+                            <Text style={styles.tipText}>Camera sẽ tự động bắt đầu quay</Text>
+                        </View>
+                    </>
+                )}
             </View>
 
             {/* Actions */}
@@ -116,6 +164,7 @@ export default function BookingSuccessScreen() {
         </View>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {
@@ -227,4 +276,35 @@ const styles = StyleSheet.create({
         fontSize: fontSize.md,
         fontWeight: fontWeight.semibold,
     },
+    iconCirclePending: {
+        backgroundColor: colors.warning,
+    },
+    pendingBadge: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: spacing.xs,
+        backgroundColor: `${colors.warning}20`,
+        paddingVertical: spacing.sm,
+        paddingHorizontal: spacing.md,
+        borderRadius: borderRadius.full,
+        marginBottom: spacing.lg,
+    },
+    pendingText: {
+        color: colors.warning,
+        fontSize: fontSize.sm,
+        fontWeight: fontWeight.semibold,
+    },
+    statusBadge: {
+        backgroundColor: `${colors.warning}20`,
+        paddingVertical: spacing.xs,
+        paddingHorizontal: spacing.sm,
+        borderRadius: borderRadius.sm,
+    },
+    statusText: {
+        color: colors.warning,
+        fontSize: fontSize.xs,
+        fontWeight: fontWeight.semibold,
+    },
 });
+

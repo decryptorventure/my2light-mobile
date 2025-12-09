@@ -10,8 +10,10 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
 import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
 import { useMatchRequests } from "../../hooks/useApi";
+import { MatchService } from "../../services/match.service";
 import { MatchCardSkeleton, EmptyState, AnimatedPressable } from "../../components/ui";
 import haptics from "../../lib/haptics";
 
@@ -68,6 +70,13 @@ export default function MatchScreen() {
     const [levelFilter, setLevelFilter] = useState<string | null>(null);
     const [typeFilter, setTypeFilter] = useState<string | null>(null);
 
+    // Get unread message count
+    const { data: unreadCount = 0 } = useQuery({
+        queryKey: ['unreadMessages'],
+        queryFn: () => MatchService.getUnreadCount(),
+        refetchInterval: 30000, // Check every 30 seconds
+    });
+
     // Transform API data to UI format or use mock
     const matches: MatchRequest[] = apiMatches && apiMatches.length > 0
         ? apiMatches.map(m => ({
@@ -108,10 +117,25 @@ export default function MatchScreen() {
                     <Text style={styles.title}>Tìm Đối Thủ</Text>
                     <Text style={styles.subtitle}>Cặp kèo Pickleball nhanh chóng</Text>
                 </View>
-                <AnimatedPressable style={styles.createButton} onPress={() => router.push("/create-match")} hapticStyle="medium" scaleValue={0.95}>
-                    <Ionicons name="add" size={20} color={colors.background} />
-                    <Text style={styles.createButtonText}>Tạo kèo</Text>
-                </AnimatedPressable>
+                <View style={styles.headerButtons}>
+                    <TouchableOpacity
+                        style={styles.messagesBtn}
+                        onPress={() => router.push('/match/conversations')}
+                    >
+                        <Ionicons name="chatbubbles-outline" size={22} color={colors.text} />
+                        {unreadCount > 0 && (
+                            <View style={styles.unreadBadge}>
+                                <Text style={styles.unreadText}>
+                                    {unreadCount > 9 ? '9+' : unreadCount}
+                                </Text>
+                            </View>
+                        )}
+                    </TouchableOpacity>
+                    <AnimatedPressable style={styles.createButton} onPress={() => router.push("/create-match")} hapticStyle="medium" scaleValue={0.95}>
+                        <Ionicons name="add" size={20} color={colors.background} />
+                        <Text style={styles.createButtonText}>Tạo kèo</Text>
+                    </AnimatedPressable>
+                </View>
             </View>
 
             {/* Filters */}
@@ -135,7 +159,11 @@ export default function MatchScreen() {
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />
                 }
                 renderItem={({ item: match }) => (
-                    <View style={styles.matchCard}>
+                    <TouchableOpacity
+                        style={styles.matchCard}
+                        onPress={() => router.push(`/match/${match.id}`)}
+                        activeOpacity={0.8}
+                    >
                         <View style={styles.matchHeader}>
                             <View style={styles.matchUserInfo}>
                                 <View style={styles.matchAvatar}>
@@ -152,9 +180,10 @@ export default function MatchScreen() {
                                     </View>
                                 </View>
                             </View>
-                            <AnimatedPressable style={styles.acceptButton} hapticStyle="success" scaleValue={0.95}>
-                                <Text style={styles.acceptButtonText}>Nhận kèo</Text>
-                            </AnimatedPressable>
+                            <View style={styles.viewDetailBtn}>
+                                <Text style={styles.viewDetailText}>Xem chi tiết</Text>
+                                <Ionicons name="chevron-forward" size={16} color={colors.accent} />
+                            </View>
                         </View>
 
                         <View style={styles.matchDetails}>
@@ -173,7 +202,7 @@ export default function MatchScreen() {
                         </View>
 
                         <Text style={styles.matchNote}>{match.note}</Text>
-                    </View>
+                    </TouchableOpacity>
                 )}
                 ListEmptyComponent={
                     <EmptyState
@@ -333,5 +362,46 @@ const styles = StyleSheet.create({
         color: colors.accent,
         fontSize: fontSize.sm,
         fontStyle: "italic",
+    },
+    headerButtons: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: spacing.sm,
+    },
+    messagesBtn: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: colors.surface,
+        justifyContent: "center",
+        alignItems: "center",
+        position: "relative",
+    },
+    unreadBadge: {
+        position: "absolute",
+        top: -2,
+        right: -2,
+        minWidth: 18,
+        height: 18,
+        borderRadius: 9,
+        backgroundColor: colors.error,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingHorizontal: 4,
+    },
+    unreadText: {
+        fontSize: 10,
+        fontWeight: fontWeight.bold,
+        color: "#fff",
+    },
+    viewDetailBtn: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 4,
+    },
+    viewDetailText: {
+        color: colors.accent,
+        fontSize: fontSize.sm,
+        fontWeight: fontWeight.semibold,
     },
 });

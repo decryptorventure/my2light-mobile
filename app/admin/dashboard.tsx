@@ -47,6 +47,13 @@ export default function AdminDashboardScreen() {
             color: colors.success,
         },
         {
+            label: "Chờ duyệt",
+            value: String(stats?.pendingBookings || 0),
+            icon: "time-outline" as const,
+            color: colors.warning,
+            highlight: (stats?.pendingBookings || 0) > 0,
+        },
+        {
             label: "Booking hôm nay",
             value: String(stats?.todayBookings || 0),
             icon: "calendar-outline" as const,
@@ -57,12 +64,6 @@ export default function AdminDashboardScreen() {
             value: String(stats?.totalCourts || 0),
             icon: "business-outline" as const,
             color: colors.accent,
-        },
-        {
-            label: "Đánh giá TB",
-            value: (stats?.averageRating || 0).toFixed(1),
-            icon: "star-outline" as const,
-            color: colors.warning,
         },
     ];
 

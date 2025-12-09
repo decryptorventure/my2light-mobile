@@ -1,22 +1,23 @@
 import { supabase } from '../lib/supabase';
 import { User, ApiResponse } from '../types';
+import { authLogger } from '../lib/logger';
 
 export const AuthService = {
     getCurrentUser: async (): Promise<ApiResponse<User>> => {
         try {
-            console.log("📱 AuthService.getCurrentUser called");
+            authLogger.debug("getCurrentUser called");
 
             const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-            console.log("📱 Session check:", session ? `User ${session.user.id.slice(0, 8)}...` : "NO SESSION");
-            if (sessionError) console.error("📱 Session error:", sessionError);
+            authLogger.debug("Session check", { hasSession: !!session });
+            if (sessionError) authLogger.error("Session error", sessionError);
 
             if (!session?.user) {
-                console.log("📱 No session - returning not authenticated");
+                authLogger.debug("No session - returning not authenticated");
                 return { success: false, data: null as any, error: 'Not authenticated' };
             }
 
-            console.log("📱 Fetching profile for user:", session.user.id);
+            authLogger.debug("Fetching profile");
 
             // Try fetching profile from DB
             const { data, error } = await supabase
@@ -25,14 +26,14 @@ export const AuthService = {
                 .eq('id', session.user.id)
                 .single();
 
-            console.log("📱 Profile fetch result:", data ? "FOUND" : "NOT FOUND", error?.message || "");
+            authLogger.debug("Profile fetch result", { found: !!data });
 
             // Calculate fallback display name from email
             const emailName = session.user.email?.split('@')[0] || 'User';
             const displayName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
 
             if (error || !data) {
-                console.log("📱 Creating new profile...");
+                authLogger.debug("Creating new profile");
                 // Profile doesn't exist - create it
                 const newProfile = {
                     id: session.user.id,
@@ -51,11 +52,14 @@ export const AuthService = {
                     .insert(newProfile);
 
                 if (insertError) {
-                    console.error('📱 Failed to create profile:', insertError.message, insertError.code);
+                    authLogger.error('Failed to create profile', {
+                        message: insertError.message,
+                        code: insertError.code
+                    });
                     return { success: false, data: null as any, error: 'Failed to create profile: ' + insertError.message };
                 }
 
-                console.log("📱 Profile created successfully!");
+                authLogger.debug("Profile created successfully");
 
                 return {
                     success: true,
@@ -116,10 +120,10 @@ export const AuthService = {
                 hasOnboarded: data.has_onboarded ?? false
             };
 
-            console.log("📱 User loaded successfully:", user.name);
+            authLogger.debug("User loaded successfully", { name: user.name });
             return { success: true, data: user };
         } catch (e) {
-            console.error('📱 getCurrentUser error:', e);
+            authLogger.error('getCurrentUser error', e);
             return { success: false, data: null as any, error: 'Failed to fetch user' };
         }
     },
@@ -133,20 +137,20 @@ export const AuthService = {
         bio: string;
         is_public: boolean;
     }>): Promise<ApiResponse<boolean>> => {
-        console.log("📱 updateUserProfile called with:", Object.keys(updates));
+        authLogger.debug("updateUserProfile called", { fields: Object.keys(updates) });
 
         const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-        console.log("📱 Auth check:", user ? `Found ${user.id.slice(0, 8)}...` : "NO USER");
-        if (authError) console.error("📱 Auth error:", authError);
+        authLogger.debug("Auth check", { authenticated: !!user });
+        if (authError) authLogger.error("Auth error", authError);
 
         if (!user) {
-            console.log("📱 Not authenticated for update");
+            authLogger.debug("Not authenticated for update");
             return { success: false, data: false, error: 'Not authenticated' };
         }
 
         try {
-            console.log("📱 Updating profile for user:", user.id);
+            authLogger.debug("Updating profile");
 
             const { error: updateError } = await supabase
                 .from('profiles')
@@ -154,14 +158,17 @@ export const AuthService = {
                 .eq('id', user.id);
 
             if (updateError) {
-                console.error("📱 Update profile error:", updateError.message, updateError.code);
+                authLogger.error("Update profile error", {
+                    message: updateError.message,
+                    code: updateError.code
+                });
                 return { success: false, data: false, error: updateError.message };
             }
 
-            console.log("📱 Profile updated successfully!");
+            authLogger.debug("Profile updated successfully");
             return { success: true, data: true };
         } catch (e) {
-            console.error("📱 Exception in updateUserProfile:", e);
+            authLogger.error("Exception in updateUserProfile", e);
             return { success: false, data: false, error: 'Internal error' };
         }
     }

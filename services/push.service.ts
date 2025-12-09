@@ -8,6 +8,9 @@ import * as Device from "expo-device";
 import { Platform } from "react-native";
 import Constants from "expo-constants";
 import { supabase } from "../lib/supabase";
+import { logger } from "../lib/logger";
+
+const pushLogger = logger.create('Push');
 
 // Configure notification handling
 Notifications.setNotificationHandler({
@@ -15,6 +18,8 @@ Notifications.setNotificationHandler({
         shouldShowAlert: true,
         shouldPlaySound: true,
         shouldSetBadge: true,
+        shouldShowBanner: true,
+        shouldShowList: true,
     }),
 });
 
@@ -25,7 +30,7 @@ export const PushNotificationService = {
     registerForPushNotifications: async (): Promise<string | null> => {
         // Skip on simulator/emulator
         if (!Device.isDevice) {
-            console.log("Push notifications require a physical device");
+            pushLogger.debug("Push notifications require a physical device");
             return null;
         }
 
@@ -41,7 +46,7 @@ export const PushNotificationService = {
             }
 
             if (finalStatus !== "granted") {
-                console.log("Push notification permission not granted");
+                pushLogger.debug("Push notification permission not granted");
                 return null;
             }
 
@@ -50,7 +55,7 @@ export const PushNotificationService = {
                 ?? Constants.easConfig?.projectId;
 
             if (!projectId) {
-                console.log("No projectId found - push notifications disabled in dev mode");
+                pushLogger.debug("No projectId found - push notifications disabled in dev mode");
                 return null;
             }
 
@@ -80,7 +85,7 @@ export const PushNotificationService = {
 
             return token.data;
         } catch (error) {
-            console.error("Failed to register push notifications:", error);
+            pushLogger.error("Failed to register push notifications", error);
             return null;
         }
     },
@@ -88,7 +93,7 @@ export const PushNotificationService = {
     /**
      * Send local notification (for testing)
      */
-    sendLocalNotification: async (title: string, body: string, data?: object) => {
+    sendLocalNotification: async (title: string, body: string, data?: Record<string, unknown>) => {
         await Notifications.scheduleNotificationAsync({
             content: {
                 title,
@@ -118,7 +123,7 @@ export const PushNotificationService = {
             .single();
 
         if (!owner?.push_token) {
-            console.log("Owner has no push token");
+            pushLogger.debug("Owner has no push token");
             return false;
         }
 
@@ -146,10 +151,10 @@ export const PushNotificationService = {
             });
 
             const result = await response.json();
-            console.log("Push notification sent:", result);
+            pushLogger.debug("Push notification sent", { status: result.status });
             return true;
         } catch (error) {
-            console.error("Failed to send push notification:", error);
+            pushLogger.error("Failed to send push notification", error);
             return false;
         }
     },
@@ -223,4 +228,215 @@ export const PushNotificationService = {
         await Notifications.dismissAllNotificationsAsync();
         await Notifications.setBadgeCountAsync(0);
     },
+
+    /**
+     * Notify court owner about a new pending booking
+     */
+    notifyBookingCreated: async (bookingData: {
+        courtId: string;
+        courtName: string;
+        playerName: string;
+        playerId: string;
+        startTime: string;
+        totalAmount: number;
+        bookingId: string;
+    }) => {
+        try {
+            // Get court owner
+            const { data: court } = await supabase
+                .from("courts")
+                .select("owner_id")
+                .eq("id", bookingData.courtId)
+                .single();
+
+            if (!court?.owner_id) return false;
+
+            // Get owner's push token
+            const { data: owner } = await supabase
+                .from("profiles")
+                .select("push_token")
+                .eq("id", court.owner_id)
+                .single();
+
+            // Create in-app notification
+            await PushNotificationService.createNotification(court.owner_id, {
+                type: "booking_pending",
+                title: "🎾 Có đặt sân mới!",
+                message: `${bookingData.playerName} đặt ${bookingData.courtName} lúc ${bookingData.startTime}`,
+                metadata: {
+                    bookingId: bookingData.bookingId,
+                    courtId: bookingData.courtId,
+                    playerId: bookingData.playerId,
+                },
+            });
+
+            // Send push if owner has token
+            if (owner?.push_token) {
+                await fetch("https://exp.host/--/api/v2/push/send", {
+                    method: "POST",
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        to: owner.push_token,
+                        sound: "default",
+                        title: "🎾 Có đặt sân mới!",
+                        body: `${bookingData.playerName} đặt ${bookingData.courtName}`,
+                        data: {
+                            type: "booking_pending",
+                            bookingId: bookingData.bookingId,
+                        },
+                    }),
+                });
+            }
+
+            pushLogger.info("Booking created notification sent", { bookingId: bookingData.bookingId });
+            return true;
+        } catch (error) {
+            pushLogger.error("Failed to send booking created notification", error);
+            return false;
+        }
+    },
+
+    /**
+     * Notify user when their booking status changes
+     */
+    notifyBookingStatusChanged: async (data: {
+        bookingId: string;
+        userId: string;
+        courtName: string;
+        newStatus: 'approved' | 'rejected' | 'cancelled';
+        reason?: string;
+    }) => {
+        try {
+            // Get user's push token
+            const { data: user } = await supabase
+                .from("profiles")
+                .select("push_token")
+                .eq("id", data.userId)
+                .single();
+
+            // Prepare notification content based on status
+            let title = "";
+            let message = "";
+            let type = "";
+
+            switch (data.newStatus) {
+                case "approved":
+                    title = "✅ Đặt sân được duyệt!";
+                    message = `Booking ${data.courtName} đã được chủ sân xác nhận`;
+                    type = "booking_approved";
+                    break;
+                case "rejected":
+                    title = "❌ Đặt sân bị từ chối";
+                    message = data.reason
+                        ? `${data.courtName}: ${data.reason}. Tiền đã được hoàn lại.`
+                        : `${data.courtName} đã bị từ chối. Tiền đã được hoàn lại.`;
+                    type = "booking_rejected";
+                    break;
+                case "cancelled":
+                    title = "⚠️ Đặt sân bị hủy";
+                    message = data.reason
+                        ? `${data.courtName}: ${data.reason}`
+                        : `${data.courtName} đã bị hủy`;
+                    type = "booking_cancelled";
+                    break;
+            }
+
+            // Create in-app notification
+            await PushNotificationService.createNotification(data.userId, {
+                type,
+                title,
+                message,
+                metadata: { bookingId: data.bookingId },
+            });
+
+            // Send push notification if user has token
+            if (user?.push_token) {
+                await fetch("https://exp.host/--/api/v2/push/send", {
+                    method: "POST",
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        to: user.push_token,
+                        sound: "default",
+                        title,
+                        body: message,
+                        data: {
+                            type,
+                            bookingId: data.bookingId,
+                        },
+                    }),
+                });
+            }
+
+            pushLogger.info("Booking status notification sent", {
+                bookingId: data.bookingId,
+                status: data.newStatus
+            });
+            return true;
+        } catch (error) {
+            pushLogger.error("Failed to send status notification", error);
+            return false;
+        }
+    },
+
+    /**
+     * Notify user about upcoming booking (30 min before)
+     */
+    notifyUpcomingBooking: async (data: {
+        bookingId: string;
+        userId: string;
+        courtName: string;
+        startTime: string;
+    }) => {
+        try {
+            const { data: user } = await supabase
+                .from("profiles")
+                .select("push_token")
+                .eq("id", data.userId)
+                .single();
+
+            const title = "⏰ Sắp đến giờ đá!";
+            const message = `${data.courtName} lúc ${data.startTime}. Chuẩn bị ra sân nhé!`;
+
+            // Create in-app notification
+            await PushNotificationService.createNotification(data.userId, {
+                type: "booking_reminder",
+                title,
+                message,
+                metadata: { bookingId: data.bookingId },
+            });
+
+            // Send push
+            if (user?.push_token) {
+                await fetch("https://exp.host/--/api/v2/push/send", {
+                    method: "POST",
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        to: user.push_token,
+                        sound: "default",
+                        title,
+                        body: message,
+                        data: {
+                            type: "booking_reminder",
+                            bookingId: data.bookingId,
+                        },
+                    }),
+                });
+            }
+
+            return true;
+        } catch (error) {
+            pushLogger.error("Failed to send reminder notification", error);
+            return false;
+        }
+    },
 };
+

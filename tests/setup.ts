@@ -1,3 +1,6 @@
+// Define __DEV__ for React Native compatibility in tests
+(global as any).__DEV__ = true;
+
 // Mock Supabase
 jest.mock('../lib/supabase', () => ({
     supabase: {
@@ -25,6 +28,12 @@ jest.mock('../lib/supabase', () => ({
             single: jest.fn(),
             maybeSingle: jest.fn(),
         })),
+        storage: {
+            from: jest.fn(() => ({
+                upload: jest.fn(),
+                remove: jest.fn(),
+                getPublicUrl: jest.fn(() => ({ data: { publicUrl: 'https://example.com/file' } })),
+            })),
+        },
     },
 }));
-

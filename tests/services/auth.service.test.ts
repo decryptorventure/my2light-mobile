@@ -1,5 +1,5 @@
-import { AuthService } from '@/features/auth/auth.service';
-import { supabase } from '@/lib/supabase';
+import { AuthService } from '../../services/auth.service';
+import { supabase } from '../../lib/supabase';
 
 describe('AuthService', () => {
     afterEach(() => {

@@ -13,12 +13,15 @@ import {
     TouchableOpacity,
     RefreshControl,
     ActivityIndicator,
+    Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { useQueryClient } from "@tanstack/react-query";
 import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
 import { useTransactions, useUserCredits } from "../../hooks/useApi";
+import { TransactionService } from "../../services/transaction.service";
 import { Card } from "../../components/ui";
 import haptics from "../../lib/haptics";
 
@@ -32,7 +35,9 @@ import haptics from "../../lib/haptics";
 export default function WalletScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
+    const queryClient = useQueryClient();
     const [refreshing, setRefreshing] = useState(false);
+    const [isTopUp, setIsTopUp] = useState(false);
 
     // Real data from API
     const { data: credits, isLoading: creditsLoading, refetch: refetchCredits } = useUserCredits();
@@ -43,6 +48,31 @@ export default function WalletScreen() {
         haptics.light();
         await Promise.all([refetchCredits(), refetchTx()]);
         setRefreshing(false);
+    };
+
+    const handleTopUp = async () => {
+        setIsTopUp(true);
+        haptics.medium();
+
+        const result = await TransactionService.addCredits(100000);
+
+        if (result.success) {
+            haptics.success();
+            Alert.alert(
+                "Nạp tiền thành công! 🎉",
+                `Đã cộng 100,000đ vào tài khoản.\nSố dư mới: ${result.data.toLocaleString()}đ`
+            );
+            // Refresh wallet data
+            await Promise.all([refetchCredits(), refetchTx()]);
+            // Invalidate profile cache so Home/Profile show updated credits
+            queryClient.invalidateQueries({ queryKey: ["user", "current"] });
+            queryClient.invalidateQueries({ queryKey: ["user", "credits"] });
+
+        } else {
+            Alert.alert("Lỗi", result.error || "Không thể nạp tiền");
+        }
+
+        setIsTopUp(false);
     };
 
     // Calculate totals from transactions
@@ -90,11 +120,22 @@ export default function WalletScreen() {
                             )}
                         </View>
                     </View>
-                    <TouchableOpacity style={styles.topUpButton} onPress={() => haptics.medium()}>
-                        <Ionicons name="add" size={20} color="#fff" />
-                        <Text style={styles.topUpButtonText}>Nạp tiền</Text>
+                    <TouchableOpacity
+                        style={[styles.topUpButton, isTopUp && styles.topUpButtonDisabled]}
+                        onPress={handleTopUp}
+                        disabled={isTopUp}
+                    >
+                        {isTopUp ? (
+                            <ActivityIndicator size="small" color={colors.accent} />
+                        ) : (
+                            <>
+                                <Ionicons name="add" size={20} color={colors.accent} />
+                                <Text style={styles.topUpButtonText}>Nạp 100,000đ</Text>
+                            </>
+                        )}
                     </TouchableOpacity>
                 </View>
+
 
                 {/* Stats */}
                 <View style={styles.statsRow}>
@@ -296,8 +337,11 @@ const styles = StyleSheet.create({
         borderRadius: borderRadius.md,
         gap: spacing.xs,
     },
+    topUpButtonDisabled: {
+        opacity: 0.6,
+    },
     topUpButtonText: {
-        color: "#fff",
+        color: colors.accent,
         fontSize: fontSize.md,
         fontWeight: fontWeight.semibold,
     },

@@ -1,5 +1,8 @@
 import { supabase } from '../lib/supabase';
 import { Court, Package, ApiResponse } from '../types';
+import { logger } from '../lib/logger';
+
+const courtLogger = logger.create('Court');
 
 export const CourtService = {
     getCourts: async (): Promise<ApiResponse<Court[]>> => {
@@ -10,7 +13,7 @@ export const CourtService = {
                 .eq('is_active', true);
 
             if (error || !data) {
-                console.error("Error fetching courts:", error);
+                courtLogger.error("Error fetching courts", error);
                 return { success: false, data: [] };
             }
 
@@ -33,7 +36,7 @@ export const CourtService = {
 
             return { success: true, data: courts };
         } catch (e) {
-            console.error('getCourts error:', e);
+            courtLogger.error('getCourts error', e);
             return { success: false, data: [] };
         }
     },
@@ -46,7 +49,7 @@ export const CourtService = {
             .single();
 
         if (error || !data) {
-            console.error('getCourtById error:', error);
+            courtLogger.error('getCourtById error', error);
             return { success: false, data: undefined, error: error?.message || 'Court not found' };
         }
 
@@ -80,7 +83,7 @@ export const CourtService = {
                 .order('price', { ascending: true });
 
             if (error || !data) {
-                console.error('getPackages error:', error);
+                courtLogger.error('getPackages error', error);
                 return { success: false, data: [] };
             }
 
@@ -99,7 +102,7 @@ export const CourtService = {
 
             return { success: true, data: packages };
         } catch (e) {
-            console.error('getPackages error:', e);
+            courtLogger.error('getPackages error', e);
             return { success: false, data: [] };
         }
     }

@@ -21,7 +21,7 @@ import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../const
 import { AdminService, BookingManagement } from "../../services/admin.service";
 import haptics from "../../lib/haptics";
 
-type FilterType = "all" | "pending" | "active" | "completed" | "cancelled";
+type FilterType = "all" | "pending" | "approved" | "active" | "completed" | "cancelled" | "rejected";
 
 export default function AdminBookingsScreen() {
     const insets = useSafeAreaInsets();
@@ -100,7 +100,7 @@ export default function AdminBookingsScreen() {
     const filters: { key: FilterType; label: string }[] = [
         { key: "all", label: "Tất cả" },
         { key: "pending", label: "Chờ duyệt" },
-        { key: "active", label: "Đã duyệt" },
+        { key: "approved", label: "Đã duyệt" },
         { key: "completed", label: "Hoàn thành" },
     ];
 
@@ -108,7 +108,20 @@ export default function AdminBookingsScreen() {
         const { date, time } = formatDateTime(item.startTime);
         const isProcessing = processingId === item.id;
         const isPending = item.status === "pending";
-        const isActive = item.status === "active";
+        const isApprovedOrActive = item.status === "approved" || item.status === "active";
+
+        // Get status display
+        const getStatusDisplay = () => {
+            switch (item.status) {
+                case "pending": return "Chờ duyệt";
+                case "approved": return "Đã duyệt";
+                case "active": return "Đang diễn ra";
+                case "completed": return "Hoàn thành";
+                case "cancelled": return "Đã huỷ";
+                case "rejected": return "Bị từ chối";
+                default: return item.status;
+            }
+        };
 
         return (
             <View style={styles.bookingCard}>
@@ -121,7 +134,9 @@ export default function AdminBookingsScreen() {
                         style={[
                             styles.statusBadge,
                             item.status === "pending" && styles.statusPending,
+                            (item.status === "approved" || item.status === "active") && styles.statusApproved,
                             item.status === "cancelled" && styles.statusCancelled,
+                            (item.status === "rejected") && styles.statusCancelled,
                             item.status === "completed" && styles.statusCompleted,
                         ]}
                     >
@@ -129,19 +144,15 @@ export default function AdminBookingsScreen() {
                             style={[
                                 styles.statusText,
                                 item.status === "pending" && styles.statusTextPending,
-                                item.status === "cancelled" && styles.statusTextCancelled,
+                                (item.status === "approved" || item.status === "active") && styles.statusTextApproved,
+                                (item.status === "cancelled" || item.status === "rejected") && styles.statusTextCancelled,
                             ]}
                         >
-                            {item.status === "pending"
-                                ? "Chờ duyệt"
-                                : item.status === "active"
-                                    ? "Đã duyệt"
-                                    : item.status === "completed"
-                                        ? "Hoàn thành"
-                                        : "Đã huỷ"}
+                            {getStatusDisplay()}
                         </Text>
                     </View>
                 </View>
+
 
                 <View style={styles.bookingDetails}>
                     <View style={styles.detailRow}>
@@ -162,7 +173,7 @@ export default function AdminBookingsScreen() {
                     </View>
                 </View>
 
-                {(isPending || isActive) && (
+                {(isPending || isApprovedOrActive) && (
                     <View style={styles.actionButtons}>
                         {isPending && (
                             <TouchableOpacity
@@ -319,6 +330,9 @@ const styles = StyleSheet.create({
     statusPending: {
         backgroundColor: `${colors.warning}20`,
     },
+    statusApproved: {
+        backgroundColor: `${colors.success}20`,
+    },
     statusCancelled: {
         backgroundColor: `${colors.error}20`,
     },
@@ -332,6 +346,9 @@ const styles = StyleSheet.create({
     },
     statusTextPending: {
         color: colors.warning,
+    },
+    statusTextApproved: {
+        color: colors.success,
     },
     statusTextCancelled: {
         color: colors.error,

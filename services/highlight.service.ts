@@ -1,5 +1,8 @@
 import { supabase } from '../lib/supabase';
 import { Highlight, ApiResponse } from '../types';
+import { logger } from '../lib/logger';
+
+const highlightLogger = logger.create('Highlight');
 
 /**
  * Helper to fetch related data (profiles, courts) for highlights
@@ -65,7 +68,7 @@ export const HighlightService = {
      */
     getHighlights: async (limit = 10): Promise<ApiResponse<Highlight[]>> => {
         try {
-            console.log("📽️ getHighlights: Fetching public highlights, limit:", limit);
+            highlightLogger.debug("getHighlights: Fetching public highlights", { limit });
 
             const { data, error } = await supabase
                 .from('highlights')
@@ -75,23 +78,16 @@ export const HighlightService = {
                 .limit(limit);
 
             if (error) {
-                console.error("📽️ getHighlights error:", error.message);
+                highlightLogger.error("getHighlights error", { message: error.message });
                 return { success: false, data: [], error: error.message };
             }
 
-            console.log("📽️ Found", data?.length || 0, "public highlights");
+            highlightLogger.debug("Found public highlights", { count: data?.length || 0 });
 
             const enriched = await enrichHighlights(data || []);
-            console.log("📽️ Enriched highlights:", enriched.map(h => ({
-                id: h.id.slice(0, 8),
-                title: h.title,
-                videoUrl: h.videoUrl ? 'YES' : 'NO',
-                thumbnailUrl: h.thumbnailUrl ? 'YES' : 'NO'
-            })));
-
             return { success: true, data: enriched };
         } catch (e: any) {
-            console.error("📽️ getHighlights exception:", e);
+            highlightLogger.error("getHighlights exception", e);
             return { success: false, data: [], error: e.message };
         }
     },
@@ -101,7 +97,7 @@ export const HighlightService = {
      */
     getUserHighlights: async (userId: string, limit = 50): Promise<ApiResponse<Highlight[]>> => {
         try {
-            console.log("📽️ getUserHighlights: Fetching for user:", userId?.slice(0, 8) || "none");
+            highlightLogger.debug("getUserHighlights: Fetching for user");
 
             if (!userId) {
                 return { success: true, data: [] };
@@ -115,23 +111,16 @@ export const HighlightService = {
                 .limit(limit);
 
             if (error) {
-                console.error("📽️ getUserHighlights error:", error.message);
+                highlightLogger.error("getUserHighlights error", { message: error.message });
                 return { success: false, data: [], error: error.message };
             }
 
-            console.log("📽️ Found", data?.length || 0, "user highlights");
+            highlightLogger.debug("Found user highlights", { count: data?.length || 0 });
 
             const enriched = await enrichHighlights(data || []);
-            console.log("📽️ User highlights enriched:", enriched.map(h => ({
-                id: h.id.slice(0, 8),
-                title: h.title,
-                videoUrl: h.videoUrl ? 'YES' : 'NO',
-                thumbnailUrl: h.thumbnailUrl ? 'YES' : 'NO'
-            })));
-
             return { success: true, data: enriched };
         } catch (e: any) {
-            console.error("📽️ getUserHighlights exception:", e);
+            highlightLogger.error("getUserHighlights exception", e);
             return { success: false, data: [], error: e.message };
         }
     },
@@ -149,10 +138,9 @@ export const HighlightService = {
         thumbnailUrl?: string
     ): Promise<ApiResponse<Highlight>> => {
         try {
-            console.log("📽️ createHighlight:", {
-                courtId: courtId?.slice(0, 8) || "none",
-                videoUrl: videoUrl ? "YES" : "NO",
-                thumbnailUrl: thumbnailUrl ? "YES" : "NO",
+            highlightLogger.debug("createHighlight", {
+                hasVideo: !!videoUrl,
+                hasThumbnail: !!thumbnailUrl,
                 title
             });
 
@@ -175,11 +163,7 @@ export const HighlightService = {
                 highlight_events: highlightEvents || null
             };
 
-            console.log("📽️ Inserting highlight:", {
-                user_id: insertData.user_id.slice(0, 8),
-                video_url: insertData.video_url ? insertData.video_url.slice(0, 50) + "..." : "EMPTY",
-                thumbnail_url: insertData.thumbnail_url ? insertData.thumbnail_url.slice(0, 50) + "..." : "EMPTY"
-            });
+            highlightLogger.debug("Inserting highlight");
 
             const { data, error } = await supabase
                 .from('highlights')
@@ -188,17 +172,17 @@ export const HighlightService = {
                 .single();
 
             if (error) {
-                console.error("📽️ createHighlight error:", error.message);
+                highlightLogger.error("createHighlight error", { message: error.message });
                 return { success: false, data: null as any, error: error.message };
             }
 
-            console.log("📽️ Highlight created:", data.id);
+            highlightLogger.debug("Highlight created", { id: data.id });
 
             // Return enriched data
             const enriched = await enrichHighlights([data]);
             return { success: true, data: enriched[0] };
         } catch (e: any) {
-            console.error("📽️ createHighlight exception:", e);
+            highlightLogger.error("createHighlight exception", e);
             return { success: false, data: null as any, error: e.message };
         }
     },
@@ -216,13 +200,13 @@ export const HighlightService = {
                 .eq('id', highlightId);
 
             if (error) {
-                console.error("📽️ toggleLike error:", error.message);
+                highlightLogger.error("toggleLike error", { message: error.message });
                 return { success: false, data: false, error: error.message };
             }
 
             return { success: true, data: true };
         } catch (e: any) {
-            console.error("📽️ toggleLike exception:", e);
+            highlightLogger.error("toggleLike exception", e);
             return { success: false, data: false, error: e.message };
         }
     }

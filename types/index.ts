@@ -84,12 +84,13 @@ export interface Booking {
     packageId: string;
     startTime: number; // timestamp
     endTime: number; // timestamp
-    status: 'pending' | 'active' | 'completed' | 'cancelled';
+    status: 'pending' | 'approved' | 'active' | 'completed' | 'cancelled' | 'rejected';
     totalAmount: number;
     courtName?: string; // Expanded for UI
     packageName?: string; // Expanded for UI
     packageType?: 'standard' | 'full_match';
 }
+
 
 export interface MatchRequest {
     id: string;
