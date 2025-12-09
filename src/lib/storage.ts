@@ -61,7 +61,7 @@ export const cache = {
     clear: (pattern?: string) => {
         if (pattern) {
             const keys = storage.getAllKeys();
-            keys.forEach(key => {
+            keys.forEach((key: string) => {
                 if (key.includes(pattern)) {
                     storage.delete(key);
                 }

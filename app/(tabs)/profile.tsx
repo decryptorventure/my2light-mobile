@@ -58,7 +58,7 @@ export default function ProfileScreen() {
     });
 
     const isCourtOwner = ownerProfile && ownerProfile.status === "approved";
-    const isPendingOwner = ownerProfile && ownerProfile.status === "pending";
+    const isPendingOwner = !!(ownerProfile && ownerProfile.status === "pending");
 
     // Fetch user's highlights for stats only
     const { data: myHighlights, refetch: refetchHighlights } = useUserHighlights(profile?.id || "");

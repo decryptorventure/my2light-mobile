@@ -11,8 +11,8 @@ import type { Subscription } from "expo-notifications";
 
 export function usePushNotifications() {
     const router = useRouter();
-    const notificationListener = useRef<Subscription>();
-    const responseListener = useRef<Subscription>();
+    const notificationListener = useRef<Subscription>(undefined);
+    const responseListener = useRef<Subscription>(undefined);
 
     useEffect(() => {
         // Register for push notifications
