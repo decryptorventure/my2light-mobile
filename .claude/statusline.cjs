@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-'use strict';
+"use strict";
 
 /**
  * Custom Claude Code statusline for Node.js
@@ -13,15 +13,14 @@
  * - Falls back to smart defaults based on window size
  */
 
-const { stdin, env } = require('process');
-const { execSync } = require('child_process');
-const os = require('os');
-const fs = require('fs');
-const path = require('path');
+const { stdin, env } = require("process");
+const { execSync } = require("child_process");
+const os = require("os");
+const fs = require("fs");
+const path = require("path");
 
 // Use modularized context tracker with 3-layer self-healing detection
-const { trackContext } = require('./hooks/lib/context-tracker.cjs');
-
+const { trackContext } = require("./hooks/lib/context-tracker.cjs");
 
 /**
  * Safe command execution wrapper
@@ -29,12 +28,12 @@ const { trackContext } = require('./hooks/lib/context-tracker.cjs');
 function exec(cmd) {
     try {
         return execSync(cmd, {
-            encoding: 'utf8',
-            stdio: ['pipe', 'pipe', 'ignore'],
-            windowsHide: true
+            encoding: "utf8",
+            stdio: ["pipe", "pipe", "ignore"],
+            windowsHide: true,
         }).trim();
     } catch (err) {
-        return '';
+        return "";
     }
 }
 
@@ -44,11 +43,11 @@ function exec(cmd) {
 function formatTimeHM(epoch) {
     try {
         const date = new Date(epoch * 1000);
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const hours = date.getHours().toString().padStart(2, "0");
+        const minutes = date.getMinutes().toString().padStart(2, "0");
         return `${hours}:${minutes}`;
     } catch (err) {
-        return '00:00';
+        return "00:00";
     }
 }
 
@@ -68,10 +67,10 @@ function formatTimeHM(epoch) {
  */
 function progressBar(percent, width = 12) {
     const clamped = Math.max(0, Math.min(100, percent));
-    const filled = Math.round(clamped * width / 100);
+    const filled = Math.round((clamped * width) / 100);
     const empty = width - filled;
     // ▰ (U+25B0) filled, ▱ (U+25B1) empty - smooth horizontal rectangles
-    return '▰'.repeat(filled) + '▱'.repeat(empty);
+    return "▰".repeat(filled) + "▱".repeat(empty);
 }
 
 /**
@@ -81,9 +80,9 @@ function progressBar(percent, width = 12) {
  * @returns {string} Emoji indicator
  */
 function getSeverityEmoji(percent) {
-    if (percent >= 90) return '🔴';      // Critical
-    if (percent >= 70) return '🟡';      // Warning
-    return '🟢';                          // Healthy
+    if (percent >= 90) return "🔴"; // Critical
+    if (percent >= 70) return "🟡"; // Warning
+    return "🟢"; // Healthy
 }
 
 /**
@@ -92,7 +91,7 @@ function getSeverityEmoji(percent) {
 function expandHome(filePath) {
     const homeDir = os.homedir();
     if (filePath.startsWith(homeDir)) {
-        return filePath.replace(homeDir, '~');
+        return filePath.replace(homeDir, "~");
     }
     return filePath;
 }
@@ -103,17 +102,17 @@ function expandHome(filePath) {
 async function readStdin() {
     return new Promise((resolve, reject) => {
         const chunks = [];
-        stdin.setEncoding('utf8');
+        stdin.setEncoding("utf8");
 
-        stdin.on('data', (chunk) => {
+        stdin.on("data", (chunk) => {
             chunks.push(chunk);
         });
 
-        stdin.on('end', () => {
-            resolve(chunks.join(''));
+        stdin.on("end", () => {
+            resolve(chunks.join(""));
         });
 
-        stdin.on('error', (err) => {
+        stdin.on("error", (err) => {
             reject(err);
         });
     });
@@ -127,14 +126,14 @@ async function main() {
         // Read and parse JSON input
         const input = await readStdin();
         if (!input.trim()) {
-            console.error('No input provided');
+            console.error("No input provided");
             process.exit(1);
         }
 
         const data = JSON.parse(input);
 
         // Extract basic information
-        let currentDir = 'unknown';
+        let currentDir = "unknown";
         if (data.workspace?.current_dir) {
             currentDir = data.workspace.current_dir;
         } else if (data.cwd) {
@@ -142,30 +141,31 @@ async function main() {
         }
         currentDir = expandHome(currentDir);
 
-        const modelName = data.model?.display_name || 'Claude';
-        const modelVersion = data.model?.version && data.model.version !== 'null' ? data.model.version : '';
+        const modelName = data.model?.display_name || "Claude";
+        const modelVersion =
+            data.model?.version && data.model.version !== "null" ? data.model.version : "";
 
         // Git branch detection
-        let gitBranch = '';
-        const gitCheck = exec('git rev-parse --git-dir');
+        let gitBranch = "";
+        const gitCheck = exec("git rev-parse --git-dir");
         if (gitCheck) {
-            gitBranch = exec('git branch --show-current');
+            gitBranch = exec("git branch --show-current");
             if (!gitBranch) {
-                gitBranch = exec('git rev-parse --short HEAD');
+                gitBranch = exec("git rev-parse --short HEAD");
             }
         }
 
         // Native Claude Code data integration
-        let sessionText = '';
-        let costUSD = '';
+        let sessionText = "";
+        let costUSD = "";
         let linesAdded = 0;
         let linesRemoved = 0;
         let contextPercent = 0;
-        let contextText = '';
-        const billingMode = env.CLAUDE_BILLING_MODE || 'api';
+        let contextText = "";
+        const billingMode = env.CLAUDE_BILLING_MODE || "api";
 
         // Extract native cost data from Claude Code
-        costUSD = data.cost?.total_cost_usd || '';
+        costUSD = data.cost?.total_cost_usd || "";
         linesAdded = data.cost?.total_lines_added || 0;
         linesRemoved = data.cost?.total_lines_removed || 0;
 
@@ -183,7 +183,7 @@ async function main() {
                 sessionId: data.session_id,
                 contextInput,
                 contextOutput,
-                contextWindowSize: contextSize
+                contextWindowSize: contextSize,
             });
 
             contextPercent = result.percentage;
@@ -204,8 +204,8 @@ async function main() {
         if (transcriptPath) {
             try {
                 if (fs.existsSync(transcriptPath)) {
-                    const content = fs.readFileSync(transcriptPath, 'utf8');
-                    const lines = content.split('\n').filter(l => l.trim());
+                    const content = fs.readFileSync(transcriptPath, "utf8");
+                    const lines = content.split("\n").filter((l) => l.trim());
 
                     // Find first API call with usage data
                     let firstApiCall = null;
@@ -254,7 +254,7 @@ async function main() {
         }
 
         // Render statusline (no ANSI colors - emoji only for indicators)
-        let output = '';
+        let output = "";
 
         // Directory
         output += `📁 ${currentDir}`;
@@ -278,13 +278,13 @@ async function main() {
         }
 
         // Cost (only show for API billing mode)
-        if (billingMode === 'api' && costUSD && /^\d+(\.\d+)?$/.test(costUSD.toString())) {
+        if (billingMode === "api" && costUSD && /^\d+(\.\d+)?$/.test(costUSD.toString())) {
             const costUSDNum = parseFloat(costUSD);
             output += `  💵 $${costUSDNum.toFixed(4)}`;
         }
 
         // Lines changed
-        if ((linesAdded > 0 || linesRemoved > 0)) {
+        if (linesAdded > 0 || linesRemoved > 0) {
             output += `  📝 +${linesAdded} -${linesRemoved}`;
         }
 
@@ -295,12 +295,12 @@ async function main() {
 
         console.log(output);
     } catch (err) {
-        console.error('Error:', err.message);
+        console.error("Error:", err.message);
         process.exit(1);
     }
 }
 
-main().catch(err => {
-    console.error('Fatal error:', err);
+main().catch((err) => {
+    console.error("Fatal error:", err);
     process.exit(1);
 });

@@ -67,7 +67,6 @@ export default function WalletScreen() {
             // Invalidate profile cache so Home/Profile show updated credits
             queryClient.invalidateQueries({ queryKey: ["user", "current"] });
             queryClient.invalidateQueries({ queryKey: ["user", "credits"] });
-
         } else {
             Alert.alert("Lỗi", result.error || "Không thể nạp tiền");
         }
@@ -100,7 +99,11 @@ export default function WalletScreen() {
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={colors.accent}
+                    />
                 }
             >
                 {/* Balance Card */}
@@ -135,7 +138,6 @@ export default function WalletScreen() {
                         )}
                     </TouchableOpacity>
                 </View>
-
 
                 {/* Stats */}
                 <View style={styles.statsRow}>
@@ -174,7 +176,9 @@ export default function WalletScreen() {
                         <Card style={styles.emptyCard}>
                             <Ionicons name="wallet-outline" size={48} color={colors.textMuted} />
                             <Text style={styles.emptyTitle}>Chưa có giao dịch</Text>
-                            <Text style={styles.emptyText}>Lịch sử giao dịch sẽ hiển thị ở đây</Text>
+                            <Text style={styles.emptyText}>
+                                Lịch sử giao dịch sẽ hiển thị ở đây
+                            </Text>
                         </Card>
                     ) : (
                         transactions.map((transaction: any) => (
@@ -228,16 +232,14 @@ function TransactionItem({ transaction }: { transaction: any }) {
         transaction.status === "completed" || transaction.status === "success"
             ? "Thành công"
             : transaction.status === "pending"
-                ? "Chờ xử lý"
-                : "Thất bại";
+              ? "Chờ xử lý"
+              : "Thất bại";
 
     return (
         <Card style={styles.transactionCard}>
             <View style={styles.transactionIcon}>{getIcon()}</View>
             <View style={styles.transactionContent}>
-                <Text style={styles.transactionDesc}>
-                    {transaction.description || "Giao dịch"}
-                </Text>
+                <Text style={styles.transactionDesc}>{transaction.description || "Giao dịch"}</Text>
                 <View style={styles.transactionMeta}>
                     <Ionicons name="calendar-outline" size={10} color={colors.textMuted} />
                     <Text style={styles.transactionDate}>
@@ -257,7 +259,9 @@ function TransactionItem({ transaction }: { transaction: any }) {
                     {transaction.amount.toLocaleString()}đ
                 </Text>
                 <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}>
-                    <Text style={[styles.statusText, { color: statusStyle.text }]}>{statusText}</Text>
+                    <Text style={[styles.statusText, { color: statusStyle.text }]}>
+                        {statusText}
+                    </Text>
                 </View>
             </View>
         </Card>

@@ -28,7 +28,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     initialize: async () => {
         try {
             // Get initial session
-            const { data: { session } } = await supabase.auth.getSession();
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
 
             // Check token expiry (security enhancement)
             if (session?.expires_at) {
@@ -36,7 +38,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 const now = Date.now();
 
                 if (expiryTime < now) {
-                    authLogger.warn('Session token expired, signing out');
+                    authLogger.warn("Session token expired, signing out");
                     await supabase.auth.signOut();
                     set({ loading: false, initialized: true });
                     return;
@@ -58,8 +60,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 });
 
                 // Clear any cached user data when auth state changes
-                if (event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
-                    authLogger.debug('Auth state changed', { event });
+                if (event === "SIGNED_OUT" || event === "USER_UPDATED") {
+                    authLogger.debug("Auth state changed", { event });
                 }
             });
         } catch (error) {
@@ -86,7 +88,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             authLogger.debug("signIn: Success", { hasSession: !!data.session });
 
             // Wait a moment for AsyncStorage to persist
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise((resolve) => setTimeout(resolve, 500));
 
             set({
                 user: data.user,
@@ -118,11 +120,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
             authLogger.debug("signUp: Success", {
                 hasUser: !!data.user,
-                hasSession: !!data.session
+                hasSession: !!data.session,
             });
 
             // Wait a moment for AsyncStorage to persist
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise((resolve) => setTimeout(resolve, 500));
 
             set({
                 user: data.user,
@@ -153,17 +155,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 // Clear all auth-related storage keys
                 keys.forEach((key: string) => {
                     if (
-                        key.includes('auth') ||
-                        key.includes('session') ||
-                        key.includes('user') ||
-                        key.includes('token')
+                        key.includes("auth") ||
+                        key.includes("session") ||
+                        key.includes("user") ||
+                        key.includes("token")
                     ) {
                         storage.delete(key);
-                        authLogger.debug('Cleared storage key on logout', { key });
+                        authLogger.debug("Cleared storage key on logout", { key });
                     }
                 });
             } catch (storageError) {
-                authLogger.error('Storage cleanup error during logout', storageError);
+                authLogger.error("Storage cleanup error during logout", storageError);
             }
 
             // Clear state
@@ -173,9 +175,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 loading: false,
             });
 
-            authLogger.debug('User signed out successfully');
+            authLogger.debug("User signed out successfully");
         } catch (error) {
-            authLogger.error('Sign out error', error);
+            authLogger.error("Sign out error", error);
             set({ loading: false });
         }
     },

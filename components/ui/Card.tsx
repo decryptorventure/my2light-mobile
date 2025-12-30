@@ -10,13 +10,7 @@ interface CardProps {
     variant?: "default" | "elevated" | "outlined";
 }
 
-export function Card({
-    children,
-    onPress,
-    style,
-    padding = "md",
-    variant = "default",
-}: CardProps) {
+export function Card({ children, onPress, style, padding = "md", variant = "default" }: CardProps) {
     const content = (
         <View
             style={[

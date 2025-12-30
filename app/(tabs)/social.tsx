@@ -44,8 +44,8 @@ export default function SocialScreen() {
         router.push({
             pathname: "/feed",
             params: {
-                startIndex: String(index)
-            }
+                startIndex: String(index),
+            },
         });
     };
 
@@ -104,7 +104,8 @@ export default function SocialScreen() {
                 {/* Duration badge */}
                 <View style={styles.durationBadge}>
                     <Text style={styles.durationText}>
-                        {Math.floor((item.durationSec || 0) / 60)}:{((item.durationSec || 0) % 60).toString().padStart(2, '0')}
+                        {Math.floor((item.durationSec || 0) / 60)}:
+                        {((item.durationSec || 0) % 60).toString().padStart(2, "0")}
                     </Text>
                 </View>
             </TouchableOpacity>
@@ -114,7 +115,9 @@ export default function SocialScreen() {
                 <View style={styles.postContent}>
                     {item.title && <Text style={styles.postTitle}>{item.title}</Text>}
                     {item.description && (
-                        <Text style={styles.postDescription} numberOfLines={2}>{item.description}</Text>
+                        <Text style={styles.postDescription} numberOfLines={2}>
+                            {item.description}
+                        </Text>
                     )}
                 </View>
             )}
@@ -168,7 +171,12 @@ export default function SocialScreen() {
                             style={[styles.tab, activeTab === tab.key && styles.tabActive]}
                             onPress={() => setActiveTab(tab.key)}
                         >
-                            <Text style={[styles.tabText, activeTab === tab.key && styles.tabTextActive]}>
+                            <Text
+                                style={[
+                                    styles.tabText,
+                                    activeTab === tab.key && styles.tabTextActive,
+                                ]}
+                            >
                                 {tab.label}
                             </Text>
                         </TouchableOpacity>
@@ -184,13 +192,19 @@ export default function SocialScreen() {
                     renderItem={renderPostItem}
                     contentContainerStyle={styles.scrollContent}
                     refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            tintColor={colors.accent}
+                        />
                     }
                     ListEmptyComponent={
                         <View style={styles.emptyState}>
                             <Ionicons name="videocam-outline" size={48} color={colors.textMuted} />
                             <Text style={styles.emptyTitle}>Chưa có video nào</Text>
-                            <Text style={styles.emptyText}>Hãy quay highlight đầu tiên của bạn!</Text>
+                            <Text style={styles.emptyText}>
+                                Hãy quay highlight đầu tiên của bạn!
+                            </Text>
                             <TouchableOpacity
                                 style={styles.createButton}
                                 onPress={() => router.push("/record/settings")}
@@ -204,7 +218,11 @@ export default function SocialScreen() {
                 <ScrollView
                     contentContainerStyle={styles.scrollContent}
                     refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            tintColor={colors.accent}
+                        />
                     }
                 >
                     {activeTab === "explore" && (

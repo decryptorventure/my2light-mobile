@@ -213,7 +213,9 @@ export default function CourtFormModal({
                             placeholderTextColor={colors.textMuted}
                             keyboardType="numeric"
                             value={formData.pricePerHour}
-                            onChangeText={(text) => setFormData({ ...formData, pricePerHour: text })}
+                            onChangeText={(text) =>
+                                setFormData({ ...formData, pricePerHour: text })
+                            }
                         />
                     </View>
 
@@ -225,7 +227,9 @@ export default function CourtFormModal({
                                 placeholder="06:00"
                                 placeholderTextColor={colors.textMuted}
                                 value={formData.openTime}
-                                onChangeText={(text) => setFormData({ ...formData, openTime: text })}
+                                onChangeText={(text) =>
+                                    setFormData({ ...formData, openTime: text })
+                                }
                             />
                         </View>
                         <View style={{ width: spacing.md }} />
@@ -236,7 +240,9 @@ export default function CourtFormModal({
                                 placeholder="22:00"
                                 placeholderTextColor={colors.textMuted}
                                 value={formData.closeTime}
-                                onChangeText={(text) => setFormData({ ...formData, closeTime: text })}
+                                onChangeText={(text) =>
+                                    setFormData({ ...formData, closeTime: text })
+                                }
                             />
                         </View>
                     </View>
@@ -249,7 +255,8 @@ export default function CourtFormModal({
                                 key={facility.id}
                                 style={[
                                     styles.facilityChip,
-                                    formData.facilities.includes(facility.id) && styles.facilityChipActive,
+                                    formData.facilities.includes(facility.id) &&
+                                        styles.facilityChipActive,
                                 ]}
                                 onPress={() => toggleFacility(facility.id)}
                             >
@@ -266,7 +273,7 @@ export default function CourtFormModal({
                                     style={[
                                         styles.facilityLabel,
                                         formData.facilities.includes(facility.id) &&
-                                        styles.facilityLabelActive,
+                                            styles.facilityLabelActive,
                                     ]}
                                 >
                                     {facility.label}
@@ -302,7 +309,9 @@ export default function CourtFormModal({
                     <View style={styles.settingRow}>
                         <View>
                             <Text style={styles.settingLabel}>Sân đang hoạt động</Text>
-                            <Text style={styles.settingDesc}>Hiển thị sân trong danh sách tìm kiếm</Text>
+                            <Text style={styles.settingDesc}>
+                                Hiển thị sân trong danh sách tìm kiếm
+                            </Text>
                         </View>
                         <Switch
                             value={formData.isActive}

@@ -30,7 +30,9 @@ export const useAuthStore = create<AuthState>()(
             initialize: async () => {
                 try {
                     // Get initial session
-                    const { data: { session } } = await supabase.auth.getSession();
+                    const {
+                        data: { session },
+                    } = await supabase.auth.getSession();
 
                     set({
                         session,
@@ -112,7 +114,7 @@ export const useAuthStore = create<AuthState>()(
             setSession: (session) => set({ session }),
         }),
         {
-            name: 'auth-storage',
+            name: "auth-storage",
             storage: createJSONStorage(() => zustandStorage),
             partialize: (state) => ({
                 user: state.user,

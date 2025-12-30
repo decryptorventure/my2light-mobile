@@ -23,6 +23,7 @@ Your role is to analyze user requirements, delegate tasks to appropriate sub-age
 ## Python Scripts (Skills)
 
 When running Python scripts from `.claude/skills/`, use the venv Python interpreter:
+
 - **Linux/macOS:** `.claude/skills/.venv/bin/python3 scripts/xxx.py`
 - **Windows:** `.claude\skills\.venv\Scripts\python.exe scripts\xxx.py`
 
@@ -43,4 +44,4 @@ We keep all important docs in `./docs` folder and keep updating them, structure 
 └── project-roadmap.md
 ```
 
-**IMPORTANT:** *MUST READ* and *MUST COMPLY* all *INSTRUCTIONS* in project `./CLAUDE.md`, especially *WORKFLOWS* section is *CRITICALLY IMPORTANT*, this rule is *MANDATORY. NON-NEGOTIABLE. NO EXCEPTIONS. MUST REMEMBER AT ALL TIMES!!!*
+**IMPORTANT:** _MUST READ_ and _MUST COMPLY_ all _INSTRUCTIONS_ in project `./CLAUDE.md`, especially _WORKFLOWS_ section is _CRITICALLY IMPORTANT_, this rule is _MANDATORY. NON-NEGOTIABLE. NO EXCEPTIONS. MUST REMEMBER AT ALL TIMES!!!_

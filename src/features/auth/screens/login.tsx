@@ -53,9 +53,7 @@ export default function LoginScreen() {
 
         if (!validate()) return;
 
-        const { error } = isSignUp
-            ? await signUp(email, password)
-            : await signIn(email, password);
+        const { error } = isSignUp ? await signUp(email, password) : await signIn(email, password);
 
         if (error) {
             Alert.alert("Lỗi", error.message);
@@ -123,7 +121,9 @@ export default function LoginScreen() {
                     />
 
                     <Button
-                        title={isSignUp ? "Đã có tài khoản? Đăng nhập" : "Chưa có tài khoản? Đăng ký"}
+                        title={
+                            isSignUp ? "Đã có tài khoản? Đăng nhập" : "Chưa có tài khoản? Đăng ký"
+                        }
                         onPress={() => setIsSignUp(!isSignUp)}
                         variant="ghost"
                         fullWidth

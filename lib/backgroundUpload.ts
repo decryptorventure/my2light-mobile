@@ -3,13 +3,13 @@
  * Handles video uploads in background using expo-task-manager
  */
 
-import { logger } from './logger';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { logger } from "./logger";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const bgLogger = logger.create('BackgroundUpload');
+const bgLogger = logger.create("BackgroundUpload");
 
-const UPLOAD_QUEUE_KEY = '@pending_uploads';
-const UPLOAD_PROGRESS_KEY = '@upload_progress';
+const UPLOAD_QUEUE_KEY = "@pending_uploads";
+const UPLOAD_PROGRESS_KEY = "@upload_progress";
 
 export interface PendingUpload {
     id: string;
@@ -18,7 +18,7 @@ export interface PendingUpload {
     title: string;
     description?: string;
     highlightEvents?: any[];
-    status: 'pending' | 'uploading' | 'completed' | 'failed';
+    status: "pending" | "uploading" | "completed" | "failed";
     progress: number;
     createdAt: number;
     error?: string;
@@ -32,13 +32,15 @@ export const BackgroundUploadManager = {
     /**
      * Add video to upload queue
      */
-    queueUpload: async (upload: Omit<PendingUpload, 'id' | 'status' | 'progress' | 'createdAt' | 'retries'>): Promise<string> => {
+    queueUpload: async (
+        upload: Omit<PendingUpload, "id" | "status" | "progress" | "createdAt" | "retries">
+    ): Promise<string> => {
         const id = `upload_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
         const pendingUpload: PendingUpload = {
             ...upload,
             id,
-            status: 'pending',
+            status: "pending",
             progress: 0,
             createdAt: Date.now(),
             retries: 0,
@@ -48,7 +50,7 @@ export const BackgroundUploadManager = {
         queue.push(pendingUpload);
         await AsyncStorage.setItem(UPLOAD_QUEUE_KEY, JSON.stringify(queue));
 
-        bgLogger.debug('Upload queued', { id, title: upload.title });
+        bgLogger.debug("Upload queued", { id, title: upload.title });
         return id;
     },
 
@@ -70,9 +72,7 @@ export const BackgroundUploadManager = {
      */
     updateUpload: async (id: string, updates: Partial<PendingUpload>): Promise<void> => {
         const queue = await BackgroundUploadManager.getQueue();
-        const updatedQueue = queue.map(u =>
-            u.id === id ? { ...u, ...updates } : u
-        );
+        const updatedQueue = queue.map((u) => (u.id === id ? { ...u, ...updates } : u));
         await AsyncStorage.setItem(UPLOAD_QUEUE_KEY, JSON.stringify(updatedQueue));
     },
 
@@ -98,10 +98,10 @@ export const BackgroundUploadManager = {
      */
     completeUpload: async (id: string): Promise<void> => {
         await BackgroundUploadManager.updateUpload(id, {
-            status: 'completed',
-            progress: 100
+            status: "completed",
+            progress: 100,
         });
-        bgLogger.info('Upload completed', { id });
+        bgLogger.info("Upload completed", { id });
     },
 
     /**
@@ -109,14 +109,14 @@ export const BackgroundUploadManager = {
      */
     failUpload: async (id: string, error: string): Promise<void> => {
         const queue = await BackgroundUploadManager.getQueue();
-        const upload = queue.find(u => u.id === id);
+        const upload = queue.find((u) => u.id === id);
 
         await BackgroundUploadManager.updateUpload(id, {
-            status: 'failed',
+            status: "failed",
             error,
-            retries: (upload?.retries || 0) + 1
+            retries: (upload?.retries || 0) + 1,
         });
-        bgLogger.error('Upload failed', { id, error });
+        bgLogger.error("Upload failed", { id, error });
     },
 
     /**
@@ -124,7 +124,7 @@ export const BackgroundUploadManager = {
      */
     removeUpload: async (id: string): Promise<void> => {
         const queue = await BackgroundUploadManager.getQueue();
-        const filtered = queue.filter(u => u.id !== id);
+        const filtered = queue.filter((u) => u.id !== id);
         await AsyncStorage.setItem(UPLOAD_QUEUE_KEY, JSON.stringify(filtered));
         await AsyncStorage.removeItem(`${UPLOAD_PROGRESS_KEY}_${id}`);
     },
@@ -134,7 +134,7 @@ export const BackgroundUploadManager = {
      */
     getPendingCount: async (): Promise<number> => {
         const queue = await BackgroundUploadManager.getQueue();
-        return queue.filter(u => u.status === 'pending' || u.status === 'uploading').length;
+        return queue.filter((u) => u.status === "pending" || u.status === "uploading").length;
     },
 
     /**
@@ -142,7 +142,7 @@ export const BackgroundUploadManager = {
      */
     getFailedUploads: async (): Promise<PendingUpload[]> => {
         const queue = await BackgroundUploadManager.getQueue();
-        return queue.filter(u => u.status === 'failed' && u.retries < 3);
+        return queue.filter((u) => u.status === "failed" && u.retries < 3);
     },
 
     /**
@@ -150,11 +150,11 @@ export const BackgroundUploadManager = {
      */
     retryUpload: async (id: string): Promise<void> => {
         await BackgroundUploadManager.updateUpload(id, {
-            status: 'pending',
+            status: "pending",
             progress: 0,
-            error: undefined
+            error: undefined,
         });
-        bgLogger.debug('Upload queued for retry', { id });
+        bgLogger.debug("Upload queued for retry", { id });
     },
 
     /**
@@ -162,7 +162,7 @@ export const BackgroundUploadManager = {
      */
     clearCompleted: async (): Promise<void> => {
         const queue = await BackgroundUploadManager.getQueue();
-        const pending = queue.filter(u => u.status !== 'completed');
+        const pending = queue.filter((u) => u.status !== "completed");
         await AsyncStorage.setItem(UPLOAD_QUEUE_KEY, JSON.stringify(pending));
     },
 
@@ -172,7 +172,7 @@ export const BackgroundUploadManager = {
      */
     getNextPending: async (): Promise<PendingUpload | null> => {
         const queue = await BackgroundUploadManager.getQueue();
-        return queue.find(u => u.status === 'pending') || null;
+        return queue.find((u) => u.status === "pending") || null;
     },
 
     /**
@@ -180,16 +180,16 @@ export const BackgroundUploadManager = {
      */
     hasActiveUpload: async (): Promise<boolean> => {
         const queue = await BackgroundUploadManager.getQueue();
-        return queue.some(u => u.status === 'uploading');
+        return queue.some((u) => u.status === "uploading");
     },
 };
 
 /**
  * Note: For full background upload support, you need:
- * 
+ *
  * 1. Install expo-task-manager and expo-background-fetch:
  *    npx expo install expo-task-manager expo-background-fetch
- * 
+ *
  * 2. Register background task:
  *    TaskManager.defineTask(BACKGROUND_UPLOAD_TASK, async () => {
  *        const next = await BackgroundUploadManager.getNextPending();
@@ -198,7 +198,7 @@ export const BackgroundUploadManager = {
  *        }
  *        return BackgroundFetch.BackgroundFetchResult.NewData;
  *    });
- * 
+ *
  * 3. Request background fetch:
  *    await BackgroundFetch.registerTaskAsync(BACKGROUND_UPLOAD_TASK, {
  *        minimumInterval: 15 * 60, // 15 minutes

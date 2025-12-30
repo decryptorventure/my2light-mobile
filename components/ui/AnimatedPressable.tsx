@@ -26,20 +26,18 @@ export function AnimatedPressable({
     children,
     ...props
 }: AnimatedPressableProps) {
-    const handlePress = useCallback((event: any) => {
-        if (hapticEnabled) {
-            haptics[hapticStyle]();
-        }
-        onPress?.(event);
-    }, [onPress, hapticStyle, hapticEnabled]);
+    const handlePress = useCallback(
+        (event: any) => {
+            if (hapticEnabled) {
+                haptics[hapticStyle]();
+            }
+            onPress?.(event);
+        },
+        [onPress, hapticStyle, hapticEnabled]
+    );
 
     return (
-        <TouchableOpacity
-            onPress={handlePress}
-            style={style}
-            activeOpacity={0.7}
-            {...props}
-        >
+        <TouchableOpacity onPress={handlePress} style={style} activeOpacity={0.7} {...props}>
             {children}
         </TouchableOpacity>
     );

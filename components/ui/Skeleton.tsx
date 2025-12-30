@@ -13,7 +13,7 @@ export function Skeleton({
     width = "100%",
     height = 20,
     borderRadius: radius = borderRadius.sm,
-    style
+    style,
 }: SkeletonProps) {
     const opacity = useRef(new Animated.Value(0.3)).current;
 

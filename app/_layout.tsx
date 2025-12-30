@@ -34,7 +34,7 @@ function RootLayoutNav() {
             try {
                 validateClientEnv();
             } catch (error) {
-                console.error('Security validation failed:', error);
+                console.error("Security validation failed:", error);
             }
         }
     }, []);
@@ -67,7 +67,6 @@ function RootLayoutNav() {
                         if (!profile.name || profile.name === "") {
                             // New user without name = needs onboarding
                             router.replace("/onboarding");
-                            return;
                         }
                     }
                 } catch (error) {
@@ -84,27 +83,30 @@ function RootLayoutNav() {
         } else if (user && inAuthGroup) {
             // User is signed in and in auth group, check onboarding first
             setCheckingOnboarding(true);
-            AuthService.getCurrentUser().then((result) => {
-                if (result.success && result.data) {
-                    const profile = result.data;
-                    // Check hasOnboarded flag instead of name
-                    if (!profile.hasOnboarded) {
-                        // New user hasn't completed onboarding
-                        router.replace("/onboarding");
+            AuthService.getCurrentUser()
+                .then((result) => {
+                    if (result.success && result.data) {
+                        const profile = result.data;
+                        // Check hasOnboarded flag instead of name
+                        if (!profile.hasOnboarded) {
+                            // New user hasn't completed onboarding
+                            router.replace("/onboarding");
+                        } else {
+                            // Has completed onboarding, go to tabs
+                            router.replace("/(tabs)");
+                        }
                     } else {
-                        // Has completed onboarding, go to tabs
-                        router.replace("/(tabs)");
+                        // No profile = needs onboarding
+                        router.replace("/onboarding");
                     }
-                } else {
-                    // No profile = needs onboarding
-                    router.replace("/onboarding");
-                }
-            }).catch((error) => {
-                console.log("Error checking onboarding:", error);
-                router.replace("/(tabs)");
-            }).finally(() => {
-                setCheckingOnboarding(false);
-            });
+                })
+                .catch((error) => {
+                    console.log("Error checking onboarding:", error);
+                    router.replace("/(tabs)");
+                })
+                .finally(() => {
+                    setCheckingOnboarding(false);
+                });
         }
     }, [user, initialized, segments]);
 

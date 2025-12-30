@@ -1,41 +1,41 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ApiService } from '../services/api';
-import type { Highlight, Court, User, Booking, MatchRequest } from '../types';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ApiService } from "../services/api";
+import type { Highlight, Court, User, Booking, MatchRequest } from "../types";
 
 // Query keys - centralized for cache management
 export const queryKeys = {
     highlights: {
-        all: ['highlights'] as const,
-        lists: () => [...queryKeys.highlights.all, 'list'] as const,
+        all: ["highlights"] as const,
+        lists: () => [...queryKeys.highlights.all, "list"] as const,
         list: (limit: number) => [...queryKeys.highlights.lists(), { limit }] as const,
-        user: (userId: string) => [...queryKeys.highlights.all, 'user', userId] as const,
+        user: (userId: string) => [...queryKeys.highlights.all, "user", userId] as const,
     },
     courts: {
-        all: ['courts'] as const,
-        lists: () => [...queryKeys.courts.all, 'list'] as const,
-        detail: (id: string) => [...queryKeys.courts.all, 'detail', id] as const,
+        all: ["courts"] as const,
+        lists: () => [...queryKeys.courts.all, "list"] as const,
+        detail: (id: string) => [...queryKeys.courts.all, "detail", id] as const,
     },
     user: {
-        current: ['user', 'current'] as const,
-        credits: ['user', 'credits'] as const,
+        current: ["user", "current"] as const,
+        credits: ["user", "credits"] as const,
     },
     bookings: {
-        all: ['bookings'] as const,
-        history: () => [...queryKeys.bookings.all, 'history'] as const,
-        active: () => [...queryKeys.bookings.all, 'active'] as const,
+        all: ["bookings"] as const,
+        history: () => [...queryKeys.bookings.all, "history"] as const,
+        active: () => [...queryKeys.bookings.all, "active"] as const,
     },
     matches: {
-        all: ['matches'] as const,
-        open: () => [...queryKeys.matches.all, 'open'] as const,
+        all: ["matches"] as const,
+        open: () => [...queryKeys.matches.all, "open"] as const,
     },
     notifications: {
-        all: ['notifications'] as const,
-        list: () => [...queryKeys.notifications.all, 'list'] as const,
-        unreadCount: () => [...queryKeys.notifications.all, 'unreadCount'] as const,
+        all: ["notifications"] as const,
+        list: () => [...queryKeys.notifications.all, "list"] as const,
+        unreadCount: () => [...queryKeys.notifications.all, "unreadCount"] as const,
     },
     transactions: {
-        all: ['transactions'] as const,
-        list: () => [...queryKeys.transactions.all, 'list'] as const,
+        all: ["transactions"] as const,
+        list: () => [...queryKeys.transactions.all, "list"] as const,
     },
 };
 
@@ -73,13 +73,14 @@ export function useCreateHighlight() {
             duration?: number;
             title?: string;
             description?: string;
-        }) => ApiService.createHighlight(
-            params.courtId,
-            params.videoUrl,
-            params.duration,
-            params.title,
-            params.description
-        ),
+        }) =>
+            ApiService.createHighlight(
+                params.courtId,
+                params.videoUrl,
+                params.duration,
+                params.title,
+                params.description
+            ),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: queryKeys.highlights.all });
         },
@@ -196,7 +197,7 @@ export function useCreateMatchRequest() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (request: Omit<MatchRequest, 'id' | 'userId' | 'status' | 'createdAt'>) =>
+        mutationFn: (request: Omit<MatchRequest, "id" | "userId" | "status" | "createdAt">) =>
             ApiService.createMatchRequest(request),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: queryKeys.matches.all });

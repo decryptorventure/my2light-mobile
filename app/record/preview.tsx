@@ -40,7 +40,13 @@ export default function VideoPreviewScreen() {
     // Video ref for seeking
     const videoRef = useRef<Video>(null);
 
-    const { highlights, selectedHighlightIds, toggleHighlightSelection, selectAllHighlights, clearSelection } = useRecordingStore();
+    const {
+        highlights,
+        selectedHighlightIds,
+        toggleHighlightSelection,
+        selectAllHighlights,
+        clearSelection,
+    } = useRecordingStore();
     const [saving, setSaving] = useState(false);
     const [mergeMode, setMergeMode] = useState(false);
     const [currentHighlight, setCurrentHighlight] = useState<string | null>(null);
@@ -60,18 +66,14 @@ export default function VideoPreviewScreen() {
     };
 
     const handleClose = () => {
-        Alert.alert(
-            "Xác nhận",
-            "Bạn có chắc muốn hủy video này?",
-            [
-                { text: "Không", style: "cancel" },
-                {
-                    text: "Hủy video",
-                    style: "destructive",
-                    onPress: () => router.replace("/(tabs)")
-                },
-            ]
-        );
+        Alert.alert("Xác nhận", "Bạn có chắc muốn hủy video này?", [
+            { text: "Không", style: "cancel" },
+            {
+                text: "Hủy video",
+                style: "destructive",
+                onPress: () => router.replace("/(tabs)"),
+            },
+        ]);
     };
 
     const handleSaveToDevice = async () => {
@@ -115,22 +117,22 @@ export default function VideoPreviewScreen() {
         haptics.medium();
 
         // Build highlight events for upload
-        const selectedHighlights = highlights.filter(h =>
-            selectedHighlightIds.includes(h.id)
-        );
+        const selectedHighlights = highlights.filter((h) => selectedHighlightIds.includes(h.id));
 
         router.push({
             pathname: "/record/upload",
             params: {
                 uri,
                 mergeMode: mergeMode ? "true" : "false",
-                highlightEvents: JSON.stringify(selectedHighlights.map(h => ({
-                    id: h.id,
-                    timestamp: h.timestamp,
-                    duration: h.duration,
-                    name: h.name
-                })))
-            }
+                highlightEvents: JSON.stringify(
+                    selectedHighlights.map((h) => ({
+                        id: h.id,
+                        timestamp: h.timestamp,
+                        duration: h.duration,
+                        name: h.name,
+                    }))
+                ),
+            },
         });
     };
 
@@ -174,7 +176,11 @@ export default function VideoPreviewScreen() {
                     <Ionicons name="close" size={24} color={colors.text} />
                 </TouchableOpacity>
                 <Text style={styles.title}>Xem lại Video</Text>
-                <TouchableOpacity style={styles.headerButton} onPress={handleSaveToDevice} disabled={saving}>
+                <TouchableOpacity
+                    style={styles.headerButton}
+                    onPress={handleSaveToDevice}
+                    disabled={saving}
+                >
                     <Ionicons name="download-outline" size={24} color={colors.text} />
                 </TouchableOpacity>
             </View>
@@ -192,9 +198,7 @@ export default function VideoPreviewScreen() {
 
             {/* Highlight List */}
             <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-                <Text style={styles.sectionTitle}>
-                    DANH SÁCH HIGHLIGHT ({highlights.length})
-                </Text>
+                <Text style={styles.sectionTitle}>DANH SÁCH HIGHLIGHT ({highlights.length})</Text>
 
                 {highlights.length === 0 ? (
                     <Card style={styles.emptyCard}>
@@ -210,7 +214,8 @@ export default function VideoPreviewScreen() {
                             key={highlight.id}
                             style={[
                                 styles.highlightItem,
-                                selectedHighlightIds.includes(highlight.id) && styles.highlightItemSelected,
+                                selectedHighlightIds.includes(highlight.id) &&
+                                    styles.highlightItemSelected,
                             ]}
                             onPress={() => toggleHighlightSelection(highlight.id)}
                             activeOpacity={0.7}
@@ -247,11 +252,15 @@ export default function VideoPreviewScreen() {
                             size={20}
                             color={mergeMode ? colors.accent : colors.text}
                         />
-                        <Text style={[styles.mergeButtonText, mergeMode && styles.mergeButtonTextActive]}>
+                        <Text
+                            style={[
+                                styles.mergeButtonText,
+                                mergeMode && styles.mergeButtonTextActive,
+                            ]}
+                        >
                             {mergeMode
                                 ? `Đã chọn ${selectedHighlightIds.length}/${highlights.length}`
-                                : `Ghép ${highlights.length} Highlights`
-                            }
+                                : `Ghép ${highlights.length} Highlights`}
                         </Text>
                     </TouchableOpacity>
                 )}

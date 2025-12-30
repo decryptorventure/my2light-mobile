@@ -19,9 +19,9 @@ import { betterAuth } from "better-auth";
 import Database from "better-sqlite3";
 
 export const auth = betterAuth({
-  database: new Database("./sqlite.db"),
-  // or
-  database: new Database(":memory:") // In-memory for testing
+    database: new Database("./sqlite.db"),
+    // or
+    database: new Database(":memory:"), // In-memory for testing
 });
 ```
 
@@ -32,17 +32,17 @@ import { betterAuth } from "better-auth";
 import { Pool } from "pg";
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  // or explicit config
-  host: "localhost",
-  port: 5432,
-  user: "postgres",
-  password: "password",
-  database: "myapp"
+    connectionString: process.env.DATABASE_URL,
+    // or explicit config
+    host: "localhost",
+    port: 5432,
+    user: "postgres",
+    password: "password",
+    database: "myapp",
 });
 
 export const auth = betterAuth({
-  database: pool
+    database: pool,
 });
 ```
 
@@ -53,16 +53,16 @@ import { betterAuth } from "better-auth";
 import { createPool } from "mysql2/promise";
 
 const pool = createPool({
-  host: "localhost",
-  user: "root",
-  password: "password",
-  database: "myapp",
-  waitForConnections: true,
-  connectionLimit: 10
+    host: "localhost",
+    user: "root",
+    password: "password",
+    database: "myapp",
+    waitForConnections: true,
+    connectionLimit: 10,
 });
 
 export const auth = betterAuth({
-  database: pool
+    database: pool,
 });
 ```
 
@@ -71,11 +71,13 @@ export const auth = betterAuth({
 ### Drizzle ORM
 
 **Install:**
+
 ```bash
 npm install drizzle-orm better-auth
 ```
 
 **Setup:**
+
 ```ts
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -83,26 +85,27 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
+    connectionString: process.env.DATABASE_URL,
 });
 
 const db = drizzle(pool);
 
 export const auth = betterAuth({
-  database: drizzleAdapter(db, {
-    provider: "pg", // "pg" | "mysql" | "sqlite"
-    schema: {
-      // Optional: custom table names
-      user: "users",
-      session: "sessions",
-      account: "accounts",
-      verification: "verifications"
-    }
-  })
+    database: drizzleAdapter(db, {
+        provider: "pg", // "pg" | "mysql" | "sqlite"
+        schema: {
+            // Optional: custom table names
+            user: "users",
+            session: "sessions",
+            account: "accounts",
+            verification: "verifications",
+        },
+    }),
 });
 ```
 
 **Generate Schema:**
+
 ```bash
 npx @better-auth/cli generate --adapter drizzle
 ```
@@ -110,11 +113,13 @@ npx @better-auth/cli generate --adapter drizzle
 ### Prisma
 
 **Install:**
+
 ```bash
 npm install @prisma/client better-auth
 ```
 
 **Setup:**
+
 ```ts
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
@@ -123,18 +128,20 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export const auth = betterAuth({
-  database: prismaAdapter(prisma, {
-    provider: "postgresql", // "postgresql" | "mysql" | "sqlite"
-  })
+    database: prismaAdapter(prisma, {
+        provider: "postgresql", // "postgresql" | "mysql" | "sqlite"
+    }),
 });
 ```
 
 **Generate Schema:**
+
 ```bash
 npx @better-auth/cli generate --adapter prisma
 ```
 
 **Apply to Prisma:**
+
 ```bash
 # Add generated schema to schema.prisma
 npx prisma migrate dev --name init
@@ -144,11 +151,13 @@ npx prisma generate
 ### Kysely
 
 **Install:**
+
 ```bash
 npm install kysely better-auth
 ```
 
 **Setup:**
+
 ```ts
 import { betterAuth } from "better-auth";
 import { kyselyAdapter } from "better-auth/adapters/kysely";
@@ -156,21 +165,22 @@ import { Kysely, PostgresDialect } from "kysely";
 import { Pool } from "pg";
 
 const db = new Kysely({
-  dialect: new PostgresDialect({
-    pool: new Pool({
-      connectionString: process.env.DATABASE_URL
-    })
-  })
+    dialect: new PostgresDialect({
+        pool: new Pool({
+            connectionString: process.env.DATABASE_URL,
+        }),
+    }),
 });
 
 export const auth = betterAuth({
-  database: kyselyAdapter(db, {
-    provider: "pg"
-  })
+    database: kyselyAdapter(db, {
+        provider: "pg",
+    }),
 });
 ```
 
 **Auto-migrate with Kysely:**
+
 ```bash
 npx @better-auth/cli migrate --adapter kysely
 ```
@@ -178,11 +188,13 @@ npx @better-auth/cli migrate --adapter kysely
 ### MongoDB
 
 **Install:**
+
 ```bash
 npm install mongodb better-auth
 ```
 
 **Setup:**
+
 ```ts
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
@@ -192,13 +204,14 @@ const client = new MongoClient(process.env.MONGODB_URI!);
 await client.connect();
 
 export const auth = betterAuth({
-  database: mongodbAdapter(client, {
-    databaseName: "myapp"
-  })
+    database: mongodbAdapter(client, {
+        databaseName: "myapp",
+    }),
 });
 ```
 
 **Generate Collections:**
+
 ```bash
 npx @better-auth/cli generate --adapter mongodb
 ```
@@ -298,36 +311,38 @@ Add custom fields to user table:
 
 ```ts
 export const auth = betterAuth({
-  user: {
-    additionalFields: {
-      role: {
-        type: "string",
-        required: false,
-        defaultValue: "user"
-      },
-      phoneNumber: {
-        type: "string",
-        required: false
-      },
-      subscriptionTier: {
-        type: "string",
-        required: false
-      }
-    }
-  }
+    user: {
+        additionalFields: {
+            role: {
+                type: "string",
+                required: false,
+                defaultValue: "user",
+            },
+            phoneNumber: {
+                type: "string",
+                required: false,
+            },
+            subscriptionTier: {
+                type: "string",
+                required: false,
+            },
+        },
+    },
 });
 ```
 
 After adding fields:
+
 ```bash
 npx @better-auth/cli generate
 ```
 
 Update user with custom fields:
+
 ```ts
 await authClient.updateUser({
-  role: "admin",
-  phoneNumber: "+1234567890"
+    role: "admin",
+    phoneNumber: "+1234567890",
 });
 ```
 
@@ -398,10 +413,10 @@ npx @better-auth/cli migrate
 import { Pool } from "pg";
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 20, // Max connections
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+    connectionString: process.env.DATABASE_URL,
+    max: 20, // Max connections
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
 });
 ```
 
@@ -411,10 +426,10 @@ const pool = new Pool({
 import { createPool } from "mysql2/promise";
 
 const pool = createPool({
-  connectionString: process.env.DATABASE_URL,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
+    connectionString: process.env.DATABASE_URL,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
 });
 ```
 
@@ -455,12 +470,14 @@ MONGODB_URI=mongodb+srv://user:password@cluster.mongodb.net/dbname
 ### Indexes
 
 Better Auth CLI auto-generates essential indexes:
+
 - `user.email` (unique)
 - `session.userId`
 - `account.userId`
 - `account.providerId, accountId` (unique)
 
 Add custom indexes for performance:
+
 ```sql
 CREATE INDEX idx_session_expires ON session(expiresAt);
 CREATE INDEX idx_user_created ON user(createdAt);
@@ -474,13 +491,13 @@ CREATE INDEX idx_user_created ON user(createdAt);
 // Monitor slow queries
 
 export const auth = betterAuth({
-  advanced: {
-    defaultCookieAttributes: {
-      sameSite: "lax",
-      secure: true,
-      httpOnly: true
-    }
-  }
+    advanced: {
+        defaultCookieAttributes: {
+            sameSite: "lax",
+            secure: true,
+            httpOnly: true,
+        },
+    },
 });
 ```
 
@@ -546,8 +563,8 @@ mongorestore --db=dbname ./backup/dbname
 ```ts
 // Add connection timeout
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  connectionTimeoutMillis: 5000
+    connectionString: process.env.DATABASE_URL,
+    connectionTimeoutMillis: 5000,
 });
 ```
 

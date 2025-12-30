@@ -7,33 +7,34 @@ Real-time payment notifications from SePay to your server.
 1. Access WebHooks menu in dashboard
 2. Click "+ Add webhooks"
 3. Configure:
-   - **Name:** Descriptive identifier
-   - **Event Selection:** `All`, `In_only`, `Out_only`
-   - **Conditions:** Bank accounts, VA filtering, payment code requirements
-   - **Webhook URL:** Your callback endpoint (must be publicly accessible)
-   - **Is Verify Payment:** Flag for validation
-   - **Authentication:** `No_Authen`, `OAuth2.0`, or `Api_Key`
+    - **Name:** Descriptive identifier
+    - **Event Selection:** `All`, `In_only`, `Out_only`
+    - **Conditions:** Bank accounts, VA filtering, payment code requirements
+    - **Webhook URL:** Your callback endpoint (must be publicly accessible)
+    - **Is Verify Payment:** Flag for validation
+    - **Authentication:** `No_Authen`, `OAuth2.0`, or `Api_Key`
 4. Click "Add" to finalize
 
 ## Payload Structure
 
 ```json
 {
-  "id": 92704,
-  "gateway": "Vietcombank",
-  "transactionDate": "2023-03-25 14:02:37",
-  "accountNumber": "0123499999",
-  "code": null,
-  "content": "payment content",
-  "transferType": "in",
-  "transferAmount": 2277000,
-  "accumulated": 19077000,
-  "subAccount": null,
-  "referenceCode": "MBVCB.3278907687"
+    "id": 92704,
+    "gateway": "Vietcombank",
+    "transactionDate": "2023-03-25 14:02:37",
+    "accountNumber": "0123499999",
+    "code": null,
+    "content": "payment content",
+    "transferType": "in",
+    "transferAmount": 2277000,
+    "accumulated": 19077000,
+    "subAccount": null,
+    "referenceCode": "MBVCB.3278907687"
 }
 ```
 
 **Fields:**
+
 - `id` - Unique transaction ID (use for deduplication)
 - `gateway` - Bank name
 - `transactionDate` - Transaction timestamp
@@ -49,6 +50,7 @@ Real-time payment notifications from SePay to your server.
 ## Authentication
 
 **API Key:**
+
 ```
 Authorization: Apikey YOUR_KEY
 Content-Type: application/json
@@ -63,6 +65,7 @@ Available but not recommended for production. Consider IP whitelisting.
 ## Response Requirements
 
 **Success Response:**
+
 ```json
 HTTP/1.1 200 OK
 {
@@ -76,10 +79,12 @@ HTTP/1.1 200 OK
 ## Auto-Retry Mechanism
 
 **Policy:**
+
 - Retries up to 7 times over ~5 hours
 - Fibonacci sequence intervals (1, 1, 2, 3, 5, 8, 13... minutes)
 
 **Duplicate Prevention:**
+
 ```javascript
 // Primary: Use transaction ID
 const exists = await db.transactions.findOne({ sepay_id: data.id });
@@ -92,32 +97,34 @@ const key = `${data.referenceCode}-${data.transferType}-${data.transferAmount}`;
 ## Implementation Examples
 
 ### Node.js/Express
+
 ```javascript
-app.post('/webhook/sepay', async (req, res) => {
-  const transaction = req.body;
+app.post("/webhook/sepay", async (req, res) => {
+    const transaction = req.body;
 
-  // Check duplicates
-  if (await isDuplicate(transaction.id)) {
-    return res.json({ success: true });
-  }
+    // Check duplicates
+    if (await isDuplicate(transaction.id)) {
+        return res.json({ success: true });
+    }
 
-  // Process transaction
-  if (transaction.transferType === 'in') {
-    await processPayment({
-      amount: transaction.transferAmount,
-      content: transaction.content,
-      referenceCode: transaction.referenceCode
-    });
-  }
+    // Process transaction
+    if (transaction.transferType === "in") {
+        await processPayment({
+            amount: transaction.transferAmount,
+            content: transaction.content,
+            referenceCode: transaction.referenceCode,
+        });
+    }
 
-  // Save to database
-  await db.transactions.insert(transaction);
+    // Save to database
+    await db.transactions.insert(transaction);
 
-  res.json({ success: true });
+    res.json({ success: true });
 });
 ```
 
 ### PHP
+
 ```php
 <?php
 $data = json_decode(file_get_contents('php://input'), true);
@@ -159,12 +166,14 @@ echo json_encode(['success' => true]);
 ## Monitoring
 
 **Dashboard Features:**
+
 - View webhook attempts
 - Check response status
 - Review retry history
 - Manual retry option
 
 **Application Monitoring:**
+
 - Log all webhook receipts
 - Track processing time
 - Alert on failures
@@ -175,16 +184,19 @@ echo json_encode(['success' => true]);
 **Available Scopes:** `webhook:read`, `webhook:write`, `webhook:delete`
 
 **List Webhooks:**
+
 ```
 GET /api/v1/webhooks
 ```
 
 **Get Details:**
+
 ```
 GET /api/v1/webhooks/{id}
 ```
 
 **Create:**
+
 ```
 POST /api/v1/webhooks
 {
@@ -198,11 +210,13 @@ POST /api/v1/webhooks
 ```
 
 **Update:**
+
 ```
 PATCH /api/v1/webhooks/{id}
 ```
 
 **Delete:**
+
 ```
 DELETE /api/v1/webhooks/{id}
 ```

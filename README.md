@@ -54,33 +54,33 @@ my2light-mobile/
 
 ## 📚 Documentation
 
-| File | Description |
-|------|-------------|
-| [DOCS.md](./DOCS.md) | **📌 Main documentation** - Project context đầy đủ |
-| [CHANGELOG.md](./CHANGELOG.md) | Version history |
-| [ROADMAP.md](./ROADMAP.md) | Future plans (App Store) |
+| File                           | Description                                        |
+| ------------------------------ | -------------------------------------------------- |
+| [DOCS.md](./DOCS.md)           | **📌 Main documentation** - Project context đầy đủ |
+| [CHANGELOG.md](./CHANGELOG.md) | Version history                                    |
+| [ROADMAP.md](./ROADMAP.md)     | Future plans (App Store)                           |
 
 > ⚠️ **IMPORTANT:** Đọc [DOCS.md](./DOCS.md) trước mỗi phiên làm việc để có context đầy đủ.
 
 ## �️ Tech Stack
 
-| Category | Technology |
-|----------|------------|
-| Framework | Expo 54 |
-| Navigation | Expo Router 6 |
-| Backend | Supabase |
-| State | Zustand |
-| Storage | MMKV |
-| Data Fetching | React Query |
+| Category      | Technology    |
+| ------------- | ------------- |
+| Framework     | Expo 54       |
+| Navigation    | Expo Router 6 |
+| Backend       | Supabase      |
+| State         | Zustand       |
+| Storage       | MMKV          |
+| Data Fetching | React Query   |
 
 ## 📝 Version History
 
-| Version | Date | Summary |
-|---------|------|---------|
-| 2.2.1 | 2025-12-04 | Hotfix Expo Go crashes |
-| 2.2.0 | 2025-12-04 | Offline support (MMKV) |
-| 2.1.0 | 2025-12-04 | Performance (expo-image) |
-| 2.0.0 | 2025-12-04 | Major refactor |
+| Version | Date       | Summary                  |
+| ------- | ---------- | ------------------------ |
+| 2.2.1   | 2025-12-04 | Hotfix Expo Go crashes   |
+| 2.2.0   | 2025-12-04 | Offline support (MMKV)   |
+| 2.1.0   | 2025-12-04 | Performance (expo-image) |
+| 2.0.0   | 2025-12-04 | Major refactor           |
 
 ## 🔐 Environment Variables
 

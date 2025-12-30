@@ -54,7 +54,7 @@ function VideoItem({ item, isActive, onTogglePlay }: VideoItemProps) {
 
     const handleLike = () => {
         setLiked(!liked);
-        setLikesCount(prev => liked ? prev - 1 : prev + 1);
+        setLikesCount((prev) => (liked ? prev - 1 : prev + 1));
     };
 
     const handleSeekToHighlight = async (timestamp: number) => {
@@ -74,11 +74,7 @@ function VideoItem({ item, isActive, onTogglePlay }: VideoItemProps) {
 
     return (
         <View style={styles.videoContainer}>
-            <TouchableOpacity
-                style={styles.videoWrapper}
-                activeOpacity={1}
-                onPress={onTogglePlay}
-            >
+            <TouchableOpacity style={styles.videoWrapper} activeOpacity={1} onPress={onTogglePlay}>
                 <Video
                     ref={videoRef}
                     source={{ uri: item.videoUrl }}
@@ -126,7 +122,9 @@ function VideoItem({ item, isActive, onTogglePlay }: VideoItemProps) {
                             onPress={() => setShowHighlights(!showHighlights)}
                         >
                             <View style={styles.highlightBadge}>
-                                <Text style={styles.highlightBadgeText}>{highlightEvents.length}</Text>
+                                <Text style={styles.highlightBadgeText}>
+                                    {highlightEvents.length}
+                                </Text>
                             </View>
                             <Ionicons name="flash" size={28} color="#fff" />
                         </TouchableOpacity>
@@ -172,9 +170,8 @@ function VideoItem({ item, isActive, onTogglePlay }: VideoItemProps) {
                         <View style={[styles.progressFill, { width: `${progress}%` }]} />
                         {/* Highlight markers */}
                         {highlightEvents.map((event, index) => {
-                            const markerPosition = duration > 0
-                                ? (event.timestamp * 1000 / duration) * 100
-                                : 0;
+                            const markerPosition =
+                                duration > 0 ? ((event.timestamp * 1000) / duration) * 100 : 0;
                             return (
                                 <View
                                     key={event.id || index}
@@ -193,7 +190,9 @@ function VideoItem({ item, isActive, onTogglePlay }: VideoItemProps) {
                 {showHighlights && (
                     <View style={[styles.highlightOverlay, { bottom: 200 + insets.bottom }]}>
                         <View style={styles.highlightList}>
-                            <Text style={styles.highlightTitle}>⚡ Highlights ({highlightEvents.length})</Text>
+                            <Text style={styles.highlightTitle}>
+                                ⚡ Highlights ({highlightEvents.length})
+                            </Text>
                             {highlightEvents.map((event, index) => (
                                 <TouchableOpacity
                                     key={event.id || index}
@@ -204,7 +203,8 @@ function VideoItem({ item, isActive, onTogglePlay }: VideoItemProps) {
                                         <Text style={styles.highlightNumberText}>{index + 1}</Text>
                                     </View>
                                     <Text style={styles.highlightTimestamp}>
-                                        {Math.floor(event.timestamp / 60)}:{(event.timestamp % 60).toString().padStart(2, "0")}
+                                        {Math.floor(event.timestamp / 60)}:
+                                        {(event.timestamp % 60).toString().padStart(2, "0")}
                                     </Text>
                                 </TouchableOpacity>
                             ))}
@@ -219,7 +219,7 @@ function VideoItem({ item, isActive, onTogglePlay }: VideoItemProps) {
 export default function VideoFeedScreen() {
     const params = useLocalSearchParams<{
         startIndex?: string;
-        userId?: string;  // Optional: filter videos by user
+        userId?: string; // Optional: filter videos by user
     }>();
 
     // Use user-specific highlights if userId is provided, otherwise use all highlights
@@ -237,12 +237,15 @@ export default function VideoFeedScreen() {
         return () => StatusBar.setHidden(false);
     }, []);
 
-    const onViewableItemsChanged = useCallback(({ viewableItems }: { viewableItems: ViewToken[] }) => {
-        if (viewableItems.length > 0) {
-            const newIndex = viewableItems[0].index ?? 0;
-            setActiveIndex(newIndex);
-        }
-    }, []);
+    const onViewableItemsChanged = useCallback(
+        ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+            if (viewableItems.length > 0) {
+                const newIndex = viewableItems[0].index ?? 0;
+                setActiveIndex(newIndex);
+            }
+        },
+        []
+    );
 
     const viewabilityConfig = {
         itemVisiblePercentThreshold: 50,
@@ -252,11 +255,14 @@ export default function VideoFeedScreen() {
         // Toggle is handled within VideoItem
     }, []);
 
-    const getItemLayout = useCallback((_: any, index: number) => ({
-        length: height,
-        offset: height * index,
-        index,
-    }), []);
+    const getItemLayout = useCallback(
+        (_: any, index: number) => ({
+            length: height,
+            offset: height * index,
+            index,
+        }),
+        []
+    );
 
     if (!highlights || highlights.length === 0) {
         return (

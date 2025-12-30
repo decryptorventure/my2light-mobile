@@ -7,6 +7,7 @@ Comprehensive guide to designing RESTful, GraphQL, and gRPC APIs with best pract
 ### Resource-Based URLs
 
 **Good:**
+
 ```
 GET    /api/v1/users              # List users
 GET    /api/v1/users/:id          # Get specific user
@@ -20,6 +21,7 @@ POST   /api/v1/users/:id/posts    # Create post for user
 ```
 
 **Bad (Avoid):**
+
 ```
 GET /api/v1/getUser?id=123        # RPC-style, not RESTful
 POST /api/v1/createUser           # Verb in URL
@@ -29,11 +31,13 @@ GET /api/v1/user-posts            # Unclear relationship
 ### HTTP Status Codes (Meaningful Responses)
 
 **Success:**
+
 - `200 OK` - Successful GET, PUT, PATCH
 - `201 Created` - Successful POST (resource created)
 - `204 No Content` - Successful DELETE
 
 **Client Errors:**
+
 - `400 Bad Request` - Invalid input/validation error
 - `401 Unauthorized` - Missing or invalid authentication
 - `403 Forbidden` - Authenticated but not authorized
@@ -43,6 +47,7 @@ GET /api/v1/user-posts            # Unclear relationship
 - `429 Too Many Requests` - Rate limit exceeded
 
 **Server Errors:**
+
 - `500 Internal Server Error` - Generic server error
 - `502 Bad Gateway` - Upstream service error
 - `503 Service Unavailable` - Temporary downtime
@@ -51,6 +56,7 @@ GET /api/v1/user-posts            # Unclear relationship
 ### Request/Response Format
 
 **Request:**
+
 ```typescript
 POST /api/v1/users
 Content-Type: application/json
@@ -63,6 +69,7 @@ Content-Type: application/json
 ```
 
 **Success Response:**
+
 ```typescript
 HTTP/1.1 201 Created
 Content-Type: application/json
@@ -79,6 +86,7 @@ Location: /api/v1/users/123
 ```
 
 **Error Response:**
+
 ```typescript
 HTTP/1.1 400 Bad Request
 Content-Type: application/json
@@ -144,18 +152,21 @@ GET /api/v1/users?status=active&role=admin&sort=-createdAt,name&limit=20
 ### API Versioning Strategies
 
 **URL Versioning (Most Common):**
+
 ```
 /api/v1/users
 /api/v2/users
 ```
 
 **Header Versioning:**
+
 ```
 GET /api/users
 Accept: application/vnd.myapi.v2+json
 ```
 
 **Query Parameter:**
+
 ```
 /api/users?version=2
 ```
@@ -168,47 +179,47 @@ Accept: application/vnd.myapi.v2+json
 
 ```graphql
 type User {
-  id: ID!
-  email: String!
-  name: String!
-  posts: [Post!]!
-  createdAt: DateTime!
+    id: ID!
+    email: String!
+    name: String!
+    posts: [Post!]!
+    createdAt: DateTime!
 }
 
 type Post {
-  id: ID!
-  title: String!
-  content: String!
-  author: User!
-  published: Boolean!
-  createdAt: DateTime!
+    id: ID!
+    title: String!
+    content: String!
+    author: User!
+    published: Boolean!
+    createdAt: DateTime!
 }
 
 type Query {
-  user(id: ID!): User
-  users(limit: Int = 50, offset: Int = 0): [User!]!
-  post(id: ID!): Post
-  posts(authorId: ID, published: Boolean): [Post!]!
+    user(id: ID!): User
+    users(limit: Int = 50, offset: Int = 0): [User!]!
+    post(id: ID!): Post
+    posts(authorId: ID, published: Boolean): [Post!]!
 }
 
 type Mutation {
-  createUser(input: CreateUserInput!): User!
-  updateUser(id: ID!, input: UpdateUserInput!): User!
-  deleteUser(id: ID!): Boolean!
+    createUser(input: CreateUserInput!): User!
+    updateUser(id: ID!, input: UpdateUserInput!): User!
+    deleteUser(id: ID!): Boolean!
 
-  createPost(input: CreatePostInput!): Post!
-  publishPost(id: ID!): Post!
+    createPost(input: CreatePostInput!): Post!
+    publishPost(id: ID!): Post!
 }
 
 input CreateUserInput {
-  email: String!
-  name: String!
-  password: String!
+    email: String!
+    name: String!
+    password: String!
 }
 
 input UpdateUserInput {
-  email: String
-  name: String
+    email: String
+    name: String
 }
 ```
 
@@ -217,27 +228,27 @@ input UpdateUserInput {
 ```graphql
 # Flexible data fetching - client specifies exactly what they need
 query {
-  user(id: "123") {
-    id
-    name
-    email
-    posts {
-      id
-      title
-      published
+    user(id: "123") {
+        id
+        name
+        email
+        posts {
+            id
+            title
+            published
+        }
     }
-  }
 }
 
 # With variables
 query GetUser($userId: ID!) {
-  user(id: $userId) {
-    id
-    name
-    posts(published: true) {
-      title
+    user(id: $userId) {
+        id
+        name
+        posts(published: true) {
+            title
+        }
     }
-  }
 }
 ```
 
@@ -268,40 +279,41 @@ mutation CreateUser($input: CreateUserInput!) {
 ```typescript
 @Resolver(() => User)
 export class UserResolver {
-  constructor(
-    private userService: UserService,
-    private postService: PostService,
-  ) {}
+    constructor(
+        private userService: UserService,
+        private postService: PostService
+    ) {}
 
-  @Query(() => User, { nullable: true })
-  async user(@Args('id') id: string) {
-    return this.userService.findById(id);
-  }
+    @Query(() => User, { nullable: true })
+    async user(@Args("id") id: string) {
+        return this.userService.findById(id);
+    }
 
-  @Query(() => [User])
-  async users(
-    @Args('limit', { defaultValue: 50 }) limit: number,
-    @Args('offset', { defaultValue: 0 }) offset: number,
-  ) {
-    return this.userService.findAll({ limit, offset });
-  }
+    @Query(() => [User])
+    async users(
+        @Args("limit", { defaultValue: 50 }) limit: number,
+        @Args("offset", { defaultValue: 0 }) offset: number
+    ) {
+        return this.userService.findAll({ limit, offset });
+    }
 
-  @Mutation(() => User)
-  async createUser(@Args('input') input: CreateUserInput) {
-    return this.userService.create(input);
-  }
+    @Mutation(() => User)
+    async createUser(@Args("input") input: CreateUserInput) {
+        return this.userService.create(input);
+    }
 
-  // Field resolver - lazy load posts
-  @ResolveField(() => [Post])
-  async posts(@Parent() user: User) {
-    return this.postService.findByAuthorId(user.id);
-  }
+    // Field resolver - lazy load posts
+    @ResolveField(() => [Post])
+    async posts(@Parent() user: User) {
+        return this.postService.findByAuthorId(user.id);
+    }
 }
 ```
 
 ### GraphQL Best Practices
 
 1. **Avoid N+1 Problem** - Use DataLoader
+
 ```typescript
 import DataLoader from 'dataloader';
 
@@ -373,40 +385,36 @@ message CreateUserRequest {
 ### Implementation (Node.js)
 
 ```typescript
-import * as grpc from '@grpc/grpc-js';
-import * as protoLoader from '@grpc/proto-loader';
+import * as grpc from "@grpc/grpc-js";
+import * as protoLoader from "@grpc/proto-loader";
 
-const packageDefinition = protoLoader.loadSync('user.proto');
+const packageDefinition = protoLoader.loadSync("user.proto");
 const userProto = grpc.loadPackageDefinition(packageDefinition).user;
 
 // Server implementation
 const server = new grpc.Server();
 
 server.addService(userProto.UserService.service, {
-  async getUser(call, callback) {
-    const user = await userService.findById(call.request.id);
-    callback(null, user);
-  },
+    async getUser(call, callback) {
+        const user = await userService.findById(call.request.id);
+        callback(null, user);
+    },
 
-  async createUser(call, callback) {
-    const user = await userService.create(call.request);
-    callback(null, user);
-  },
+    async createUser(call, callback) {
+        const user = await userService.create(call.request);
+        callback(null, user);
+    },
 
-  async streamUsers(call) {
-    const users = await userService.findAll();
-    for (const user of users) {
-      call.write(user);
-    }
-    call.end();
-  },
+    async streamUsers(call) {
+        const users = await userService.findAll();
+        for (const user of users) {
+            call.write(user);
+        }
+        call.end();
+    },
 });
 
-server.bindAsync(
-  '0.0.0.0:50051',
-  grpc.ServerCredentials.createInsecure(),
-  () => server.start()
-);
+server.bindAsync("0.0.0.0:50051", grpc.ServerCredentials.createInsecure(), () => server.start());
 ```
 
 ### gRPC Benefits
@@ -419,16 +427,16 @@ server.bindAsync(
 
 ## API Design Decision Matrix
 
-| Feature | REST | GraphQL | gRPC |
-|---------|------|---------|------|
-| **Use Case** | Public APIs, CRUD | Flexible data fetching | Microservices, performance |
-| **Performance** | Moderate | Moderate | Fastest (7-10x REST) |
-| **Caching** | HTTP caching built-in | Complex | No built-in caching |
-| **Browser Support** | Native | Native | Requires gRPC-Web |
-| **Learning Curve** | Easy | Moderate | Steep |
-| **Streaming** | Limited (SSE) | Subscriptions | Bi-directional |
-| **Tooling** | Excellent | Excellent | Good |
-| **Documentation** | OpenAPI/Swagger | Schema introspection | Protobuf definition |
+| Feature             | REST                  | GraphQL                | gRPC                       |
+| ------------------- | --------------------- | ---------------------- | -------------------------- |
+| **Use Case**        | Public APIs, CRUD     | Flexible data fetching | Microservices, performance |
+| **Performance**     | Moderate              | Moderate               | Fastest (7-10x REST)       |
+| **Caching**         | HTTP caching built-in | Complex                | No built-in caching        |
+| **Browser Support** | Native                | Native                 | Requires gRPC-Web          |
+| **Learning Curve**  | Easy                  | Moderate               | Steep                      |
+| **Streaming**       | Limited (SSE)         | Subscriptions          | Bi-directional             |
+| **Tooling**         | Excellent             | Excellent              | Good                       |
+| **Documentation**   | OpenAPI/Swagger       | Schema introspection   | Protobuf definition        |
 
 ## API Security Checklist
 
@@ -450,41 +458,41 @@ server.bindAsync(
 ```yaml
 openapi: 3.0.0
 info:
-  title: User API
-  version: 1.0.0
+    title: User API
+    version: 1.0.0
 paths:
-  /api/v1/users:
-    get:
-      summary: List users
-      parameters:
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            default: 50
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/User'
+    /api/v1/users:
+        get:
+            summary: List users
+            parameters:
+                - name: limit
+                  in: query
+                  schema:
+                      type: integer
+                      default: 50
+            responses:
+                "200":
+                    description: Successful response
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    data:
+                                        type: array
+                                        items:
+                                            $ref: "#/components/schemas/User"
 components:
-  schemas:
-    User:
-      type: object
-      properties:
-        id:
-          type: string
-        email:
-          type: string
-        name:
-          type: string
+    schemas:
+        User:
+            type: object
+            properties:
+                id:
+                    type: string
+                email:
+                    type: string
+                name:
+                    type: string
 ```
 
 ## Resources

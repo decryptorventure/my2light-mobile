@@ -7,7 +7,7 @@ import { supabase } from "../lib/supabase";
 import { ApiResponse, Booking } from "../types";
 import { logger } from "../lib/logger";
 
-const adminLogger = logger.create('Admin');
+const adminLogger = logger.create("Admin");
 
 export interface CourtOwnerProfile {
     id: string;
@@ -90,10 +90,7 @@ export const AdminService = {
             }
 
             // Update user role in profiles
-            await supabase
-                .from("profiles")
-                .update({ role: "court_owner" })
-                .eq("id", user.id);
+            await supabase.from("profiles").update({ role: "court_owner" }).eq("id", user.id);
 
             return { success: true, data: true };
         } catch (e) {
@@ -138,7 +135,17 @@ export const AdminService = {
         const {
             data: { user },
         } = await supabase.auth.getUser();
-        if (!user) return { success: false, data: { totalRevenue: 0, todayBookings: 0, pendingBookings: 0, totalCourts: 0, averageRating: 0 } };
+        if (!user)
+            return {
+                success: false,
+                data: {
+                    totalRevenue: 0,
+                    todayBookings: 0,
+                    pendingBookings: 0,
+                    totalCourts: 0,
+                    averageRating: 0,
+                },
+            };
 
         try {
             // Get owner's courts
@@ -156,7 +163,13 @@ export const AdminService = {
             if (courtIds.length === 0) {
                 return {
                     success: true,
-                    data: { totalRevenue: 0, todayBookings: 0, pendingBookings: 0, totalCourts: 0, averageRating: 0 },
+                    data: {
+                        totalRevenue: 0,
+                        todayBookings: 0,
+                        pendingBookings: 0,
+                        totalCourts: 0,
+                        averageRating: 0,
+                    },
                 };
             }
 
@@ -191,7 +204,8 @@ export const AdminService = {
                 .in("court_id", courtIds)
                 .in("status", ["completed", "approved", "active"]);
 
-            const totalRevenue = revenueData?.reduce((sum, b) => sum + (b.total_amount || 0), 0) || 0;
+            const totalRevenue =
+                revenueData?.reduce((sum, b) => sum + (b.total_amount || 0), 0) || 0;
 
             return {
                 success: true,
@@ -199,7 +213,16 @@ export const AdminService = {
             };
         } catch (e) {
             adminLogger.error("getDashboardStats error:", e);
-            return { success: false, data: { totalRevenue: 0, todayBookings: 0, pendingBookings: 0, totalCourts: 0, averageRating: 0 } };
+            return {
+                success: false,
+                data: {
+                    totalRevenue: 0,
+                    todayBookings: 0,
+                    pendingBookings: 0,
+                    totalCourts: 0,
+                    averageRating: 0,
+                },
+            };
         }
     },
 
@@ -245,11 +268,13 @@ export const AdminService = {
             // Get bookings for those courts
             const { data: bookings, error } = await supabase
                 .from("bookings")
-                .select(`
+                .select(
+                    `
                     *,
                     court:courts(name),
                     package:packages(name)
-                `)
+                `
+                )
                 .in("court_id", courtIds)
                 .order("start_time", { ascending: false });
 
@@ -298,8 +323,10 @@ export const AdminService = {
      * Sets status to 'approved' and records approval time
      */
     approveBooking: async (bookingId: string): Promise<ApiResponse<boolean>> => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return { success: false, data: false, error: 'Not authenticated' };
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) return { success: false, data: false, error: "Not authenticated" };
 
         try {
             const { error } = await supabase
@@ -307,20 +334,20 @@ export const AdminService = {
                 .update({
                     status: "approved",
                     approved_at: new Date().toISOString(),
-                    approved_by: user.id
+                    approved_by: user.id,
                 })
                 .eq("id", bookingId);
 
             if (error) {
-                adminLogger.error('approveBooking error', error);
+                adminLogger.error("approveBooking error", error);
                 return { success: false, data: false, error: error.message };
             }
 
-            adminLogger.info('Booking approved', { bookingId });
+            adminLogger.info("Booking approved", { bookingId });
             return { success: true, data: true };
         } catch (e) {
-            adminLogger.error('approveBooking exception', e);
-            return { success: false, data: false, error: 'Failed to approve booking' };
+            adminLogger.error("approveBooking exception", e);
+            return { success: false, data: false, error: "Failed to approve booking" };
         }
     },
 
@@ -329,23 +356,29 @@ export const AdminService = {
      * Sets status to 'rejected' and refunds credits to user
      */
     rejectBooking: async (bookingId: string, reason?: string): Promise<ApiResponse<boolean>> => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return { success: false, data: false, error: 'Not authenticated' };
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) return { success: false, data: false, error: "Not authenticated" };
 
         try {
             // Get booking details for refund
             const { data: booking } = await supabase
-                .from('bookings')
-                .select('user_id, total_amount, status')
-                .eq('id', bookingId)
+                .from("bookings")
+                .select("user_id, total_amount, status")
+                .eq("id", bookingId)
                 .single();
 
             if (!booking) {
-                return { success: false, data: false, error: 'Booking not found' };
+                return { success: false, data: false, error: "Booking not found" };
             }
 
-            if (booking.status !== 'pending') {
-                return { success: false, data: false, error: 'Chỉ có thể từ chối booking đang chờ duyệt' };
+            if (booking.status !== "pending") {
+                return {
+                    success: false,
+                    data: false,
+                    error: "Chỉ có thể từ chối booking đang chờ duyệt",
+                };
             }
 
             // Update booking status
@@ -353,32 +386,32 @@ export const AdminService = {
                 .from("bookings")
                 .update({
                     status: "rejected",
-                    cancel_reason: reason || 'Bị từ chối bởi chủ sân'
+                    cancel_reason: reason || "Bị từ chối bởi chủ sân",
                 })
                 .eq("id", bookingId);
 
             if (error) {
-                adminLogger.error('rejectBooking error', error);
+                adminLogger.error("rejectBooking error", error);
                 return { success: false, data: false, error: error.message };
             }
 
             // Refund credits to user
             const { data: userProfile } = await supabase
-                .from('profiles')
-                .select('credits')
-                .eq('id', booking.user_id)
+                .from("profiles")
+                .select("credits")
+                .eq("id", booking.user_id)
                 .single();
 
             await supabase
-                .from('profiles')
+                .from("profiles")
                 .update({ credits: (userProfile?.credits || 0) + booking.total_amount })
-                .eq('id', booking.user_id);
+                .eq("id", booking.user_id);
 
-            adminLogger.info('Booking rejected', { bookingId, reason });
+            adminLogger.info("Booking rejected", { bookingId, reason });
             return { success: true, data: true };
         } catch (e) {
-            adminLogger.error('rejectBooking exception', e);
-            return { success: false, data: false, error: 'Failed to reject booking' };
+            adminLogger.error("rejectBooking exception", e);
+            return { success: false, data: false, error: "Failed to reject booking" };
         }
     },
 
@@ -386,19 +419,21 @@ export const AdminService = {
      * Cancel a booking (by owner)
      */
     cancelBooking: async (bookingId: string, reason?: string): Promise<ApiResponse<boolean>> => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return { success: false, data: false, error: 'Not authenticated' };
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) return { success: false, data: false, error: "Not authenticated" };
 
         try {
             // Get booking details for refund
             const { data: booking } = await supabase
-                .from('bookings')
-                .select('user_id, total_amount')
-                .eq('id', bookingId)
+                .from("bookings")
+                .select("user_id, total_amount")
+                .eq("id", bookingId)
                 .single();
 
             if (!booking) {
-                return { success: false, data: false, error: 'Booking not found' };
+                return { success: false, data: false, error: "Booking not found" };
             }
 
             const { error } = await supabase
@@ -407,27 +442,27 @@ export const AdminService = {
                 .eq("id", bookingId);
 
             if (error) {
-                adminLogger.error('cancelBooking error', error);
+                adminLogger.error("cancelBooking error", error);
                 return { success: false, data: false, error: error.message };
             }
 
             // Refund credits
             const { data: userProfile } = await supabase
-                .from('profiles')
-                .select('credits')
-                .eq('id', booking.user_id)
+                .from("profiles")
+                .select("credits")
+                .eq("id", booking.user_id)
                 .single();
 
             await supabase
-                .from('profiles')
+                .from("profiles")
                 .update({ credits: (userProfile?.credits || 0) + booking.total_amount })
-                .eq('id', booking.user_id);
+                .eq("id", booking.user_id);
 
-            adminLogger.info('Booking cancelled by owner', { bookingId, reason });
+            adminLogger.info("Booking cancelled by owner", { bookingId, reason });
             return { success: true, data: true };
         } catch (e) {
-            adminLogger.error('cancelBooking exception', e);
-            return { success: false, data: false, error: 'Failed to cancel booking' };
+            adminLogger.error("cancelBooking exception", e);
+            return { success: false, data: false, error: "Failed to cancel booking" };
         }
     },
 
@@ -435,27 +470,29 @@ export const AdminService = {
      * Get pending bookings count for owner's courts
      */
     getPendingBookingsCount: async (): Promise<ApiResponse<number>> => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
         if (!user) return { success: false, data: 0 };
 
         try {
             const { data: courts } = await supabase
-                .from('courts')
-                .select('id')
-                .eq('owner_id', user.id);
+                .from("courts")
+                .select("id")
+                .eq("owner_id", user.id);
 
-            const courtIds = courts?.map(c => c.id) || [];
+            const courtIds = courts?.map((c) => c.id) || [];
             if (courtIds.length === 0) return { success: true, data: 0 };
 
             const { count } = await supabase
-                .from('bookings')
-                .select('id', { count: 'exact', head: true })
-                .in('court_id', courtIds)
-                .eq('status', 'pending');
+                .from("bookings")
+                .select("id", { count: "exact", head: true })
+                .in("court_id", courtIds)
+                .eq("status", "pending");
 
             return { success: true, data: count || 0 };
         } catch (e) {
-            adminLogger.error('getPendingBookingsCount error', e);
+            adminLogger.error("getPendingBookingsCount error", e);
             return { success: false, data: 0 };
         }
     },
@@ -500,7 +537,10 @@ export const AdminService = {
         }
     },
 
-    updateCourt: async (courtId: string, data: Partial<CourtFormData>): Promise<ApiResponse<any>> => {
+    updateCourt: async (
+        courtId: string,
+        data: Partial<CourtFormData>
+    ): Promise<ApiResponse<any>> => {
         const updateData: any = {};
         if (data.name !== undefined) updateData.name = data.name;
         if (data.address !== undefined) updateData.address = data.address;
@@ -511,7 +551,8 @@ export const AdminService = {
         if (data.facilities !== undefined) updateData.facilities = data.facilities;
         if (data.images !== undefined) updateData.images = data.images;
         if (data.isActive !== undefined) updateData.is_active = data.isActive;
-        if (data.autoApproveBookings !== undefined) updateData.auto_approve_bookings = data.autoApproveBookings;
+        if (data.autoApproveBookings !== undefined)
+            updateData.auto_approve_bookings = data.autoApproveBookings;
 
         try {
             const { data: court, error } = await supabase
@@ -549,7 +590,10 @@ export const AdminService = {
         }
     },
 
-    toggleCourtStatus: async (courtId: string, isActive: boolean): Promise<ApiResponse<boolean>> => {
+    toggleCourtStatus: async (
+        courtId: string,
+        isActive: boolean
+    ): Promise<ApiResponse<boolean>> => {
         const { error } = await supabase
             .from("courts")
             .update({ is_active: isActive })

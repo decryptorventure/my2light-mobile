@@ -10,15 +10,15 @@ Email/password is built-in auth method in Better Auth. No plugins required for b
 import { betterAuth } from "better-auth";
 
 export const auth = betterAuth({
-  emailAndPassword: {
-    enabled: true,
-    autoSignIn: true, // Auto sign-in after signup (default: true)
-    requireEmailVerification: false, // Require email verification before login
-    sendResetPasswordToken: async ({ user, url }) => {
-      // Send password reset email
-      await sendEmail(user.email, url);
-    }
-  }
+    emailAndPassword: {
+        enabled: true,
+        autoSignIn: true, // Auto sign-in after signup (default: true)
+        requireEmailVerification: false, // Require email verification before login
+        sendResetPasswordToken: async ({ user, url }) => {
+            // Send password reset email
+            await sendEmail(user.email, url);
+        },
+    },
 });
 ```
 
@@ -26,16 +26,16 @@ export const auth = betterAuth({
 
 ```ts
 export const auth = betterAuth({
-  emailAndPassword: {
-    enabled: true,
-    password: {
-      minLength: 8,
-      requireUppercase: true,
-      requireLowercase: true,
-      requireNumbers: true,
-      requireSpecialChars: true
-    }
-  }
+    emailAndPassword: {
+        enabled: true,
+        password: {
+            minLength: 8,
+            requireUppercase: true,
+            requireLowercase: true,
+            requireNumbers: true,
+            requireSpecialChars: true,
+        },
+    },
 });
 ```
 
@@ -46,50 +46,56 @@ export const auth = betterAuth({
 ```ts
 import { authClient } from "@/lib/auth-client";
 
-const { data, error } = await authClient.signUp.email({
-  email: "user@example.com",
-  password: "securePassword123",
-  name: "John Doe",
-  image: "https://example.com/avatar.jpg", // optional
-  callbackURL: "/dashboard" // optional
-}, {
-  onSuccess: (ctx) => {
-    // ctx.data contains user and session
-    console.log("User created:", ctx.data.user);
-  },
-  onError: (ctx) => {
-    alert(ctx.error.message);
-  }
-});
+const { data, error } = await authClient.signUp.email(
+    {
+        email: "user@example.com",
+        password: "securePassword123",
+        name: "John Doe",
+        image: "https://example.com/avatar.jpg", // optional
+        callbackURL: "/dashboard", // optional
+    },
+    {
+        onSuccess: (ctx) => {
+            // ctx.data contains user and session
+            console.log("User created:", ctx.data.user);
+        },
+        onError: (ctx) => {
+            alert(ctx.error.message);
+        },
+    }
+);
 ```
 
 ### Sign In
 
 ```ts
-const { data, error } = await authClient.signIn.email({
-  email: "user@example.com",
-  password: "securePassword123",
-  callbackURL: "/dashboard",
-  rememberMe: true // default: true
-}, {
-  onSuccess: () => {
-    // redirect or update UI
-  },
-  onError: (ctx) => {
-    console.error(ctx.error.message);
-  }
-});
+const { data, error } = await authClient.signIn.email(
+    {
+        email: "user@example.com",
+        password: "securePassword123",
+        callbackURL: "/dashboard",
+        rememberMe: true, // default: true
+    },
+    {
+        onSuccess: () => {
+            // redirect or update UI
+        },
+        onError: (ctx) => {
+            console.error(ctx.error.message);
+        },
+    }
+);
 ```
 
 ### Sign Out
 
 ```ts
 await authClient.signOut({
-  fetchOptions: {
-    onSuccess: () => {
-      router.push("/login");
-    }
-  }
+    fetchOptions: {
+        onSuccess: () => {
+            router.push("/login");
+        },
+    },
 });
 ```
 
@@ -99,22 +105,22 @@ await authClient.signOut({
 
 ```ts
 export const auth = betterAuth({
-  emailVerification: {
-    sendVerificationEmail: async ({ user, url, token }) => {
-      // Send verification email
-      await sendEmail({
-        to: user.email,
-        subject: "Verify your email",
-        html: `Click <a href="${url}">here</a> to verify your email.`
-      });
+    emailVerification: {
+        sendVerificationEmail: async ({ user, url, token }) => {
+            // Send verification email
+            await sendEmail({
+                to: user.email,
+                subject: "Verify your email",
+                html: `Click <a href="${url}">here</a> to verify your email.`,
+            });
+        },
+        sendOnSignUp: true, // Send verification email on signup
+        autoSignInAfterVerification: true, // Auto sign-in after verification
     },
-    sendOnSignUp: true, // Send verification email on signup
-    autoSignInAfterVerification: true // Auto sign-in after verification
-  },
-  emailAndPassword: {
-    enabled: true,
-    requireEmailVerification: true // Require verification before login
-  }
+    emailAndPassword: {
+        enabled: true,
+        requireEmailVerification: true, // Require verification before login
+    },
 });
 ```
 
@@ -123,13 +129,13 @@ export const auth = betterAuth({
 ```ts
 // Send verification email
 await authClient.sendVerificationEmail({
-  email: "user@example.com",
-  callbackURL: "/verify-success"
+    email: "user@example.com",
+    callbackURL: "/verify-success",
 });
 
 // Verify email with token
 await authClient.verifyEmail({
-  token: "verification-token-from-email"
+    token: "verification-token-from-email",
 });
 ```
 
@@ -139,16 +145,16 @@ await authClient.verifyEmail({
 
 ```ts
 export const auth = betterAuth({
-  emailAndPassword: {
-    enabled: true,
-    sendResetPasswordToken: async ({ user, url, token }) => {
-      await sendEmail({
-        to: user.email,
-        subject: "Reset your password",
-        html: `Click <a href="${url}">here</a> to reset your password.`
-      });
-    }
-  }
+    emailAndPassword: {
+        enabled: true,
+        sendResetPasswordToken: async ({ user, url, token }) => {
+            await sendEmail({
+                to: user.email,
+                subject: "Reset your password",
+                html: `Click <a href="${url}">here</a> to reset your password.`,
+            });
+        },
+    },
 });
 ```
 
@@ -157,14 +163,14 @@ export const auth = betterAuth({
 ```ts
 // Step 1: Request password reset
 await authClient.forgetPassword({
-  email: "user@example.com",
-  redirectTo: "/reset-password"
+    email: "user@example.com",
+    redirectTo: "/reset-password",
 });
 
 // Step 2: Reset password with token
 await authClient.resetPassword({
-  token: "reset-token-from-email",
-  password: "newSecurePassword123"
+    token: "reset-token-from-email",
+    password: "newSecurePassword123",
 });
 ```
 
@@ -172,9 +178,9 @@ await authClient.resetPassword({
 
 ```ts
 await authClient.changePassword({
-  currentPassword: "oldPassword123",
-  newPassword: "newPassword456",
-  revokeOtherSessions: true // Optional: logout other sessions
+    currentPassword: "oldPassword123",
+    newPassword: "newPassword456",
+    revokeOtherSessions: true, // Optional: logout other sessions
 });
 ```
 
@@ -189,12 +195,12 @@ import { betterAuth } from "better-auth";
 import { username } from "better-auth/plugins";
 
 export const auth = betterAuth({
-  plugins: [
-    username({
-      // Allow sign in with username or email
-      allowUsernameOrEmail: true
-    })
-  ]
+    plugins: [
+        username({
+            // Allow sign in with username or email
+            allowUsernameOrEmail: true,
+        }),
+    ],
 });
 ```
 
@@ -205,7 +211,7 @@ import { createAuthClient } from "better-auth/client";
 import { usernameClient } from "better-auth/client/plugins";
 
 export const authClient = createAuthClient({
-  plugins: [usernameClient()]
+    plugins: [usernameClient()],
 });
 ```
 
@@ -214,22 +220,22 @@ export const authClient = createAuthClient({
 ```ts
 // Sign up with username
 await authClient.signUp.username({
-  username: "johndoe",
-  password: "securePassword123",
-  email: "john@example.com", // optional
-  name: "John Doe"
+    username: "johndoe",
+    password: "securePassword123",
+    email: "john@example.com", // optional
+    name: "John Doe",
 });
 
 // Sign in with username
 await authClient.signIn.username({
-  username: "johndoe",
-  password: "securePassword123"
+    username: "johndoe",
+    password: "securePassword123",
 });
 
 // Sign in with username or email (if allowUsernameOrEmail: true)
 await authClient.signIn.username({
-  username: "johndoe", // or "john@example.com"
-  password: "securePassword123"
+    username: "johndoe", // or "john@example.com"
+    password: "securePassword123",
 });
 ```
 
@@ -263,7 +269,7 @@ import { auth } from "~/utils/auth";
 import { toWebRequest } from "better-auth/utils/web";
 
 export default defineEventHandler((event) => {
-  return auth.handler(toWebRequest(event));
+    return auth.handler(toWebRequest(event));
 });
 ```
 
@@ -275,7 +281,7 @@ import { auth } from "$lib/auth";
 import { svelteKitHandler } from "better-auth/svelte-kit";
 
 export async function handle({ event, resolve }) {
-  return svelteKitHandler({ event, resolve, auth });
+    return svelteKitHandler({ event, resolve, auth });
 }
 ```
 
@@ -286,7 +292,7 @@ export async function handle({ event, resolve }) {
 import { auth } from "@/lib/auth";
 
 export async function ALL({ request }: { request: Request }) {
-  return auth.handler(request);
+    return auth.handler(request);
 }
 ```
 
@@ -299,7 +305,7 @@ import { auth } from "./auth";
 const app = new Hono();
 
 app.on(["POST", "GET"], "/api/auth/*", (c) => {
-  return auth.handler(c.req.raw);
+    return auth.handler(c.req.raw);
 });
 ```
 
@@ -325,19 +331,19 @@ import { auth } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  const session = await auth.api.getSession({
-    headers: request.headers
-  });
+    const session = await auth.api.getSession({
+        headers: request.headers,
+    });
 
-  if (!session) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
+    if (!session) {
+        return NextResponse.redirect(new URL("/login", request.url));
+    }
 
-  return NextResponse.next();
+    return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/profile/:path*"]
+    matcher: ["/dashboard/:path*", "/profile/:path*"],
 };
 ```
 
@@ -349,15 +355,15 @@ import { auth } from "$lib/auth";
 import { redirect } from "@sveltejs/kit";
 
 export async function handle({ event, resolve }) {
-  const session = await auth.api.getSession({
-    headers: event.request.headers
-  });
+    const session = await auth.api.getSession({
+        headers: event.request.headers,
+    });
 
-  if (event.url.pathname.startsWith("/dashboard") && !session) {
-    throw redirect(303, "/login");
-  }
+    if (event.url.pathname.startsWith("/dashboard") && !session) {
+        throw redirect(303, "/login");
+    }
 
-  return resolve(event);
+    return resolve(event);
 }
 ```
 
@@ -366,11 +372,11 @@ export async function handle({ event, resolve }) {
 ```ts
 // middleware/auth.ts
 export default defineNuxtRouteMiddleware(async (to) => {
-  const { data: session } = await useAuthSession();
+    const { data: session } = await useAuthSession();
 
-  if (!session.value && to.path.startsWith("/dashboard")) {
-    return navigateTo("/login");
-  }
+    if (!session.value && to.path.startsWith("/dashboard")) {
+        return navigateTo("/login");
+    }
 });
 ```
 
@@ -387,9 +393,9 @@ console.log(session.user);
 
 ```ts
 await authClient.updateUser({
-  name: "New Name",
-  image: "https://example.com/new-avatar.jpg",
-  // Custom fields if defined in schema
+    name: "New Name",
+    image: "https://example.com/new-avatar.jpg",
+    // Custom fields if defined in schema
 });
 ```
 
@@ -397,8 +403,8 @@ await authClient.updateUser({
 
 ```ts
 await authClient.deleteUser({
-  password: "currentPassword", // Required for security
-  callbackURL: "/" // Redirect after deletion
+    password: "currentPassword", // Required for security
+    callbackURL: "/", // Redirect after deletion
 });
 ```
 

@@ -1,10 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { CourtService } from '../court.service';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { CourtService } from "../court.service";
 
 export const courtQueryKeys = {
-    all: ['courts'] as const,
-    lists: () => [...courtQueryKeys.all, 'list'] as const,
-    detail: (id: string) => [...courtQueryKeys.all, 'detail', id] as const,
+    all: ["courts"] as const,
+    lists: () => [...courtQueryKeys.all, "list"] as const,
+    detail: (id: string) => [...courtQueryKeys.all, "detail", id] as const,
 };
 
 export function useCourts() {

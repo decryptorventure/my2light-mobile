@@ -3,12 +3,12 @@
  * @module stores/recordingStore
  */
 
-import { create } from 'zustand';
+import { create } from "zustand";
 
 export interface HighlightMarker {
     id: string;
     timestamp: number; // seconds from recording start
-    duration: number;  // highlight duration in seconds
+    duration: number; // highlight duration in seconds
     name: string;
 }
 
@@ -54,12 +54,12 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
 
     setVoiceCommandEnabled: (enabled) =>
         set((state) => ({
-            settings: { ...state.settings, voiceCommandEnabled: enabled }
+            settings: { ...state.settings, voiceCommandEnabled: enabled },
         })),
 
     setHighlightDuration: (duration) =>
         set((state) => ({
-            settings: { ...state.settings, highlightDuration: duration }
+            settings: { ...state.settings, highlightDuration: duration },
         })),
 
     // Recording state
@@ -69,18 +69,20 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
     highlights: [],
     videoUri: null,
 
-    startRecording: () => set({
-        isRecording: true,
-        recordingStartTime: Date.now(),
-        elapsedTime: 0,
-        highlights: [],
-        videoUri: null,
-    }),
+    startRecording: () =>
+        set({
+            isRecording: true,
+            recordingStartTime: Date.now(),
+            elapsedTime: 0,
+            highlights: [],
+            videoUri: null,
+        }),
 
-    stopRecording: (videoUri) => set({
-        isRecording: false,
-        videoUri,
-    }),
+    stopRecording: (videoUri) =>
+        set({
+            isRecording: false,
+            videoUri,
+        }),
 
     addHighlight: () => {
         const state = get();
@@ -101,36 +103,40 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
         set({ highlights: [...state.highlights, newHighlight] });
     },
 
-    removeHighlight: (id) => set((state) => ({
-        highlights: state.highlights.filter((h) => h.id !== id),
-    })),
+    removeHighlight: (id) =>
+        set((state) => ({
+            highlights: state.highlights.filter((h) => h.id !== id),
+        })),
 
-    resetSession: () => set({
-        isRecording: false,
-        recordingStartTime: null,
-        elapsedTime: 0,
-        highlights: [],
-        videoUri: null,
-        selectedHighlightIds: [],
-    }),
+    resetSession: () =>
+        set({
+            isRecording: false,
+            recordingStartTime: null,
+            elapsedTime: 0,
+            highlights: [],
+            videoUri: null,
+            selectedHighlightIds: [],
+        }),
 
     updateElapsedTime: (time) => set({ elapsedTime: time }),
 
     // Selection state
     selectedHighlightIds: [],
 
-    toggleHighlightSelection: (id) => set((state) => {
-        const isSelected = state.selectedHighlightIds.includes(id);
-        return {
-            selectedHighlightIds: isSelected
-                ? state.selectedHighlightIds.filter((hId) => hId !== id)
-                : [...state.selectedHighlightIds, id],
-        };
-    }),
+    toggleHighlightSelection: (id) =>
+        set((state) => {
+            const isSelected = state.selectedHighlightIds.includes(id);
+            return {
+                selectedHighlightIds: isSelected
+                    ? state.selectedHighlightIds.filter((hId) => hId !== id)
+                    : [...state.selectedHighlightIds, id],
+            };
+        }),
 
-    selectAllHighlights: () => set((state) => ({
-        selectedHighlightIds: state.highlights.map((h) => h.id),
-    })),
+    selectAllHighlights: () =>
+        set((state) => ({
+            selectedHighlightIds: state.highlights.map((h) => h.id),
+        })),
 
     clearSelection: () => set({ selectedHighlightIds: [] }),
 }));

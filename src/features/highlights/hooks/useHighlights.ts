@@ -1,13 +1,13 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { HighlightService } from '../highlight.service';
-import type { Highlight } from '../types/highlight.types';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { HighlightService } from "../highlight.service";
+import type { Highlight } from "../types/highlight.types";
 
 // Query keys for highlights
 export const highlightQueryKeys = {
-    all: ['highlights'] as const,
-    lists: () => [...highlightQueryKeys.all, 'list'] as const,
+    all: ["highlights"] as const,
+    lists: () => [...highlightQueryKeys.all, "list"] as const,
     list: (limit: number) => [...highlightQueryKeys.lists(), { limit }] as const,
-    user: (userId: string) => [...highlightQueryKeys.all, 'user', userId] as const,
+    user: (userId: string) => [...highlightQueryKeys.all, "user", userId] as const,
 };
 
 export function useHighlights(limit: number = 20) {
@@ -43,13 +43,14 @@ export function useCreateHighlight() {
             duration?: number;
             title?: string;
             description?: string;
-        }) => HighlightService.createHighlight(
-            params.courtId,
-            params.videoUrl,
-            params.duration,
-            params.title,
-            params.description
-        ),
+        }) =>
+            HighlightService.createHighlight(
+                params.courtId,
+                params.videoUrl,
+                params.duration,
+                params.title,
+                params.description
+            ),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: highlightQueryKeys.all });
         },

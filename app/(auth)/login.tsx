@@ -79,10 +79,7 @@ export default function LoginScreen() {
         const now = Date.now();
         if (lockoutTime && now < lockoutTime) {
             const remainingSeconds = Math.ceil((lockoutTime - now) / 1000);
-            Alert.alert(
-                "Quá nhiều lần thử",
-                `Vui lòng thử lại sau ${remainingSeconds} giây`
-            );
+            Alert.alert("Quá nhiều lần thử", `Vui lòng thử lại sau ${remainingSeconds} giây`);
             return;
         }
 
@@ -181,7 +178,9 @@ export default function LoginScreen() {
                     />
 
                     <Button
-                        title={isSignUp ? "Đã có tài khoản? Đăng nhập" : "Chưa có tài khoản? Đăng ký"}
+                        title={
+                            isSignUp ? "Đã có tài khoản? Đăng nhập" : "Chưa có tài khoản? Đăng ký"
+                        }
                         onPress={() => setIsSignUp(!isSignUp)}
                         variant="ghost"
                         fullWidth

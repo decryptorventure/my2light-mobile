@@ -3,10 +3,15 @@
  * Real-time booking status monitoring
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { BookingService, BookingDetail, BookingStatus } from '../services/booking.service';
-import { subscribeToBooking, subscribeToUserBookings, RealtimeSubscription, BookingChange } from '../services/realtime.service';
-import { useAuthStore } from '../stores/authStore';
+import { useState, useEffect, useCallback } from "react";
+import { BookingService, BookingDetail, BookingStatus } from "../services/booking.service";
+import {
+    subscribeToBooking,
+    subscribeToUserBookings,
+    RealtimeSubscription,
+    BookingChange,
+} from "../services/realtime.service";
+import { useAuthStore } from "../stores/authStore";
 
 export interface UseBookingRealtimeResult {
     booking: BookingDetail | null;
@@ -39,10 +44,10 @@ export function useBookingRealtime(bookingId: string | null): UseBookingRealtime
             if (result.success && result.data) {
                 setBooking(result.data);
             } else {
-                setError(result.error || 'Failed to fetch booking');
+                setError(result.error || "Failed to fetch booking");
             }
         } catch (e) {
-            setError('Failed to fetch booking');
+            setError("Failed to fetch booking");
         } finally {
             setIsLoading(false);
         }
@@ -56,13 +61,10 @@ export function useBookingRealtime(bookingId: string | null): UseBookingRealtime
     useEffect(() => {
         if (!bookingId) return;
 
-        const subscription = subscribeToBooking(
-            bookingId,
-            (newStatus, oldStatus) => {
-                // Update local state immediately
-                setBooking(prev => prev ? { ...prev, status: newStatus } : null);
-            }
-        );
+        const subscription = subscribeToBooking(bookingId, (newStatus, oldStatus) => {
+            // Update local state immediately
+            setBooking((prev) => (prev ? { ...prev, status: newStatus } : null));
+        });
 
         return () => {
             subscription.unsubscribe();
@@ -108,7 +110,7 @@ export function useUpcomingBookings(): UseUpcomingBookingsResult {
                 setBookings(result.data as BookingDetail[]);
             }
         } catch (e) {
-            setError('Failed to fetch bookings');
+            setError("Failed to fetch bookings");
         } finally {
             setIsLoading(false);
         }
@@ -122,27 +124,22 @@ export function useUpcomingBookings(): UseUpcomingBookingsResult {
     useEffect(() => {
         if (!user?.id) return;
 
-        const subscription = subscribeToUserBookings(
-            user.id,
-            (change: BookingChange) => {
-                if (change.eventType === 'INSERT') {
-                    // New booking - refetch to get full data
-                    fetchBookings();
-                } else if (change.eventType === 'UPDATE') {
-                    // Update the specific booking
-                    setBookings(prev =>
-                        prev.map(b =>
-                            b.id === change.new.id
-                                ? { ...b, status: change.new.status }
-                                : b
-                        )
-                    );
-                } else if (change.eventType === 'DELETE') {
-                    // Remove the booking
-                    setBookings(prev => prev.filter(b => b.id !== change.old.id));
-                }
+        const subscription = subscribeToUserBookings(user.id, (change: BookingChange) => {
+            if (change.eventType === "INSERT") {
+                // New booking - refetch to get full data
+                fetchBookings();
+            } else if (change.eventType === "UPDATE") {
+                // Update the specific booking
+                setBookings((prev) =>
+                    prev.map((b) =>
+                        b.id === change.new.id ? { ...b, status: change.new.status } : b
+                    )
+                );
+            } else if (change.eventType === "DELETE") {
+                // Remove the booking
+                setBookings((prev) => prev.filter((b) => b.id !== change.old.id));
             }
-        );
+        });
 
         return () => {
             subscription.unsubscribe();
@@ -178,7 +175,7 @@ export function useSlotAvailability(courtId: string | null, date: Date | null) {
                 setSlots(result.data);
             }
         } catch (e) {
-            setError('Failed to fetch slots');
+            setError("Failed to fetch slots");
         } finally {
             setIsLoading(false);
         }

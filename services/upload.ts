@@ -1,9 +1,9 @@
-import { supabase } from '../lib/supabase';
-import * as FileSystem from 'expo-file-system/legacy';
-import * as VideoThumbnails from 'expo-video-thumbnails';
-import { ApiResponse } from '../types';
-import { Audio, AVPlaybackStatus, Video } from 'expo-av';
-import { uploadLogger } from '../lib/logger';
+import { supabase } from "../lib/supabase";
+import * as FileSystem from "expo-file-system/legacy";
+import * as VideoThumbnails from "expo-video-thumbnails";
+import { ApiResponse } from "../types";
+import { Audio, AVPlaybackStatus, Video } from "expo-av";
+import { uploadLogger } from "../lib/logger";
 
 export interface UploadProgress {
     loaded: number;
@@ -23,14 +23,11 @@ export interface UploadResult {
 async function getVideoDuration(uri: string): Promise<number> {
     try {
         // Use Audio to get duration - works for video files too
-        const { sound, status } = await Audio.Sound.createAsync(
-            { uri },
-            { shouldPlay: false }
-        );
+        const { sound, status } = await Audio.Sound.createAsync({ uri }, { shouldPlay: false });
 
         if (status.isLoaded && status.durationMillis) {
             const durationSec = Math.round(status.durationMillis / 1000);
-            uploadLogger.debug('Video duration', { seconds: durationSec });
+            uploadLogger.debug("Video duration", { seconds: durationSec });
             await sound?.unloadAsync();
             return durationSec;
         }
@@ -38,7 +35,7 @@ async function getVideoDuration(uri: string): Promise<number> {
         await sound?.unloadAsync();
         return 0;
     } catch (error) {
-        uploadLogger.warn('Could not get video duration', error);
+        uploadLogger.warn("Could not get video duration", error);
         return 0;
     }
 }
@@ -48,15 +45,15 @@ async function getVideoDuration(uri: string): Promise<number> {
  */
 async function generateThumbnail(videoUri: string, timeMs: number = 1000): Promise<string | null> {
     try {
-        uploadLogger.debug('Generating thumbnail', { timeMs });
+        uploadLogger.debug("Generating thumbnail", { timeMs });
         const { uri } = await VideoThumbnails.getThumbnailAsync(videoUri, {
             time: timeMs,
             quality: 0.8,
         });
-        uploadLogger.debug('Thumbnail generated', { success: !!uri });
+        uploadLogger.debug("Thumbnail generated", { success: !!uri });
         return uri;
     } catch (error) {
-        uploadLogger.error('Thumbnail generation failed', error);
+        uploadLogger.error("Thumbnail generation failed", error);
         return null;
     }
 }
@@ -70,36 +67,34 @@ async function uploadThumbnail(
     timestamp: number
 ): Promise<string | null> {
     try {
-        uploadLogger.debug('Reading thumbnail file');
+        uploadLogger.debug("Reading thumbnail file");
         const base64 = await FileSystem.readAsStringAsync(thumbnailUri, {
             encoding: FileSystem.EncodingType.Base64,
         });
 
-        const byteArray = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+        const byteArray = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
         // Store thumbnails in user's folder in videos bucket
         const fileName = `${userId}/thumb_${timestamp}.jpg`;
 
-        uploadLogger.debug('Uploading thumbnail');
-        const { error } = await supabase.storage
-            .from('videos')
-            .upload(fileName, byteArray, {
-                contentType: 'image/jpeg',
-                upsert: true, // Allow overwrite
-            });
+        uploadLogger.debug("Uploading thumbnail");
+        const { error } = await supabase.storage.from("videos").upload(fileName, byteArray, {
+            contentType: "image/jpeg",
+            upsert: true, // Allow overwrite
+        });
 
         if (error) {
-            uploadLogger.error('Thumbnail upload failed', { message: error.message });
+            uploadLogger.error("Thumbnail upload failed", { message: error.message });
             return null;
         }
 
-        const { data: { publicUrl } } = supabase.storage
-            .from('videos')
-            .getPublicUrl(fileName);
+        const {
+            data: { publicUrl },
+        } = supabase.storage.from("videos").getPublicUrl(fileName);
 
-        uploadLogger.debug('Thumbnail uploaded successfully');
+        uploadLogger.debug("Thumbnail uploaded successfully");
         return publicUrl;
     } catch (error) {
-        uploadLogger.error('Thumbnail upload error', error);
+        uploadLogger.error("Thumbnail upload error", error);
         return null;
     }
 }
@@ -113,24 +108,26 @@ export async function uploadVideo(
     onProgress?: (progress: UploadProgress) => void
 ): Promise<ApiResponse<UploadResult>> {
     try {
-        uploadLogger.debug('Starting video upload process');
+        uploadLogger.debug("Starting video upload process");
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
         if (!user) {
-            uploadLogger.error('User not authenticated');
-            return { success: false, data: {} as UploadResult, error: 'Not authenticated' };
+            uploadLogger.error("User not authenticated");
+            return { success: false, data: {} as UploadResult, error: "Not authenticated" };
         }
 
-        uploadLogger.debug('User authenticated');
+        uploadLogger.debug("User authenticated");
 
         // Get file info
         const fileInfo = await FileSystem.getInfoAsync(localUri);
         if (!fileInfo.exists) {
-            return { success: false, data: {} as UploadResult, error: 'File not found' };
+            return { success: false, data: {} as UploadResult, error: "File not found" };
         }
 
-        const fileSizeMB = Math.round((fileInfo as any).size / 1024 / 1024 * 100) / 100;
-        uploadLogger.debug('File info', { sizeMB: fileSizeMB });
+        const fileSizeMB = Math.round(((fileInfo as any).size / 1024 / 1024) * 100) / 100;
+        uploadLogger.debug("File info", { sizeMB: fileSizeMB });
 
         // Generate unique filename
         const timestamp = Date.now();
@@ -149,42 +146,40 @@ export async function uploadVideo(
             onProgress?.({ loaded: 0, total: 100, percentage: 15 });
             thumbnailUrl = (await uploadThumbnail(thumbnailUri, user.id, timestamp)) || undefined;
         } else {
-            uploadLogger.warn('No thumbnail generated, video will have no preview');
+            uploadLogger.warn("No thumbnail generated, video will have no preview");
         }
 
         // Step 3: Upload video
-        uploadLogger.debug('Uploading video file');
+        uploadLogger.debug("Uploading video file");
         onProgress?.({ loaded: 0, total: 100, percentage: 20 });
 
         const base64 = await FileSystem.readAsStringAsync(localUri, {
             encoding: FileSystem.EncodingType.Base64,
         });
 
-        uploadLogger.debug('Video encoded, uploading to storage');
-        const byteArray = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+        uploadLogger.debug("Video encoded, uploading to storage");
+        const byteArray = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
 
-        const { data, error } = await supabase.storage
-            .from('videos')
-            .upload(fileName, byteArray, {
-                contentType: 'video/mp4',
-                upsert: false,
-            });
+        const { data, error } = await supabase.storage.from("videos").upload(fileName, byteArray, {
+            contentType: "video/mp4",
+            upsert: false,
+        });
 
         if (error) {
-            uploadLogger.error('Video upload error', { message: error.message });
+            uploadLogger.error("Video upload error", { message: error.message });
             return { success: false, data: {} as UploadResult, error: error.message };
         }
 
         // Get public URL
-        const { data: { publicUrl } } = supabase.storage
-            .from('videos')
-            .getPublicUrl(fileName);
+        const {
+            data: { publicUrl },
+        } = supabase.storage.from("videos").getPublicUrl(fileName);
 
         onProgress?.({ loaded: 100, total: 100, percentage: 100 });
 
-        uploadLogger.debug('Upload complete', {
+        uploadLogger.debug("Upload complete", {
             hasThumbnail: !!thumbnailUrl,
-            durationSec
+            durationSec,
         });
 
         return {
@@ -196,11 +191,11 @@ export async function uploadVideo(
             },
         };
     } catch (error) {
-        uploadLogger.error('Upload video error', error);
+        uploadLogger.error("Upload video error", error);
         return {
             success: false,
             data: {} as UploadResult,
-            error: error instanceof Error ? error.message : 'Upload failed'
+            error: error instanceof Error ? error.message : "Upload failed",
         };
     }
 }
@@ -210,9 +205,11 @@ export async function uploadVideo(
  */
 export async function uploadAvatar(localUri: string): Promise<ApiResponse<string>> {
     try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
         if (!user) {
-            return { success: false, data: '', error: 'Not authenticated' };
+            return { success: false, data: "", error: "Not authenticated" };
         }
 
         // Read file as base64
@@ -221,37 +218,35 @@ export async function uploadAvatar(localUri: string): Promise<ApiResponse<string
         });
 
         // Determine file extension from URI
-        const extension = localUri.split('.').pop() || 'jpg';
+        const extension = localUri.split(".").pop() || "jpg";
         const fileName = `${user.id}-${Date.now()}.${extension}`;
 
         // Convert base64 to byte array
-        const byteArray = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+        const byteArray = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
 
         // Upload to Supabase Storage
-        const { data, error } = await supabase.storage
-            .from('avatars')
-            .upload(fileName, byteArray, {
-                contentType: `image/${extension}`,
-                upsert: true,
-            });
+        const { data, error } = await supabase.storage.from("avatars").upload(fileName, byteArray, {
+            contentType: `image/${extension}`,
+            upsert: true,
+        });
 
         if (error) {
-            uploadLogger.error('Avatar upload error', { message: error.message });
-            return { success: false, data: '', error: error.message };
+            uploadLogger.error("Avatar upload error", { message: error.message });
+            return { success: false, data: "", error: error.message };
         }
 
         // Get public URL
-        const { data: { publicUrl } } = supabase.storage
-            .from('avatars')
-            .getPublicUrl(fileName);
+        const {
+            data: { publicUrl },
+        } = supabase.storage.from("avatars").getPublicUrl(fileName);
 
         return { success: true, data: publicUrl };
     } catch (error) {
-        uploadLogger.error('Upload avatar error', error);
+        uploadLogger.error("Upload avatar error", error);
         return {
             success: false,
-            data: '',
-            error: error instanceof Error ? error.message : 'Upload failed'
+            data: "",
+            error: error instanceof Error ? error.message : "Upload failed",
         };
     }
 }
@@ -261,18 +256,16 @@ export async function uploadAvatar(localUri: string): Promise<ApiResponse<string
  */
 export async function deleteFile(bucket: string, path: string): Promise<boolean> {
     try {
-        const { error } = await supabase.storage
-            .from(bucket)
-            .remove([path]);
+        const { error } = await supabase.storage.from(bucket).remove([path]);
 
         if (error) {
-            uploadLogger.error('Delete file error', { message: error.message });
+            uploadLogger.error("Delete file error", { message: error.message });
             return false;
         }
 
         return true;
     } catch (error) {
-        uploadLogger.error('Delete file error', error);
+        uploadLogger.error("Delete file error", error);
         return false;
     }
 }

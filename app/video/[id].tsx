@@ -82,7 +82,7 @@ export default function VideoPlayerScreen() {
 
     const handleLike = () => {
         setLiked(!liked);
-        setLikesCount(prev => liked ? prev - 1 : prev + 1);
+        setLikesCount((prev) => (liked ? prev - 1 : prev + 1));
     };
 
     const formatTime = (ms: number) => {
@@ -123,7 +123,10 @@ export default function VideoPlayerScreen() {
                     <>
                         {/* Top Bar */}
                         <View style={[styles.topBar, { paddingTop: insets.top + spacing.sm }]}>
-                            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                            <TouchableOpacity
+                                style={styles.backButton}
+                                onPress={() => router.back()}
+                            >
                                 <Ionicons name="chevron-down" size={28} color="#fff" />
                             </TouchableOpacity>
                             <View style={styles.titleContainer}>
@@ -155,12 +158,14 @@ export default function VideoPlayerScreen() {
                                 <TouchableOpacity
                                     style={[
                                         styles.actionCircle,
-                                        showHighlightList && styles.actionCircleActive
+                                        showHighlightList && styles.actionCircleActive,
                                     ]}
                                     onPress={() => setShowHighlightList(!showHighlightList)}
                                 >
                                     <View style={styles.highlightBadge}>
-                                        <Text style={styles.highlightBadgeText}>{highlightEvents.length}</Text>
+                                        <Text style={styles.highlightBadgeText}>
+                                            {highlightEvents.length}
+                                        </Text>
                                     </View>
                                     <Ionicons
                                         name="flash"
@@ -202,7 +207,12 @@ export default function VideoPlayerScreen() {
                         </View>
 
                         {/* Bottom Bar with User Info */}
-                        <View style={[styles.bottomBar, { paddingBottom: insets.bottom + spacing.md }]}>
+                        <View
+                            style={[
+                                styles.bottomBar,
+                                { paddingBottom: insets.bottom + spacing.md },
+                            ]}
+                        >
                             {/* User Info & Description */}
                             <View style={styles.userInfoSection}>
                                 <View style={styles.userRow}>
@@ -216,7 +226,9 @@ export default function VideoPlayerScreen() {
                                             <Ionicons name="person" size={16} color="#fff" />
                                         )}
                                     </View>
-                                    <Text style={styles.userNameBottom}>{params.userName || "Người chơi"}</Text>
+                                    <Text style={styles.userNameBottom}>
+                                        {params.userName || "Người chơi"}
+                                    </Text>
                                 </View>
                                 <Text style={styles.videoTitle} numberOfLines={1}>
                                     {params.title || "Video"}
@@ -231,18 +243,21 @@ export default function VideoPlayerScreen() {
                             {/* Progress Bar */}
                             <View style={styles.progressContainer}>
                                 <View style={styles.progressBar}>
-                                    <View style={[styles.progressFill, { width: `${progress}%` }]} />
+                                    <View
+                                        style={[styles.progressFill, { width: `${progress}%` }]}
+                                    />
                                     {/* Highlight markers on progress bar */}
                                     {highlightEvents.map((event, index) => {
-                                        const markerPosition = duration > 0
-                                            ? (event.timestamp * 1000 / duration) * 100
-                                            : 0;
+                                        const markerPosition =
+                                            duration > 0
+                                                ? ((event.timestamp * 1000) / duration) * 100
+                                                : 0;
                                         return (
                                             <View
                                                 key={event.id || index}
                                                 style={[
                                                     styles.highlightMarker,
-                                                    { left: `${markerPosition}%` }
+                                                    { left: `${markerPosition}%` },
                                                 ]}
                                             />
                                         );
@@ -271,7 +286,12 @@ export default function VideoPlayerScreen() {
                         activeOpacity={1}
                         onPress={() => setShowHighlightList(false)}
                     />
-                    <View style={[styles.highlightPanel, { paddingBottom: insets.bottom + spacing.lg }]}>
+                    <View
+                        style={[
+                            styles.highlightPanel,
+                            { paddingBottom: insets.bottom + spacing.lg },
+                        ]}
+                    >
                         <View style={styles.panelHeader}>
                             <View style={styles.panelHandle} />
                             <Text style={styles.panelTitle}>
@@ -558,7 +578,7 @@ const styles = StyleSheet.create({
         width: 36,
         height: 36,
         borderRadius: 18,
-        backgroundColor: colors.accent + "20",
+        backgroundColor: `${colors.accent}20`,
         justifyContent: "center",
         alignItems: "center",
         marginRight: spacing.md,

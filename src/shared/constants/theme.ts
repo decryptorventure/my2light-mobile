@@ -1,31 +1,31 @@
 // Theme constants matching web app design
 export const colors = {
     // Backgrounds
-    background: "#0f172a",      // slate-900
-    surface: "#1e293b",         // slate-800
-    surfaceLight: "#334155",    // slate-700
+    background: "#0f172a", // slate-900
+    surface: "#1e293b", // slate-800
+    surfaceLight: "#334155", // slate-700
 
     // Primary
-    primary: "#0866FF",         // Facebook blue
-    primaryLight: "#3b82f6",    // blue-500
+    primary: "#0866FF", // Facebook blue
+    primaryLight: "#3b82f6", // blue-500
 
     // Accent (lime from web)
-    accent: "#a3e635",          // lime-400
-    accentDark: "#65a30d",      // lime-600
+    accent: "#a3e635", // lime-400
+    accentDark: "#65a30d", // lime-600
 
     // Text
-    text: "#f1f5f9",            // slate-100
-    textSecondary: "#94a3b8",   // slate-400
-    textMuted: "#64748b",       // slate-500
+    text: "#f1f5f9", // slate-100
+    textSecondary: "#94a3b8", // slate-400
+    textMuted: "#64748b", // slate-500
 
     // Status
-    success: "#22c55e",         // green-500
-    warning: "#f59e0b",         // amber-500
-    error: "#ef4444",           // red-500
+    success: "#22c55e", // green-500
+    warning: "#f59e0b", // amber-500
+    error: "#ef4444", // red-500
 
     // Borders
-    border: "#334155",          // slate-700
-    borderLight: "#475569",     // slate-600
+    border: "#334155", // slate-700
+    borderLight: "#475569", // slate-600
 };
 
 export const spacing = {

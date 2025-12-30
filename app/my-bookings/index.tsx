@@ -36,26 +36,31 @@ export default function MyBookingsScreen() {
     const now = Date.now();
 
     // Upcoming: pending, approved, or active with future start time
-    const upcomingBookings = allBookings?.filter(
-        (b) => (b.status === "pending" || b.status === "approved" || b.status === "active") && b.startTime > now
-    ) || [];
+    const upcomingBookings =
+        allBookings?.filter(
+            (b) =>
+                (b.status === "pending" || b.status === "approved" || b.status === "active") &&
+                b.startTime > now
+        ) || [];
 
     // Past: completed or ended bookings
-    const pastBookings = allBookings?.filter(
-        (b) => b.status === "completed" || ((b.status === "approved" || b.status === "active") && b.endTime < now)
-    ) || [];
+    const pastBookings =
+        allBookings?.filter(
+            (b) =>
+                b.status === "completed" ||
+                ((b.status === "approved" || b.status === "active") && b.endTime < now)
+        ) || [];
 
     // Cancelled/Rejected
-    const cancelledBookings = allBookings?.filter(
-        (b) => b.status === "cancelled" || b.status === "rejected"
-    ) || [];
+    const cancelledBookings =
+        allBookings?.filter((b) => b.status === "cancelled" || b.status === "rejected") || [];
 
     const currentBookings =
         activeTab === "upcoming"
             ? upcomingBookings
             : activeTab === "past"
-                ? pastBookings
-                : cancelledBookings;
+              ? pastBookings
+              : cancelledBookings;
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
@@ -107,16 +112,26 @@ export default function MyBookingsScreen() {
     };
 
     const renderBookingItem = ({ item }: { item: Booking }) => {
-        const isUpcoming = (item.status === "pending" || item.status === "approved" || item.status === "active") && item.startTime > now;
+        const isUpcoming =
+            (item.status === "pending" || item.status === "approved" || item.status === "active") &&
+            item.startTime > now;
         const isCancelling = cancellingId === item.id;
 
         // Get status display info
         const getStatusInfo = () => {
             switch (item.status) {
                 case "pending":
-                    return { text: "Chờ duyệt", style: styles.statusPending, textStyle: styles.statusTextPending };
+                    return {
+                        text: "Chờ duyệt",
+                        style: styles.statusPending,
+                        textStyle: styles.statusTextPending,
+                    };
                 case "approved":
-                    return { text: "Đã duyệt", style: styles.statusApproved, textStyle: styles.statusTextApproved };
+                    return {
+                        text: "Đã duyệt",
+                        style: styles.statusApproved,
+                        textStyle: styles.statusTextApproved,
+                    };
                 case "active":
                     return item.startTime > now
                         ? { text: "Sắp tới", style: null, textStyle: null }
@@ -124,9 +139,17 @@ export default function MyBookingsScreen() {
                 case "completed":
                     return { text: "Hoàn thành", style: styles.statusCompleted, textStyle: null };
                 case "cancelled":
-                    return { text: "Đã huỷ", style: styles.statusCancelled, textStyle: styles.statusTextCancelled };
+                    return {
+                        text: "Đã huỷ",
+                        style: styles.statusCancelled,
+                        textStyle: styles.statusTextCancelled,
+                    };
                 case "rejected":
-                    return { text: "Bị từ chối", style: styles.statusCancelled, textStyle: styles.statusTextCancelled };
+                    return {
+                        text: "Bị từ chối",
+                        style: styles.statusCancelled,
+                        textStyle: styles.statusTextCancelled,
+                    };
                 default:
                     return { text: item.status, style: null, textStyle: null };
             }
@@ -174,11 +197,7 @@ export default function MyBookingsScreen() {
                             onPress={() => handleCancelBooking(item.id)}
                             disabled={isCancelling}
                         >
-                            <Ionicons
-                                name="close-circle-outline"
-                                size={18}
-                                color={colors.error}
-                            />
+                            <Ionicons name="close-circle-outline" size={18} color={colors.error} />
                             <Text style={styles.cancelButtonText}>
                                 {isCancelling ? "Đang huỷ..." : "Huỷ đặt"}
                             </Text>
@@ -188,7 +207,6 @@ export default function MyBookingsScreen() {
             </View>
         );
     };
-
 
     const tabs: { key: TabType; label: string; count: number }[] = [
         { key: "upcoming", label: "Sắp tới", count: upcomingBookings.length },
@@ -219,10 +237,7 @@ export default function MyBookingsScreen() {
                         }}
                     >
                         <Text
-                            style={[
-                                styles.tabText,
-                                activeTab === tab.key && styles.tabTextActive,
-                            ]}
+                            style={[styles.tabText, activeTab === tab.key && styles.tabTextActive]}
                         >
                             {tab.label}
                         </Text>
@@ -267,8 +282,8 @@ export default function MyBookingsScreen() {
                             {activeTab === "upcoming"
                                 ? "Chưa có lịch đặt sân"
                                 : activeTab === "past"
-                                    ? "Chưa có lịch sử"
-                                    : "Chưa huỷ đặt sân nào"}
+                                  ? "Chưa có lịch sử"
+                                  : "Chưa huỷ đặt sân nào"}
                         </Text>
                         {activeTab === "upcoming" && (
                             <TouchableOpacity

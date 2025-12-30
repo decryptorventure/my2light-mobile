@@ -24,12 +24,8 @@ export default function RecordSettingsScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
 
-    const {
-        settings,
-        setVoiceCommandEnabled,
-        setHighlightDuration,
-        resetSession
-    } = useRecordingStore();
+    const { settings, setVoiceCommandEnabled, setHighlightDuration, resetSession } =
+        useRecordingStore();
 
     const handleStartRecording = () => {
         haptics.medium();
@@ -114,7 +110,8 @@ export default function RecordSettingsScreen() {
                     />
 
                     <Text style={styles.sliderHint}>
-                        Khi xem lại, video sẽ lùi lại {settings.highlightDuration} giây từ lúc bạn bấm nút.
+                        Khi xem lại, video sẽ lùi lại {settings.highlightDuration} giây từ lúc bạn
+                        bấm nút.
                     </Text>
                 </Card>
             </View>

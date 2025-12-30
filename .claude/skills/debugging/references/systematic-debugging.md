@@ -22,9 +22,9 @@ Must complete each phase before proceeding to next.
 2. **Reproduce Consistently** - Can trigger reliably? Exact steps? If not reproducible → gather more data
 3. **Check Recent Changes** - What changed? Git diff, recent commits, new dependencies, config changes
 4. **Gather Evidence in Multi-Component Systems**
-   - For EACH component boundary: log data entering/exiting, verify environment propagation
-   - Run once to gather evidence showing WHERE it breaks
-   - THEN analyze to identify failing component
+    - For EACH component boundary: log data entering/exiting, verify environment propagation
+    - Run once to gather evidence showing WHERE it breaks
+    - THEN analyze to identify failing component
 5. **Trace Data Flow** - Where does bad value originate? Trace up call stack until finding source (see root-cause-tracing.md)
 
 ### Phase 2: Pattern Analysis
@@ -53,17 +53,18 @@ Must complete each phase before proceeding to next.
 2. **Implement Single Fix** - Address root cause identified, ONE change, no "while I'm here" improvements
 3. **Verify Fix** - Test passes? No other tests broken? Issue actually resolved?
 4. **If Fix Doesn't Work**
-   - STOP. Count: How many fixes tried?
-   - If < 3: Return to Phase 1, re-analyze with new information
-   - **If ≥ 3: STOP and question architecture**
+    - STOP. Count: How many fixes tried?
+    - If < 3: Return to Phase 1, re-analyze with new information
+    - **If ≥ 3: STOP and question architecture**
 5. **If 3+ Fixes Failed: Question Architecture**
-   - Pattern: Each fix reveals new shared state/coupling problem elsewhere
-   - STOP and question fundamentals: Is pattern sound? Wrong architecture?
-   - Discuss with human partner before more fixes
+    - Pattern: Each fix reveals new shared state/coupling problem elsewhere
+    - STOP and question fundamentals: Is pattern sound? Wrong architecture?
+    - Discuss with human partner before more fixes
 
 ## Red Flags - STOP and Follow Process
 
 If catch yourself thinking:
+
 - "Quick fix for now, investigate later"
 - "Just try changing X and see if it works"
 - "Add multiple changes, run tests"
@@ -86,16 +87,17 @@ If catch yourself thinking:
 
 ## Common Rationalizations
 
-| Excuse | Reality |
-|--------|---------|
-| "Issue is simple, don't need process" | Simple issues have root causes too |
-| "Emergency, no time for process" | Systematic is FASTER than guess-and-check |
-| "Just try this first, then investigate" | First fix sets pattern. Do right from start |
-| "One more fix attempt" (after 2+ failures) | 3+ failures = architectural problem |
+| Excuse                                     | Reality                                     |
+| ------------------------------------------ | ------------------------------------------- |
+| "Issue is simple, don't need process"      | Simple issues have root causes too          |
+| "Emergency, no time for process"           | Systematic is FASTER than guess-and-check   |
+| "Just try this first, then investigate"    | First fix sets pattern. Do right from start |
+| "One more fix attempt" (after 2+ failures) | 3+ failures = architectural problem         |
 
 ## Real-World Impact
 
 From debugging sessions:
+
 - Systematic approach: 15-30 minutes to fix
 - Random fixes approach: 2-3 hours of thrashing
 - First-time fix rate: 95% vs 40%

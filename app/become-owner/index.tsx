@@ -124,7 +124,9 @@ export default function BecomeOwnerScreen() {
                                 placeholder="VD: Sân Pickleball ABC"
                                 placeholderTextColor={colors.textMuted}
                                 value={formData.businessName}
-                                onChangeText={(text) => setFormData({ ...formData, businessName: text })}
+                                onChangeText={(text) =>
+                                    setFormData({ ...formData, businessName: text })
+                                }
                             />
                         </View>
                     </View>
@@ -177,7 +179,11 @@ export default function BecomeOwnerScreen() {
                     <View style={styles.inputGroup}>
                         <Text style={styles.label}>Mã số thuế</Text>
                         <View style={styles.inputContainer}>
-                            <Ionicons name="document-text-outline" size={20} color={colors.textMuted} />
+                            <Ionicons
+                                name="document-text-outline"
+                                size={20}
+                                color={colors.textMuted}
+                            />
                             <TextInput
                                 style={styles.input}
                                 placeholder="0123456789"

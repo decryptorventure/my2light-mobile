@@ -3,8 +3,8 @@
  * Converts markdown to styled HTML for novel-reader UI
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 // Lazy load dependencies
 let marked = null;
@@ -15,31 +15,31 @@ let matter = null;
  * Initialize markdown dependencies
  */
 function initDependencies() {
-  if (!marked) {
-    const { Marked } = require('marked');
-    hljs = require('highlight.js');
+    if (!marked) {
+        const { Marked } = require("marked");
+        hljs = require("highlight.js");
 
-    marked = new Marked({
-      gfm: true,
-      breaks: true
-    });
+        marked = new Marked({
+            gfm: true,
+            breaks: true,
+        });
 
-    // Configure highlight.js renderer
-    marked.setOptions({
-      highlight: (code, lang) => {
-        if (lang && hljs.getLanguage(lang)) {
-          try {
-            return hljs.highlight(code, { language: lang }).value;
-          } catch {
-            return code;
-          }
-        }
-        return hljs.highlightAuto(code).value;
-      }
-    });
+        // Configure highlight.js renderer
+        marked.setOptions({
+            highlight: (code, lang) => {
+                if (lang && hljs.getLanguage(lang)) {
+                    try {
+                        return hljs.highlight(code, { language: lang }).value;
+                    } catch {
+                        return code;
+                    }
+                }
+                return hljs.highlightAuto(code).value;
+            },
+        });
 
-    matter = require('gray-matter');
-  }
+        matter = require("gray-matter");
+    }
 }
 
 /**
@@ -49,14 +49,14 @@ function initDependencies() {
  * @returns {string} - Resolved path or original if absolute URL
  */
 function resolveImageSrc(src, basePath) {
-  // Skip absolute URLs
-  if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('/file')) {
-    return src;
-  }
-  // Resolve relative path to absolute /file/ route
-  // Use URL encoding to handle special chars and Windows paths (D:\...)
-  const absolutePath = path.resolve(basePath, src);
-  return `/file/${encodeURIComponent(absolutePath)}`;
+    // Skip absolute URLs
+    if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/file")) {
+        return src;
+    }
+    // Resolve relative path to absolute /file/ route
+    // Use URL encoding to handle special chars and Windows paths (D:\...)
+    const absolutePath = path.resolve(basePath, src);
+    return `/file/${encodeURIComponent(absolutePath)}`;
 }
 
 /**
@@ -67,24 +67,24 @@ function resolveImageSrc(src, basePath) {
  * @returns {string} - Markdown with resolved image paths
  */
 function resolveImages(markdown, basePath) {
-  let result = markdown;
+    let result = markdown;
 
-  // 1. Handle inline images: ![alt](src) or ![alt](src "title")
-  const inlineImgRegex = /!\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
-  result = result.replace(inlineImgRegex, (match, alt, src) => {
-    const resolvedSrc = resolveImageSrc(src, basePath);
-    return `![${alt}](${resolvedSrc})`;
-  });
+    // 1. Handle inline images: ![alt](src) or ![alt](src "title")
+    const inlineImgRegex = /!\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
+    result = result.replace(inlineImgRegex, (match, alt, src) => {
+        const resolvedSrc = resolveImageSrc(src, basePath);
+        return `![${alt}](${resolvedSrc})`;
+    });
 
-  // 2. Handle reference-style image definitions: [label]: src or [label]: src "title"
-  // These appear at the end of the document like: [Step 1 Initial]: ./screenshots/step1.png
-  const refDefRegex = /^\[([^\]]+)\]:\s*(\S+)(?:\s+"[^"]*")?$/gm;
-  result = result.replace(refDefRegex, (match, label, src) => {
-    const resolvedSrc = resolveImageSrc(src, basePath);
-    return `[${label}]: ${resolvedSrc}`;
-  });
+    // 2. Handle reference-style image definitions: [label]: src or [label]: src "title"
+    // These appear at the end of the document like: [Step 1 Initial]: ./screenshots/step1.png
+    const refDefRegex = /^\[([^\]]+)\]:\s*(\S+)(?:\s+"[^"]*")?$/gm;
+    result = result.replace(refDefRegex, (match, label, src) => {
+        const resolvedSrc = resolveImageSrc(src, basePath);
+        return `[${label}]: ${resolvedSrc}`;
+    });
 
-  return result;
+    return result;
 }
 
 /**
@@ -93,20 +93,20 @@ function resolveImages(markdown, basePath) {
  * @returns {Array<{level: number, id: string, text: string}>} - TOC items
  */
 function generateTOC(html) {
-  const headings = [];
-  // Match h1-h3 with id attribute
-  const regex = /<h([1-3])[^>]*id="([^"]+)"[^>]*>([^<]+)<\/h\1>/gi;
+    const headings = [];
+    // Match h1-h3 with id attribute
+    const regex = /<h([1-3])[^>]*id="([^"]+)"[^>]*>([^<]+)<\/h\1>/gi;
 
-  let match;
-  while ((match = regex.exec(html)) !== null) {
-    headings.push({
-      level: parseInt(match[1], 10),
-      id: match[2],
-      text: match[3].trim()
-    });
-  }
+    let match;
+    while ((match = regex.exec(html)) !== null) {
+        headings.push({
+            level: parseInt(match[1], 10),
+            id: match[2],
+            text: match[3].trim(),
+        });
+    }
 
-  return headings;
+    return headings;
 }
 
 /**
@@ -115,10 +115,10 @@ function generateTOC(html) {
  * @returns {string} - URL-safe slug
  */
 function slugify(text) {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+    return text
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
 }
 
 /**
@@ -128,34 +128,34 @@ function slugify(text) {
  * @returns {string} - HTML with heading IDs
  */
 function addHeadingIds(html) {
-  const usedIds = new Set();
+    const usedIds = new Set();
 
-  return html.replace(/<h([1-6])>([^<]+)<\/h\1>/gi, (match, level, text) => {
-    // Check if this is a phase heading (e.g., "Phase 01: Name" or contains phase table row content)
-    const phaseMatch = text.match(/^Phase\s*(\d+)[:\s]+(.+)/i);
+    return html.replace(/<h([1-6])>([^<]+)<\/h\1>/gi, (match, level, text) => {
+        // Check if this is a phase heading (e.g., "Phase 01: Name" or contains phase table row content)
+        const phaseMatch = text.match(/^Phase\s*(\d+)[:\s]+(.+)/i);
 
-    let id;
-    if (phaseMatch) {
-      // Generate phase-specific anchor ID that matches plan-navigator.cjs format
-      const phaseNum = parseInt(phaseMatch[1], 10);
-      const phaseName = phaseMatch[2].trim();
-      id = `phase-${String(phaseNum).padStart(2, '0')}-${slugify(phaseName)}`;
-    } else {
-      // Standard heading ID generation
-      id = slugify(text);
-    }
+        let id;
+        if (phaseMatch) {
+            // Generate phase-specific anchor ID that matches plan-navigator.cjs format
+            const phaseNum = parseInt(phaseMatch[1], 10);
+            const phaseName = phaseMatch[2].trim();
+            id = `phase-${String(phaseNum).padStart(2, "0")}-${slugify(phaseName)}`;
+        } else {
+            // Standard heading ID generation
+            id = slugify(text);
+        }
 
-    // Handle duplicate IDs
-    let uniqueId = id;
-    let counter = 1;
-    while (usedIds.has(uniqueId)) {
-      uniqueId = `${id}-${counter}`;
-      counter++;
-    }
-    usedIds.add(uniqueId);
+        // Handle duplicate IDs
+        let uniqueId = id;
+        let counter = 1;
+        while (usedIds.has(uniqueId)) {
+            uniqueId = `${id}-${counter}`;
+            counter++;
+        }
+        usedIds.add(uniqueId);
 
-    return `<h${level} id="${uniqueId}">${text}</h${level}>`;
-  });
+        return `<h${level} id="${uniqueId}">${text}</h${level}>`;
+    });
 }
 
 /**
@@ -165,27 +165,30 @@ function addHeadingIds(html) {
  * @returns {string} - HTML with phase anchor IDs in table rows
  */
 function addPhaseTableAnchors(html) {
-  const usedIds = new Set();
+    const usedIds = new Set();
 
-  // Match table rows with phase pattern: <tr><td>01</td><td>Description</td>...
-  // This handles the "Phase Summary" table format
-  return html.replace(/<tr>\s*<td>(\d{2})<\/td>\s*<td>([^<]+)<\/td>/gi, (match, phaseNum, description) => {
-    const num = parseInt(phaseNum, 10);
-    const slug = slugify(description.trim());
-    const id = `phase-${String(num).padStart(2, '0')}-${slug}`;
+    // Match table rows with phase pattern: <tr><td>01</td><td>Description</td>...
+    // This handles the "Phase Summary" table format
+    return html.replace(
+        /<tr>\s*<td>(\d{2})<\/td>\s*<td>([^<]+)<\/td>/gi,
+        (match, phaseNum, description) => {
+            const num = parseInt(phaseNum, 10);
+            const slug = slugify(description.trim());
+            const id = `phase-${String(num).padStart(2, "0")}-${slug}`;
 
-    // Handle duplicates
-    let uniqueId = id;
-    let counter = 1;
-    while (usedIds.has(uniqueId)) {
-      uniqueId = `${id}-${counter}`;
-      counter++;
-    }
-    usedIds.add(uniqueId);
+            // Handle duplicates
+            let uniqueId = id;
+            let counter = 1;
+            while (usedIds.has(uniqueId)) {
+                uniqueId = `${id}-${counter}`;
+                counter++;
+            }
+            usedIds.add(uniqueId);
 
-    // Add anchor span at the start of the row
-    return `<tr id="${uniqueId}"><td>${phaseNum}</td><td>${description}</td>`;
-  });
+            // Add anchor span at the start of the row
+            return `<tr id="${uniqueId}"><td>${phaseNum}</td><td>${description}</td>`;
+        }
+    );
 }
 
 /**
@@ -194,8 +197,8 @@ function addPhaseTableAnchors(html) {
  * @returns {{data: Object, content: string}} - Parsed frontmatter and content
  */
 function parseFrontmatter(content) {
-  initDependencies();
-  return matter(content);
+    initDependencies();
+    return matter(content);
 }
 
 /**
@@ -205,42 +208,42 @@ function parseFrontmatter(content) {
  * @returns {{html: string, toc: Array, frontmatter: Object, title: string}}
  */
 function renderMarkdownFile(filePath, options = {}) {
-  initDependencies();
+    initDependencies();
 
-  const rawContent = fs.readFileSync(filePath, 'utf8');
-  const basePath = path.dirname(filePath);
+    const rawContent = fs.readFileSync(filePath, "utf8");
+    const basePath = path.dirname(filePath);
 
-  // Parse frontmatter
-  const { data: frontmatter, content } = parseFrontmatter(rawContent);
+    // Parse frontmatter
+    const { data: frontmatter, content } = parseFrontmatter(rawContent);
 
-  // Resolve image paths
-  const resolvedContent = resolveImages(content, basePath);
+    // Resolve image paths
+    const resolvedContent = resolveImages(content, basePath);
 
-  // Render markdown to HTML
-  let html = marked.parse(resolvedContent);
+    // Render markdown to HTML
+    let html = marked.parse(resolvedContent);
 
-  // Add IDs to headings
-  html = addHeadingIds(html);
+    // Add IDs to headings
+    html = addHeadingIds(html);
 
-  // Add anchor IDs to phase table rows (for inline phases in plan.md)
-  html = addPhaseTableAnchors(html);
+    // Add anchor IDs to phase table rows (for inline phases in plan.md)
+    html = addPhaseTableAnchors(html);
 
-  // Generate TOC
-  const toc = generateTOC(html);
+    // Generate TOC
+    const toc = generateTOC(html);
 
-  // Extract title from frontmatter or first h1
-  let title = frontmatter.title;
-  if (!title) {
-    const h1Match = html.match(/<h1[^>]*>([^<]+)<\/h1>/i);
-    title = h1Match ? h1Match[1] : path.basename(filePath, '.md');
-  }
+    // Extract title from frontmatter or first h1
+    let title = frontmatter.title;
+    if (!title) {
+        const h1Match = html.match(/<h1[^>]*>([^<]+)<\/h1>/i);
+        title = h1Match ? h1Match[1] : path.basename(filePath, ".md");
+    }
 
-  return {
-    html,
-    toc,
-    frontmatter,
-    title
-  };
+    return {
+        html,
+        toc,
+        frontmatter,
+        title,
+    };
 }
 
 /**
@@ -249,24 +252,26 @@ function renderMarkdownFile(filePath, options = {}) {
  * @returns {string} - HTML string
  */
 function renderTOCHtml(toc) {
-  if (!toc.length) return '';
+    if (!toc.length) return "";
 
-  const items = toc.map(({ level, id, text }) => {
-    const indent = (level - 1) * 12;
-    return `<li style="padding-left: ${indent}px"><a href="#${id}">${text}</a></li>`;
-  }).join('\n');
+    const items = toc
+        .map(({ level, id, text }) => {
+            const indent = (level - 1) * 12;
+            return `<li style="padding-left: ${indent}px"><a href="#${id}">${text}</a></li>`;
+        })
+        .join("\n");
 
-  return `<ul class="toc-list">${items}</ul>`;
+    return `<ul class="toc-list">${items}</ul>`;
 }
 
 module.exports = {
-  renderMarkdownFile,
-  resolveImages,
-  resolveImageSrc,
-  generateTOC,
-  addHeadingIds,
-  addPhaseTableAnchors,
-  parseFrontmatter,
-  renderTOCHtml,
-  initDependencies
+    renderMarkdownFile,
+    resolveImages,
+    resolveImageSrc,
+    generateTOC,
+    addHeadingIds,
+    addPhaseTableAnchors,
+    parseFrontmatter,
+    renderTOCHtml,
+    initDependencies,
 };

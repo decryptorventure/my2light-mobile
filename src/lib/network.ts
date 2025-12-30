@@ -3,8 +3,8 @@
  * @module lib/network
  */
 
-import NetInfo from '@react-native-community/netinfo';
-import { useEffect, useState } from 'react';
+import NetInfo from "@react-native-community/netinfo";
+import { useEffect, useState } from "react";
 
 /**
  * Check if device is currently online
@@ -21,7 +21,7 @@ export const useNetworkStatus = () => {
     const [isConnected, setIsConnected] = useState<boolean | null>(null);
 
     useEffect(() => {
-        const unsubscribe = NetInfo.addEventListener(state => {
+        const unsubscribe = NetInfo.addEventListener((state) => {
             setIsConnected(state.isConnected ?? false);
         });
 
@@ -67,7 +67,7 @@ class OfflineQueue {
                 item.retryCount++;
 
                 if (item.retryCount >= 3) {
-                    console.error('Action failed after 3 retries:', error);
+                    console.error("Action failed after 3 retries:", error);
                     this.queue.shift(); // Remove failed action
                 } else {
                     // Move to back of queue for retry
@@ -87,7 +87,7 @@ class OfflineQueue {
 export const offlineQueue = new OfflineQueue();
 
 // Auto-process queue when coming back online
-NetInfo.addEventListener(state => {
+NetInfo.addEventListener((state) => {
     if (state.isConnected) {
         offlineQueue.process();
     }

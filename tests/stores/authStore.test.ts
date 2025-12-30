@@ -2,13 +2,13 @@
  * AuthStore Unit Tests
  */
 
-describe('AuthStore', () => {
+describe("AuthStore", () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
-    describe('Initial State', () => {
-        it('should have correct initial state', () => {
+    describe("Initial State", () => {
+        it("should have correct initial state", () => {
             const initialState = {
                 user: null,
                 loading: true,
@@ -21,11 +21,11 @@ describe('AuthStore', () => {
         });
     });
 
-    describe('Actions', () => {
-        it('should set user correctly', () => {
+    describe("Actions", () => {
+        it("should set user correctly", () => {
             const mockUser = {
-                id: 'user-123',
-                email: 'test@example.com',
+                id: "user-123",
+                email: "test@example.com",
             };
 
             // Simulate setUser action
@@ -39,7 +39,7 @@ describe('AuthStore', () => {
             expect(newState.loading).toBe(false);
         });
 
-        it('should clear user on sign out', () => {
+        it("should clear user on sign out", () => {
             // Simulate signOut action
             const newState = {
                 user: null,
@@ -50,11 +50,11 @@ describe('AuthStore', () => {
             expect(newState.user).toBeNull();
         });
 
-        it('should handle initialization', () => {
+        it("should handle initialization", () => {
             // Simulate initialize action sequence
             const states = [
                 { loading: true, initialized: false, user: null },
-                { loading: false, initialized: true, user: { id: 'user-123' } },
+                { loading: false, initialized: true, user: { id: "user-123" } },
             ];
 
             expect(states[0].loading).toBe(true);
@@ -62,16 +62,16 @@ describe('AuthStore', () => {
         });
     });
 
-    describe('Auth State Changes', () => {
-        it('should update state when auth state changes', () => {
+    describe("Auth State Changes", () => {
+        it("should update state when auth state changes", () => {
             const authStateChanges = [
-                { event: 'INITIAL_SESSION', session: { user: { id: '123' } } },
-                { event: 'SIGNED_IN', session: { user: { id: '123' } } },
-                { event: 'SIGNED_OUT', session: null },
+                { event: "INITIAL_SESSION", session: { user: { id: "123" } } },
+                { event: "SIGNED_IN", session: { user: { id: "123" } } },
+                { event: "SIGNED_OUT", session: null },
             ];
 
             authStateChanges.forEach((change) => {
-                if (change.event === 'SIGNED_OUT') {
+                if (change.event === "SIGNED_OUT") {
                     expect(change.session).toBeNull();
                 } else {
                     expect(change.session?.user).toBeDefined();

@@ -2,10 +2,10 @@
 
 ## Models
 
-| Model ID | Type | Best For |
-|----------|------|----------|
-| `gemini-2.5-flash-image` | Flash | Speed, high-volume |
-| `gemini-3-pro-image-preview` | Pro | Text rendering, complex prompts |
+| Model ID                     | Type  | Best For                        |
+| ---------------------------- | ----- | ------------------------------- |
+| `gemini-2.5-flash-image`     | Flash | Speed, high-volume              |
+| `gemini-3-pro-image-preview` | Pro   | Text rendering, complex prompts |
 
 ## Core Principle
 
@@ -31,14 +31,14 @@ image_size="2K"      # 1K, 2K, 4K - MUST be uppercase K
 
 ## Techniques
 
-| Technique | Example |
-|-----------|---------|
-| Emphasis | `ALL CAPS` for critical requirements |
-| Precision colors | `#9F2B68` instead of "dark magenta" |
-| Negative constraints | `NEVER include text/watermarks. DO NOT add labels.` |
-| Realism trigger | `Natural lighting, DOF. Captured with Canon EOS 90D DSLR.` |
-| Structured edits | `Make ALL edits: - [1] - [2] - [3]` |
-| Complex logic | `Kittens MUST have heterochromatic eyes matching fur colors` |
+| Technique            | Example                                                      |
+| -------------------- | ------------------------------------------------------------ |
+| Emphasis             | `ALL CAPS` for critical requirements                         |
+| Precision colors     | `#9F2B68` instead of "dark magenta"                          |
+| Negative constraints | `NEVER include text/watermarks. DO NOT add labels.`          |
+| Realism trigger      | `Natural lighting, DOF. Captured with Canon EOS 90D DSLR.`   |
+| Structured edits     | `Make ALL edits: - [1] - [2] - [3]`                          |
+| Complex logic        | `Kittens MUST have heterochromatic eyes matching fur colors` |
 
 ## Advanced Features
 

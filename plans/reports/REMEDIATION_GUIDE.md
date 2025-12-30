@@ -1,4 +1,5 @@
 # Security Remediation Guide
+
 **Timeline: 4-6 days | Priority: CRITICAL for production**
 
 ---
@@ -15,8 +16,8 @@
  * @module lib/storage
  */
 
-import { MMKV } from 'react-native-mmkv';
-import { getUniqueId } from 'react-native-device-info';
+import { MMKV } from "react-native-mmkv";
+import { getUniqueId } from "react-native-device-info";
 
 /**
  * Derive encryption key from device-specific identifier
@@ -29,24 +30,24 @@ const deriveEncryptionKey = (): string => {
 
         // Derive a 32-char hex key from device ID
         // Using Buffer to ensure proper encoding
-        const key = Buffer.from(deviceId).toString('hex').slice(0, 32);
+        const key = Buffer.from(deviceId).toString("hex").slice(0, 32);
 
         // Ensure key is at least 16 chars for AES-256
         if (key.length < 16) {
-            console.warn('[Security] Device key too short, using fallback');
-            return '0'.repeat(32); // Development fallback - log for monitoring
+            console.warn("[Security] Device key too short, using fallback");
+            return "0".repeat(32); // Development fallback - log for monitoring
         }
 
         return key;
     } catch (error) {
-        console.error('[Security] Failed to derive encryption key:', error);
+        console.error("[Security] Failed to derive encryption key:", error);
         // Secure fallback: use a constant that's at least non-obvious
-        return Buffer.from('my2light-secure-fallback-key').toString('hex').slice(0, 32);
+        return Buffer.from("my2light-secure-fallback-key").toString("hex").slice(0, 32);
     }
 };
 
 export const storage = new MMKV({
-    id: 'my2light-storage',
+    id: "my2light-storage",
     encryptionKey: deriveEncryptionKey(),
 });
 
@@ -54,6 +55,7 @@ export const storage = new MMKV({
 ```
 
 **Installation needed:**
+
 ```bash
 npm install react-native-device-info
 # or
@@ -61,12 +63,13 @@ expo install react-native-device-info
 ```
 
 **Testing:**
+
 ```typescript
 // Verify encryption works
-const testKey = 'test_encryption';
-storage.set(testKey, 'secret_data');
+const testKey = "test_encryption";
+storage.set(testKey, "secret_data");
 const retrieved = storage.getString(testKey);
-console.assert(retrieved === 'secret_data', 'Encryption test failed');
+console.assert(retrieved === "secret_data", "Encryption test failed");
 storage.delete(testKey);
 ```
 
@@ -104,6 +107,7 @@ export default function RootLayout() {
 ```
 
 **Verification:**
+
 - App should start without security errors
 - Check console for `[Security] Environment validation passed`
 - Verify no `SERVICE_ROLE_KEY` or `ADMIN_*` vars leaked
@@ -277,6 +281,7 @@ USING (auth.uid() = user_id);
 ```
 
 **Verification in Supabase Dashboard:**
+
 1. Go to Authentication → Policies
 2. Confirm all 5 tables have "RLS enabled" badge
 3. Verify policy count matches above
@@ -292,24 +297,24 @@ USING (auth.uid() = user_id);
 Replace the `validate()` function:
 
 ```typescript
-import { isEmail } from 'validator'; // npm install validator
+import { isEmail } from "validator"; // npm install validator
 
 /**
  * Validate email using RFC 5322 standard
  * More permissive than strict regex but rejects obvious invalids
  */
 const validateEmail = (email: string): string | null => {
-    if (!email || email.trim() === '') {
-        return 'Email is required';
+    if (!email || email.trim() === "") {
+        return "Email is required";
     }
 
     // Use email validator library (RFC 5322 compliant)
     if (!isEmail(email)) {
-        return 'Enter a valid email address';
+        return "Enter a valid email address";
     }
 
     if (email.length > 254) {
-        return 'Email is too long';
+        return "Email is too long";
     }
 
     return null;
@@ -321,8 +326,8 @@ const validateEmail = (email: string): string | null => {
  * - Mix of character types
  */
 const validatePassword = (password: string): string | null => {
-    if (!password || password.trim() === '') {
-        return 'Password is required';
+    if (!password || password.trim() === "") {
+        return "Password is required";
     }
 
     const minLength = 12;
@@ -339,7 +344,7 @@ const validatePassword = (password: string): string | null => {
     const typeCount = [hasUppercase, hasLowercase, hasNumber, hasSpecial].filter(Boolean).length;
 
     if (typeCount < 3) {
-        return 'Password must include uppercase, lowercase, and numbers (special chars recommended)';
+        return "Password must include uppercase, lowercase, and numbers (special chars recommended)";
     }
 
     return null;
@@ -379,7 +384,7 @@ const checkRateLimit = (): boolean => {
     if (isLocked && now - lastAttemptTime < lockoutDuration) {
         const remainingTime = Math.ceil((lockoutDuration - (now - lastAttemptTime)) / 1000);
         Alert.alert(
-            'Account Temporarily Locked',
+            "Account Temporarily Locked",
             `Too many login attempts. Try again in ${remainingTime} seconds.`
         );
         return false;
@@ -398,7 +403,7 @@ const checkRateLimit = (): boolean => {
     }
 
     // Record this attempt
-    setLoginAttempts(prev => prev + 1);
+    setLoginAttempts((prev) => prev + 1);
     setLastAttemptTime(now);
 
     return true;
@@ -406,7 +411,7 @@ const checkRateLimit = (): boolean => {
 
 const handleSubmit = async () => {
     if (!isSupabaseConfigured()) {
-        Alert.alert('Configuration Error', 'Supabase not configured');
+        Alert.alert("Configuration Error", "Supabase not configured");
         return;
     }
 
@@ -416,28 +421,24 @@ const handleSubmit = async () => {
     if (!checkRateLimit()) return;
 
     try {
-        const { error } = isSignUp
-            ? await signUp(email, password)
-            : await signIn(email, password);
+        const { error } = isSignUp ? await signUp(email, password) : await signIn(email, password);
 
         if (error) {
             // Generic error message - don't leak auth details
-            Alert.alert(
-                'Authentication Failed',
-                'Invalid email or password. Please try again.'
-            );
+            Alert.alert("Authentication Failed", "Invalid email or password. Please try again.");
         } else {
             // Success - reset attempts
             setLoginAttempts(0);
             setIsLocked(false);
         }
     } catch (error) {
-        Alert.alert('Error', 'An unexpected error occurred');
+        Alert.alert("Error", "An unexpected error occurred");
     }
 };
 ```
 
 **Dependencies:**
+
 ```bash
 npm install validator
 # or
@@ -482,7 +483,9 @@ export const useAuthStore = create<AuthState>()(
 
             initialize: async () => {
                 try {
-                    const { data: { session } } = await supabase.auth.getSession();
+                    const {
+                        data: { session },
+                    } = await supabase.auth.getSession();
 
                     // SECURITY: Check if token is expired
                     if (session?.expires_at) {
@@ -491,9 +494,9 @@ export const useAuthStore = create<AuthState>()(
 
                         if (expiresAtMs < nowMs) {
                             // Token expired - sign out and clear storage
-                            console.warn('[Auth] Session token expired, signing out');
+                            console.warn("[Auth] Session token expired, signing out");
                             await supabase.auth.signOut();
-                            zustandStorage.removeItem('auth-storage');
+                            zustandStorage.removeItem("auth-storage");
 
                             set({
                                 session: null,
@@ -513,14 +516,14 @@ export const useAuthStore = create<AuthState>()(
                     });
 
                     // Listen for auth changes
-                    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-                        async (_event, updatedSession) => {
-                            set({
-                                session: updatedSession,
-                                user: updatedSession?.user || null,
-                            });
-                        }
-                    );
+                    const {
+                        data: { subscription },
+                    } = supabase.auth.onAuthStateChange(async (_event, updatedSession) => {
+                        set({
+                            session: updatedSession,
+                            user: updatedSession?.user || null,
+                        });
+                    });
 
                     return () => subscription?.unsubscribe();
                 } catch (error) {
@@ -580,11 +583,11 @@ export const useAuthStore = create<AuthState>()(
                 try {
                     await supabase.auth.signOut();
                 } catch (error) {
-                    console.error('[Auth] Signout error:', error);
+                    console.error("[Auth] Signout error:", error);
                 }
 
                 // SECURITY: Explicitly clear sensitive data
-                zustandStorage.removeItem('auth-storage');
+                zustandStorage.removeItem("auth-storage");
 
                 set({
                     user: null,
@@ -597,7 +600,7 @@ export const useAuthStore = create<AuthState>()(
             setSession: (session) => set({ session }),
         }),
         {
-            name: 'auth-storage',
+            name: "auth-storage",
             storage: createJSONStorage(() => zustandStorage),
             partialize: (state) => ({
                 // Only persist session (for token refresh)
@@ -616,9 +619,9 @@ export const useAuthStore = create<AuthState>()(
 **File:** `src/features/auth/auth.service.ts`
 
 ```typescript
-import { supabase } from '../lib/supabase';
-import { maskSensitiveData } from '@/lib/security';
-import { User, ApiResponse } from '../types';
+import { supabase } from "../lib/supabase";
+import { maskSensitiveData } from "@/lib/security";
+import { User, ApiResponse } from "../types";
 
 /**
  * Mask internal error details before exposing to user
@@ -626,34 +629,39 @@ import { User, ApiResponse } from '../types';
 const maskError = (error: any): string => {
     const errorStr = JSON.stringify(error);
     const masked = maskSensitiveData(errorStr);
-    console.error('[Auth Service] Internal error (masked):', masked);
-    return 'An error occurred. Please try again.';
+    console.error("[Auth Service] Internal error (masked):", masked);
+    return "An error occurred. Please try again.";
 };
 
 export const AuthService = {
     getCurrentUser: async (): Promise<ApiResponse<User>> => {
         try {
-            const { data: { session } } = await supabase.auth.getSession();
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
 
             if (!session?.user) {
-                return { success: false, data: null as any, error: 'Not authenticated' };
+                return { success: false, data: null as any, error: "Not authenticated" };
             }
 
             // Try fetching profile from DB
             const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', session.user.id)
+                .from("profiles")
+                .select("*")
+                .eq("id", session.user.id)
                 .single();
 
-            if (error && error.code !== 'PGRST116') {
+            if (error && error.code !== "PGRST116") {
                 // Not a "no rows" error
-                console.error('[Auth Service] Profile fetch error (masked):', maskSensitiveData(error.message));
-                return { success: false, data: null as any, error: 'Failed to fetch profile' };
+                console.error(
+                    "[Auth Service] Profile fetch error (masked):",
+                    maskSensitiveData(error.message)
+                );
+                return { success: false, data: null as any, error: "Failed to fetch profile" };
             }
 
             // Calculate fallback display name from email
-            const emailName = session.user.email?.split('@')[0] || 'User';
+            const emailName = session.user.email?.split("@")[0] || "User";
             const displayName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
 
             if (error || !data) {
@@ -662,20 +670,21 @@ export const AuthService = {
                     id: session.user.id,
                     name: displayName,
                     avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`,
-                    phone: '',
+                    phone: "",
                     credits: 200000,
-                    membership_tier: 'free',
+                    membership_tier: "free",
                     total_highlights: 0,
-                    has_onboarded: false
+                    has_onboarded: false,
                 };
 
-                const { error: insertError } = await supabase
-                    .from('profiles')
-                    .insert(newProfile);
+                const { error: insertError } = await supabase.from("profiles").insert(newProfile);
 
                 if (insertError) {
-                    console.error('[Auth Service] Profile creation failed (masked):', maskSensitiveData(insertError.message));
-                    return { success: false, data: null as any, error: 'Failed to create profile' };
+                    console.error(
+                        "[Auth Service] Profile creation failed (masked):",
+                        maskSensitiveData(insertError.message)
+                    );
+                    return { success: false, data: null as any, error: "Failed to create profile" };
                 }
 
                 return {
@@ -689,24 +698,26 @@ export const AuthService = {
                         hoursPlayed: 0,
                         courtsVisited: 0,
                         credits: newProfile.credits,
-                        membershipTier: 'free'
-                    }
+                        membershipTier: "free",
+                    },
                 };
             }
 
             // Calculate stats from bookings
             const { data: bookings } = await supabase
-                .from('bookings')
-                .select('court_id, start_time, end_time, status')
-                .eq('user_id', session.user.id)
-                .eq('status', 'completed');
+                .from("bookings")
+                .select("court_id, start_time, end_time, status")
+                .eq("user_id", session.user.id)
+                .eq("status", "completed");
 
             let hoursPlayed = 0;
             const visitedCourts = new Set();
 
             if (bookings) {
                 bookings.forEach((b: any) => {
-                    const duration = (new Date(b.end_time).getTime() - new Date(b.start_time).getTime()) / 3600000;
+                    const duration =
+                        (new Date(b.end_time).getTime() - new Date(b.start_time).getTime()) /
+                        3600000;
                     hoursPlayed += duration;
                     visitedCourts.add(b.court_id);
                 });
@@ -714,25 +725,27 @@ export const AuthService = {
 
             // Calculate total highlights
             const { count: highlightsCount } = await supabase
-                .from('highlights')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', session.user.id);
+                .from("highlights")
+                .select("*", { count: "exact", head: true })
+                .eq("user_id", session.user.id);
 
             const user: User = {
                 id: data.id,
                 name: data.name || displayName,
-                avatar: data.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`,
-                phone: data.phone || '',
+                avatar:
+                    data.avatar ||
+                    `https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`,
+                phone: data.phone || "",
                 totalHighlights: highlightsCount || 0,
                 hoursPlayed: Number(hoursPlayed.toFixed(1)),
                 courtsVisited: visitedCourts.size,
                 credits: data.credits || 0,
-                membershipTier: (data.membership_tier as any) || 'free',
-                role: (data.role as any) || 'player',
+                membershipTier: (data.membership_tier as any) || "free",
+                role: (data.role as any) || "player",
                 bio: data.bio,
                 isPublic: data.is_public,
                 followersCount: data.followers_count || 0,
-                followingCount: data.following_count || 0
+                followingCount: data.following_count || 0,
             };
 
             return { success: true, data: user };
@@ -742,27 +755,34 @@ export const AuthService = {
         }
     },
 
-    updateUserProfile: async (updates: Partial<{
-        name: string;
-        phone: string;
-        avatar: string;
-        credits: number;
-        has_onboarded: boolean;
-        bio: string;
-        is_public: boolean;
-    }>): Promise<ApiResponse<boolean>> => {
-        const { data: { user } } = await supabase.auth.getUser();
+    updateUserProfile: async (
+        updates: Partial<{
+            name: string;
+            phone: string;
+            avatar: string;
+            credits: number;
+            has_onboarded: boolean;
+            bio: string;
+            is_public: boolean;
+        }>
+    ): Promise<ApiResponse<boolean>> => {
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
         if (!user) return { success: false, data: false };
 
         try {
             const { error: updateError } = await supabase
-                .from('profiles')
+                .from("profiles")
                 .update(updates)
-                .eq('id', user.id);
+                .eq("id", user.id);
 
             if (updateError) {
-                console.error('[Auth Service] Profile update failed (masked):', maskSensitiveData(updateError.message));
-                return { success: false, data: false, error: 'Failed to update profile' };
+                console.error(
+                    "[Auth Service] Profile update failed (masked):",
+                    maskSensitiveData(updateError.message)
+                );
+                return { success: false, data: false, error: "Failed to update profile" };
             }
 
             return { success: true, data: true };
@@ -770,7 +790,7 @@ export const AuthService = {
             const errorMsg = maskError(e);
             return { success: false, data: false, error: errorMsg };
         }
-    }
+    },
 };
 ```
 
@@ -781,9 +801,9 @@ export const AuthService = {
 **File:** `src/lib/network.ts`
 
 ```typescript
-import { v4 as uuidv4 } from 'uuid';
-import NetInfo from '@react-native-community/netinfo';
-import { useEffect, useState } from 'react';
+import { v4 as uuidv4 } from "uuid";
+import NetInfo from "@react-native-community/netinfo";
+import { useEffect, useState } from "react";
 
 // ... existing code ...
 
@@ -824,7 +844,7 @@ class OfflineQueue {
                 item.retryCount++;
 
                 if (item.retryCount >= 3) {
-                    console.error('Action failed after 3 retries:', error);
+                    console.error("Action failed after 3 retries:", error);
                     this.queue.shift(); // Remove failed action
                 } else {
                     // Move to back of queue for retry
@@ -847,6 +867,7 @@ export const offlineQueue = new OfflineQueue();
 ```
 
 **Install uuid:**
+
 ```bash
 npm install uuid
 # or
@@ -861,24 +882,24 @@ expo install uuid
 
 ```typescript
 // 1. Test encryption key derivation
-import { storage } from '@/lib/storage';
-const testValue = 'secure_test_data';
-storage.set('encryption_test', testValue);
-const retrieved = storage.getString('encryption_test');
-console.assert(retrieved === testValue, 'Encryption failed');
+import { storage } from "@/lib/storage";
+const testValue = "secure_test_data";
+storage.set("encryption_test", testValue);
+const retrieved = storage.getString("encryption_test");
+console.assert(retrieved === testValue, "Encryption failed");
 
 // 2. Test security validation
-import { validateClientEnv } from '@/lib/security';
+import { validateClientEnv } from "@/lib/security";
 if (!__DEV__) {
     validateClientEnv(); // Should not throw
 }
 
 // 3. Test input validation
 const loginTest = {
-    validEmail: 'user@example.com',
-    invalidEmail: 'not-an-email',
-    strongPassword: 'MyPassword123!@#',
-    weakPassword: 'weak',
+    validEmail: "user@example.com",
+    invalidEmail: "not-an-email",
+    strongPassword: "MyPassword123!@#",
+    weakPassword: "weak",
 };
 
 // 4. Test rate limiting
@@ -910,21 +931,21 @@ const loginTest = {
 
 ## Success Criteria
 
-| Criterion | Before | After |
-|-----------|--------|-------|
-| Hardcoded keys | ❌ Yes | ✅ Derived |
-| Security utils | ❌ Unused | ✅ Active |
-| RLS coverage | ⚠️ Partial | ✅ Complete |
-| Input validation | ⚠️ Weak | ✅ Strong |
-| Error masking | ❌ None | ✅ Full |
-| OWASP Score | 5/10 | 8/10 |
+| Criterion        | Before     | After       |
+| ---------------- | ---------- | ----------- |
+| Hardcoded keys   | ❌ Yes     | ✅ Derived  |
+| Security utils   | ❌ Unused  | ✅ Active   |
+| RLS coverage     | ⚠️ Partial | ✅ Complete |
+| Input validation | ⚠️ Weak    | ✅ Strong   |
+| Error masking    | ❌ None    | ✅ Full     |
+| OWASP Score      | 5/10       | 8/10        |
 
 ---
 
 ## Support
 
 If issues arise during implementation:
+
 1. Check the full audit report: `/plans/reports/code-reviewer-251230-1621-auth-security-audit.md`
 2. Test each fix in isolation before merging
 3. Run full auth flow E2E test after each phase
-

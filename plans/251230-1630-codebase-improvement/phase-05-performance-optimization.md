@@ -13,6 +13,7 @@ Performance issues identified in cache invalidation, FlatList rendering, and off
 **Source:** [State Management Review](../../reports/code-reviewer-251230-1621-state-mgmt.md), [UI Components Review](../../reports/code-reviewer-251230-1621-ui-components.md)
 
 **Key Issues:**
+
 - Aggressive cache invalidation refetches entire feed on single like
 - FlatList missing optimization flags
 - Offline queue infinite retry loop
@@ -24,14 +25,17 @@ Performance issues identified in cache invalidation, FlatList rendering, and off
 ## Key Insights
 
 ### Cache Invalidation Problem
+
 **Current:** `toggleLike` invalidates ALL highlights → network waste
 **Solution:** Optimistic updates + selective invalidation
 
 ### FlatList Performance
+
 **Missing:** `removeClippedSubviews`, `getItemLayout`, batching config
 **Impact:** Slower scrolling, higher memory usage
 
 ### Offline Queue
+
 **Issue:** Retry loop moves failed items to back indefinitely
 **Solution:** Exponential backoff, auth error detection
 
@@ -40,12 +44,14 @@ Performance issues identified in cache invalidation, FlatList rendering, and off
 ## Requirements
 
 ### Must Fix
+
 - [ ] Implement optimistic cache updates
 - [ ] Fix offline queue retry logic
 - [ ] Add FlatList optimization flags
 - [ ] Remove double cache fetches
 
 ### Should Add
+
 - [ ] Exponential backoff for retries
 - [ ] Cache TTL constants
 - [ ] Performance monitoring
@@ -57,21 +63,15 @@ Performance issues identified in cache invalidation, FlatList rendering, and off
 ### Step 1: Optimistic Cache Updates (2h)
 
 **1.1 Update useToggleLike hook**
+
 ```typescript
 // src/features/highlights/hooks/useHighlights.ts
 export function useToggleLike() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (params: {
-            highlightId: string;
-            currentLikes: number;
-            isLiked: boolean;
-        }) => HighlightService.toggleLike(
-            params.highlightId,
-            params.currentLikes,
-            params.isLiked
-        ),
+        mutationFn: (params: { highlightId: string; currentLikes: number; isLiked: boolean }) =>
+            HighlightService.toggleLike(params.highlightId, params.currentLikes, params.isLiked),
 
         // Optimistic update
         onMutate: async (params) => {
@@ -98,10 +98,7 @@ export function useToggleLike() {
         // Revert on error
         onError: (err, params, context) => {
             if (context?.previousData) {
-                queryClient.setQueryData(
-                    highlightQueryKeys.lists(),
-                    context.previousData
-                );
+                queryClient.setQueryData(highlightQueryKeys.lists(), context.previousData);
             }
         },
 
@@ -116,6 +113,7 @@ export function useToggleLike() {
 ```
 
 **1.2 Test optimistic updates**
+
 ```bash
 # User should see immediate feedback
 # Network failure should revert
@@ -126,6 +124,7 @@ export function useToggleLike() {
 ### Step 2: Fix Offline Queue (1.5h)
 
 **2.1 Update network.ts**
+
 ```typescript
 // src/lib/network.ts
 async process() {
@@ -170,6 +169,7 @@ async process() {
 ```
 
 **2.2 Add retry constants**
+
 ```typescript
 // src/shared/constants/network.ts
 export const NETWORK_CONFIG = {
@@ -185,6 +185,7 @@ export const NETWORK_CONFIG = {
 ### Step 3: FlatList Optimization (1h)
 
 **3.1 Update chat.tsx**
+
 ```typescript
 // app/match/chat.tsx
 const MESSAGE_HEIGHT = 60; // Approximate message height
@@ -209,6 +210,7 @@ const MESSAGE_HEIGHT = 60; // Approximate message height
 ```
 
 **3.2 Update feed (index.tsx)**
+
 ```typescript
 // app/(tabs)/index.tsx
 const HIGHLIGHT_CARD_HEIGHT = 600;
@@ -234,6 +236,7 @@ const HIGHLIGHT_CARD_HEIGHT = 600;
 ### Step 4: Fix API Wrapper (1h)
 
 **4.1 Remove double cache fetch**
+
 ```typescript
 // src/lib/apiWrapper.ts
 export async function apiCall<T>(
@@ -270,7 +273,7 @@ export async function apiCall<T>(
                 }
             });
         }
-        return { data: null, error: 'No internet connection' };
+        return { data: null, error: "No internet connection" };
     }
 
     try {
@@ -290,20 +293,22 @@ export async function apiCall<T>(
 ### Step 5: Standardize Cache TTL (0.5h)
 
 **5.1 Create cache constants**
+
 ```typescript
 // src/shared/constants/cache.ts
 export const CACHE_TTL = {
-    REAL_TIME: 10000,      // 10s - Active bookings
-    FREQUENT: 60000,       // 1min - Highlights, user data
-    NORMAL: 300000,        // 5min - Courts, stable data
-    LONG: 600000,          // 10min - Reference data
+    REAL_TIME: 10000, // 10s - Active bookings
+    FREQUENT: 60000, // 1min - Highlights, user data
+    NORMAL: 300000, // 5min - Courts, stable data
+    LONG: 600000, // 10min - Reference data
 } as const;
 ```
 
 **5.2 Update query hooks**
+
 ```typescript
 // src/features/highlights/hooks/useHighlights.ts
-import { CACHE_TTL } from '@/shared/constants/cache';
+import { CACHE_TTL } from "@/shared/constants/cache";
 
 export function useHighlights(params: { limit?: number } = {}) {
     return useQuery({
@@ -324,6 +329,7 @@ export function useHighlights(params: { limit?: number } = {}) {
 ### Step 6: Add Performance Monitoring (1h)
 
 **6.1 Create performance utilities**
+
 ```typescript
 // src/shared/utils/performance.ts
 export function measureRenderTime(componentName: string) {
@@ -340,19 +346,20 @@ export function logCacheStats(queryClient: QueryClient) {
     const cache = queryClient.getQueryCache();
     const queries = cache.getAll();
 
-    console.log('[Cache Stats]', {
+    console.log("[Cache Stats]", {
         total: queries.length,
-        active: queries.filter(q => q.state.status === 'success').length,
-        stale: queries.filter(q => q.isStale()).length,
+        active: queries.filter((q) => q.state.status === "success").length,
+        stale: queries.filter((q) => q.isStale()).length,
     });
 }
 ```
 
 **6.2 Add to components**
+
 ```typescript
 // In HighlightCard
 useEffect(() => {
-    const measure = measureRenderTime('HighlightCard');
+    const measure = measureRenderTime("HighlightCard");
     return measure;
 }, []);
 ```
@@ -362,6 +369,7 @@ useEffect(() => {
 ## Todo Checklist
 
 ### Cache Optimization
+
 - [ ] Implement optimistic toggleLike
 - [ ] Add onMutate handlers
 - [ ] Add error rollback
@@ -369,6 +377,7 @@ useEffect(() => {
 - [ ] Verify network savings
 
 ### Offline Queue
+
 - [ ] Add exponential backoff
 - [ ] Detect auth errors
 - [ ] Add retry constants
@@ -376,6 +385,7 @@ useEffect(() => {
 - [ ] Test auth error handling
 
 ### FlatList
+
 - [ ] Update chat.tsx FlatList
 - [ ] Update feed FlatList
 - [ ] Add getItemLayout
@@ -383,18 +393,21 @@ useEffect(() => {
 - [ ] Measure memory usage
 
 ### API Wrapper
+
 - [ ] Remove double cache fetch
 - [ ] Simplify offline logic
 - [ ] Test cache behavior
 - [ ] Verify no regressions
 
 ### Cache TTL
+
 - [ ] Create CACHE_TTL constants
 - [ ] Update all query hooks
 - [ ] Document cache strategy
 - [ ] Test cache invalidation
 
 ### Performance Monitoring
+
 - [ ] Create performance utils
 - [ ] Add render time logging
 - [ ] Add cache stats logging
@@ -416,18 +429,19 @@ useEffect(() => {
 
 ## Risk Assessment
 
-| Risk | Mitigation |
-|------|------------|
-| Optimistic update bugs | Thorough testing, rollback on error |
-| FlatList layout shifts | Test getItemLayout accuracy |
-| Cache TTL too aggressive | Conservative defaults, monitor |
-| Performance regression | Benchmark before/after |
+| Risk                     | Mitigation                          |
+| ------------------------ | ----------------------------------- |
+| Optimistic update bugs   | Thorough testing, rollback on error |
+| FlatList layout shifts   | Test getItemLayout accuracy         |
+| Cache TTL too aggressive | Conservative defaults, monitor      |
+| Performance regression   | Benchmark before/after              |
 
 ---
 
 ## Next Steps
 
 After Phase 5 completion:
+
 1. Benchmark performance improvements
 2. Document optimization patterns
 3. Proceed to Phase 6 (Documentation)

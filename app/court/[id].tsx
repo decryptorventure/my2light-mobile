@@ -72,7 +72,7 @@ export default function CourtDetailScreen() {
         if (!court) return;
         router.push({
             pathname: "/booking/[id]",
-            params: { id: court.id }
+            params: { id: court.id },
         });
     };
 
@@ -97,7 +97,7 @@ export default function CourtDetailScreen() {
     }
 
     const formatPrice = (price: number) => {
-        return price.toLocaleString("vi-VN") + "đ";
+        return `${price.toLocaleString("vi-VN")}đ`;
     };
 
     return (
@@ -107,7 +107,9 @@ export default function CourtDetailScreen() {
                 <TouchableOpacity style={styles.headerBtn} onPress={() => router.back()}>
                     <Ionicons name="arrow-back" size={24} color={colors.text} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle} numberOfLines={1}>{court.name}</Text>
+                <Text style={styles.headerTitle} numberOfLines={1}>
+                    {court.name}
+                </Text>
                 <TouchableOpacity style={styles.headerBtn}>
                     <Ionicons name="heart-outline" size={24} color={colors.text} />
                 </TouchableOpacity>
@@ -117,7 +119,11 @@ export default function CourtDetailScreen() {
                 style={styles.scrollView}
                 contentContainerStyle={styles.scrollContent}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={colors.accent}
+                    />
                 }
             >
                 {/* Court Image */}
@@ -126,7 +132,11 @@ export default function CourtDetailScreen() {
                         <Image source={{ uri: court.images[0] }} style={styles.courtImage} />
                     ) : (
                         <View style={styles.placeholderImage}>
-                            <Ionicons name="tennisball-outline" size={64} color={colors.textMuted} />
+                            <Ionicons
+                                name="tennisball-outline"
+                                size={64}
+                                color={colors.textMuted}
+                            />
                         </View>
                     )}
                     {(court as any).is_active !== false && (
@@ -148,7 +158,8 @@ export default function CourtDetailScreen() {
                     <View style={styles.infoRow}>
                         <Ionicons name="time-outline" size={18} color={colors.textMuted} />
                         <Text style={styles.infoText}>
-                            {(court as any).open_time || court.openTime || "06:00"} - {(court as any).close_time || court.closeTime || "22:00"}
+                            {(court as any).open_time || court.openTime || "06:00"} -{" "}
+                            {(court as any).close_time || court.closeTime || "22:00"}
                         </Text>
                     </View>
 
@@ -156,7 +167,8 @@ export default function CourtDetailScreen() {
                         <View style={styles.infoRow}>
                             <Ionicons name="star" size={18} color="#f59e0b" />
                             <Text style={styles.infoText}>
-                                {(court.rating || 0).toFixed(1)} ({(court as any).total_reviews || court.totalReviews || 0} đánh giá)
+                                {(court.rating || 0).toFixed(1)} (
+                                {(court as any).total_reviews || court.totalReviews || 0} đánh giá)
                             </Text>
                         </View>
                     )}
@@ -165,7 +177,9 @@ export default function CourtDetailScreen() {
                 {/* Price */}
                 <View style={styles.priceSection}>
                     <Text style={styles.priceLabel}>Giá thuê</Text>
-                    <Text style={styles.priceValue}>{formatPrice((court as any).price_per_hour || court.pricePerHour || 0)}/giờ</Text>
+                    <Text style={styles.priceValue}>
+                        {formatPrice((court as any).price_per_hour || court.pricePerHour || 0)}/giờ
+                    </Text>
                 </View>
 
                 {/* Description */}
@@ -183,7 +197,11 @@ export default function CourtDetailScreen() {
                         <View style={styles.facilitiesGrid}>
                             {court.facilities.map((facility: string, index: number) => (
                                 <View key={index} style={styles.facilityBadge}>
-                                    <Ionicons name="checkmark-circle" size={16} color={colors.accent} />
+                                    <Ionicons
+                                        name="checkmark-circle"
+                                        size={16}
+                                        color={colors.accent}
+                                    />
                                     <Text style={styles.facilityText}>{facility}</Text>
                                 </View>
                             ))}
@@ -204,7 +222,7 @@ export default function CourtDetailScreen() {
                         >
                             <Ionicons name="create-outline" size={16} color={colors.accent} />
                             <Text style={styles.writeReviewText}>
-                                {myReview ? 'Sửa đánh giá' : 'Viết đánh giá'}
+                                {myReview ? "Sửa đánh giá" : "Viết đánh giá"}
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -216,7 +234,9 @@ export default function CourtDetailScreen() {
             <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.md }]}>
                 <View style={styles.footerPrice}>
                     <Text style={styles.footerPriceLabel}>Giá từ</Text>
-                    <Text style={styles.footerPriceValue}>{formatPrice((court as any).price_per_hour || court.pricePerHour || 0)}/giờ</Text>
+                    <Text style={styles.footerPriceValue}>
+                        {formatPrice((court as any).price_per_hour || court.pricePerHour || 0)}/giờ
+                    </Text>
                 </View>
                 <TouchableOpacity style={styles.bookBtn} onPress={handleBook}>
                     <Text style={styles.bookBtnText}>Đặt sân ngay</Text>
@@ -227,7 +247,7 @@ export default function CourtDetailScreen() {
             <ReviewForm
                 visible={showReviewForm}
                 onClose={() => setShowReviewForm(false)}
-                courtId={id || ''}
+                courtId={id || ""}
                 courtName={court.name}
                 existingRating={myReview?.rating}
                 existingComment={myReview?.comment}

@@ -8,22 +8,22 @@ Define tasks in `turbo.json`:
 
 ```json
 {
-  "$schema": "https://turbo.build/schema.json",
-  "pipeline": {
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**"]
-    },
-    "test": {
-      "dependsOn": ["build"],
-      "outputs": ["coverage/**"]
-    },
-    "lint": {},
-    "dev": {
-      "cache": false,
-      "persistent": true
+    "$schema": "https://turbo.build/schema.json",
+    "pipeline": {
+        "build": {
+            "dependsOn": ["^build"],
+            "outputs": ["dist/**", ".next/**"]
+        },
+        "test": {
+            "dependsOn": ["build"],
+            "outputs": ["coverage/**"]
+        },
+        "lint": {},
+        "dev": {
+            "cache": false,
+            "persistent": true
+        }
     }
-  }
 }
 ```
 
@@ -35,15 +35,16 @@ Define tasks in `turbo.json`:
 
 ```json
 {
-  "pipeline": {
-    "build": {
-      "dependsOn": ["^build"]
+    "pipeline": {
+        "build": {
+            "dependsOn": ["^build"]
+        }
     }
-  }
 }
 ```
 
 Example flow:
+
 ```
 packages/ui (dependency)
   ↓ builds first
@@ -57,15 +58,16 @@ Run tasks in same package first:
 
 ```json
 {
-  "pipeline": {
-    "deploy": {
-      "dependsOn": ["build", "test"]
+    "pipeline": {
+        "deploy": {
+            "dependsOn": ["build", "test"]
+        }
     }
-  }
 }
 ```
 
 Execution order in same package:
+
 1. Run `build`
 2. Run `test`
 3. Run `deploy`
@@ -76,15 +78,16 @@ Mix topological and internal:
 
 ```json
 {
-  "pipeline": {
-    "test": {
-      "dependsOn": ["^build", "lint"]
+    "pipeline": {
+        "test": {
+            "dependsOn": ["^build", "lint"]
+        }
     }
-  }
 }
 ```
 
 Execution order:
+
 1. Build all dependencies (`^build`)
 2. Lint current package (`lint`)
 3. Run tests (`test`)
@@ -97,15 +100,15 @@ Define what gets cached:
 
 ```json
 {
-  "build": {
-    "outputs": [
-      "dist/**",           // All files in dist
-      ".next/**",          // Next.js build
-      "!.next/cache/**",   // Exclude Next.js cache
-      "build/**",          // Build directory
-      "public/dist/**"     // Public assets
-    ]
-  }
+    "build": {
+        "outputs": [
+            "dist/**", // All files in dist
+            ".next/**", // Next.js build
+            "!.next/cache/**", // Exclude Next.js cache
+            "build/**", // Build directory
+            "public/dist/**" // Public assets
+        ]
+    }
 }
 ```
 
@@ -115,12 +118,12 @@ Enable/disable caching:
 
 ```json
 {
-  "dev": {
-    "cache": false        // Don't cache dev server
-  },
-  "build": {
-    "cache": true         // Cache build (default)
-  }
+    "dev": {
+        "cache": false // Don't cache dev server
+    },
+    "build": {
+        "cache": true // Cache build (default)
+    }
 }
 ```
 
@@ -130,10 +133,10 @@ Keep task running (for dev servers):
 
 ```json
 {
-  "dev": {
-    "cache": false,
-    "persistent": true    // Don't kill after completion
-  }
+    "dev": {
+        "cache": false,
+        "persistent": true // Don't kill after completion
+    }
 }
 ```
 
@@ -143,13 +146,9 @@ Environment variables affecting output:
 
 ```json
 {
-  "build": {
-    "env": [
-      "NODE_ENV",
-      "NEXT_PUBLIC_API_URL",
-      "DATABASE_URL"
-    ]
-  }
+    "build": {
+        "env": ["NODE_ENV", "NEXT_PUBLIC_API_URL", "DATABASE_URL"]
+    }
 }
 ```
 
@@ -159,12 +158,12 @@ Pass env vars without affecting cache:
 
 ```json
 {
-  "build": {
-    "passThroughEnv": [
-      "DEBUG",            // Pass through but don't invalidate cache
-      "LOG_LEVEL"
-    ]
-  }
+    "build": {
+        "passThroughEnv": [
+            "DEBUG", // Pass through but don't invalidate cache
+            "LOG_LEVEL"
+        ]
+    }
 }
 ```
 
@@ -174,13 +173,13 @@ Override default input detection:
 
 ```json
 {
-  "build": {
-    "inputs": [
-      "src/**/*.ts",
-      "!src/**/*.test.ts", // Exclude test files
-      "package.json"
-    ]
-  }
+    "build": {
+        "inputs": [
+            "src/**/*.ts",
+            "!src/**/*.test.ts", // Exclude test files
+            "package.json"
+        ]
+    }
 }
 ```
 
@@ -190,18 +189,18 @@ Control output display:
 
 ```json
 {
-  "build": {
-    "outputMode": "full"        // Show all output
-  },
-  "dev": {
-    "outputMode": "hash-only"   // Show cache hash only
-  },
-  "test": {
-    "outputMode": "new-only"    // Show new output only
-  },
-  "lint": {
-    "outputMode": "errors-only" // Show errors only
-  }
+    "build": {
+        "outputMode": "full" // Show all output
+    },
+    "dev": {
+        "outputMode": "hash-only" // Show cache hash only
+    },
+    "test": {
+        "outputMode": "new-only" // Show new output only
+    },
+    "lint": {
+        "outputMode": "errors-only" // Show errors only
+    }
 }
 ```
 
@@ -307,6 +306,7 @@ turbo run test --continue
 ## Task Execution Order
 
 Example monorepo:
+
 ```
 apps/
 ├── web (depends on @repo/ui, @repo/utils)
@@ -317,17 +317,19 @@ packages/
 ```
 
 With config:
+
 ```json
 {
-  "pipeline": {
-    "build": {
-      "dependsOn": ["^build"]
+    "pipeline": {
+        "build": {
+            "dependsOn": ["^build"]
+        }
     }
-  }
 }
 ```
 
 Execution order for `turbo run build`:
+
 1. **Wave 1** (parallel): `@repo/utils` (no dependencies)
 2. **Wave 2** (parallel): `@repo/ui` (depends on utils)
 3. **Wave 3** (parallel): `web` and `docs` (both depend on ui)
@@ -338,29 +340,29 @@ Execution order for `turbo run build`:
 
 ```json
 {
-  "pipeline": {
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "dist/**"]
-    },
-    "test": {
-      "dependsOn": ["^build"],
-      "outputs": ["coverage/**"]
-    },
-    "lint": {
-      "dependsOn": ["^build"]
-    },
-    "typecheck": {
-      "dependsOn": ["^build"]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "deploy": {
-      "dependsOn": ["build", "test", "lint", "typecheck"]
+    "pipeline": {
+        "build": {
+            "dependsOn": ["^build"],
+            "outputs": [".next/**", "dist/**"]
+        },
+        "test": {
+            "dependsOn": ["^build"],
+            "outputs": ["coverage/**"]
+        },
+        "lint": {
+            "dependsOn": ["^build"]
+        },
+        "typecheck": {
+            "dependsOn": ["^build"]
+        },
+        "dev": {
+            "cache": false,
+            "persistent": true
+        },
+        "deploy": {
+            "dependsOn": ["build", "test", "lint", "typecheck"]
+        }
     }
-  }
 }
 ```
 
@@ -368,20 +370,20 @@ Execution order for `turbo run build`:
 
 ```json
 {
-  "pipeline": {
-    "generate": {
-      "cache": false,
-      "outputs": ["src/generated/**"]
-    },
-    "build": {
-      "dependsOn": ["^build", "generate"],
-      "outputs": ["dist/**"]
-    },
-    "test": {
-      "dependsOn": ["generate"],
-      "outputs": ["coverage/**"]
+    "pipeline": {
+        "generate": {
+            "cache": false,
+            "outputs": ["src/generated/**"]
+        },
+        "build": {
+            "dependsOn": ["^build", "generate"],
+            "outputs": ["dist/**"]
+        },
+        "test": {
+            "dependsOn": ["generate"],
+            "outputs": ["coverage/**"]
+        }
     }
-  }
 }
 ```
 
@@ -389,25 +391,25 @@ Execution order for `turbo run build`:
 
 ```json
 {
-  "pipeline": {
-    "db:generate": {
-      "cache": false
-    },
-    "db:migrate": {
-      "cache": false
-    },
-    "build": {
-      "dependsOn": ["^build", "db:generate"],
-      "outputs": ["dist/**"]
-    },
-    "test:unit": {
-      "dependsOn": ["build"]
-    },
-    "test:integration": {
-      "dependsOn": ["db:migrate"],
-      "cache": false
+    "pipeline": {
+        "db:generate": {
+            "cache": false
+        },
+        "db:migrate": {
+            "cache": false
+        },
+        "build": {
+            "dependsOn": ["^build", "db:generate"],
+            "outputs": ["dist/**"]
+        },
+        "test:unit": {
+            "dependsOn": ["build"]
+        },
+        "test:integration": {
+            "dependsOn": ["db:migrate"],
+            "cache": false
+        }
     }
-  }
 }
 ```
 
@@ -474,9 +476,9 @@ turbo run build --output-logs=full
 ```yaml
 # .github/workflows/ci.yml
 jobs:
-  build:
-    steps:
-      - run: turbo run build test lint --filter='...[origin/main]'
+    build:
+        steps:
+            - run: turbo run build test lint --filter='...[origin/main]'
 ```
 
 Only build/test/lint changed packages and their dependents.
@@ -496,9 +498,9 @@ turbo run dev --filter=web...
 ```json
 // package.json
 {
-  "scripts": {
-    "pre-commit": "turbo run lint test --filter='...[HEAD]'"
-  }
+    "scripts": {
+        "pre-commit": "turbo run lint test --filter='...[HEAD]'"
+    }
 }
 ```
 

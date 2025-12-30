@@ -4,12 +4,7 @@
  */
 
 import React from "react";
-import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -61,8 +56,7 @@ export default function BookingSuccessScreen() {
             <Text style={styles.subtitle}>
                 {isPending
                     ? "Yêu cầu đặt sân của bạn đang chờ chủ sân xác nhận. Bạn sẽ nhận được thông báo khi được duyệt."
-                    : "Bạn đã đặt sân thành công. Hãy đến sân đúng giờ nhé!"
-                }
+                    : "Bạn đã đặt sân thành công. Hãy đến sân đúng giờ nhé!"}
             </Text>
 
             {/* Pending Status Badge */}
@@ -129,7 +123,11 @@ export default function BookingSuccessScreen() {
                 {isPending ? (
                     <>
                         <View style={styles.tipItem}>
-                            <Ionicons name="notifications-outline" size={20} color={colors.accent} />
+                            <Ionicons
+                                name="notifications-outline"
+                                size={20}
+                                color={colors.accent}
+                            />
                             <Text style={styles.tipText}>Bạn sẽ nhận thông báo khi được duyệt</Text>
                         </View>
                         <View style={styles.tipItem}>
@@ -164,7 +162,6 @@ export default function BookingSuccessScreen() {
         </View>
     );
 }
-
 
 const styles = StyleSheet.create({
     container: {
@@ -307,4 +304,3 @@ const styles = StyleSheet.create({
         fontWeight: fontWeight.semibold,
     },
 });
-

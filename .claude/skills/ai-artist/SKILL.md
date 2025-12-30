@@ -44,27 +44,27 @@ Craft effective prompts for AI text and image generation models.
 
 Load for detailed guidance:
 
-| Topic | File | Description |
-|-------|------|-------------|
-| LLM | `references/llm-prompting.md` | System prompts, few-shot, CoT, output formatting |
-| Image | `references/image-prompting.md` | Style keywords, model syntax, negative prompts |
-| Nano Banana | `references/nano-banana.md` | Gemini image prompting, narrative style, multi-image input |
-| Advanced | `references/advanced-techniques.md` | Meta-prompting, chaining, A/B testing |
-| Domain Index | `references/domain-patterns.md` | Universal pattern, links to domain files |
-| Marketing | `references/domain-marketing.md` | Headlines, product copy, emails, ads |
-| Code | `references/domain-code.md` | Functions, review, refactoring, debugging |
-| Writing | `references/domain-writing.md` | Stories, characters, dialogue, editing |
-| Data | `references/domain-data.md` | Extraction, analysis, comparison |
+| Topic        | File                                | Description                                                |
+| ------------ | ----------------------------------- | ---------------------------------------------------------- |
+| LLM          | `references/llm-prompting.md`       | System prompts, few-shot, CoT, output formatting           |
+| Image        | `references/image-prompting.md`     | Style keywords, model syntax, negative prompts             |
+| Nano Banana  | `references/nano-banana.md`         | Gemini image prompting, narrative style, multi-image input |
+| Advanced     | `references/advanced-techniques.md` | Meta-prompting, chaining, A/B testing                      |
+| Domain Index | `references/domain-patterns.md`     | Universal pattern, links to domain files                   |
+| Marketing    | `references/domain-marketing.md`    | Headlines, product copy, emails, ads                       |
+| Code         | `references/domain-code.md`         | Functions, review, refactoring, debugging                  |
+| Writing      | `references/domain-writing.md`      | Stories, characters, dialogue, editing                     |
+| Data         | `references/domain-data.md`         | Extraction, analysis, comparison                           |
 
 ## Model-Specific Tips
 
-| Model | Key Syntax |
-|-------|------------|
-| Midjourney | `--ar`, `--style`, `--chaos`, `--weird`, `--v 6.1` |
-| DALL-E 3 | Natural language, no parameters, HD quality option |
+| Model            | Key Syntax                                          |
+| ---------------- | --------------------------------------------------- |
+| Midjourney       | `--ar`, `--style`, `--chaos`, `--weird`, `--v 6.1`  |
+| DALL-E 3         | Natural language, no parameters, HD quality option  |
 | Stable Diffusion | Weighted tokens `(word:1.2)`, LoRA, negative prompt |
-| Flux | Natural prompts, style mixing, `--guidance` |
-| Imagen/Veo | Descriptive text, aspect ratio, style references |
+| Flux             | Natural prompts, style mixing, `--guidance`         |
+| Imagen/Veo       | Descriptive text, aspect ratio, style references    |
 
 ## Anti-Patterns
 

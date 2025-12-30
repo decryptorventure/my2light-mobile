@@ -22,6 +22,7 @@ Without installation, you'll get **Error 500: Error rendering markdown**.
 ## Purpose
 
 Universal viewer - pass ANY path and view it:
+
 - **Markdown files** → novel-reader UI with serif fonts, warm theme
 - **Directories** → file listing browser with clickable links
 
@@ -61,6 +62,7 @@ Use `/preview` for quick access:
 ## Features
 
 ### Novel Theme
+
 - Warm cream background (light mode)
 - Dark mode with warm gold accents
 - Libre Baskerville serif headings
@@ -68,6 +70,7 @@ Use `/preview` for quick access:
 - Maximum 720px content width
 
 ### Directory Browser
+
 - Clean file listing with emoji icons
 - Markdown files link to viewer
 - Folders link to sub-directories
@@ -75,12 +78,14 @@ Use `/preview` for quick access:
 - Light/dark mode support
 
 ### Plan Navigation
+
 - Auto-detects plan directory structure
 - Sidebar shows all phases with status indicators
 - Previous/Next navigation buttons
 - Keyboard shortcuts: Arrow Left/Right
 
 ### Keyboard Shortcuts
+
 - `T` - Toggle theme
 - `S` - Toggle sidebar
 - `Left/Right` - Navigate phases
@@ -88,15 +93,15 @@ Use `/preview` for quick access:
 
 ## CLI Options
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--file <path>` | Markdown file to view | - |
-| `--dir <path>` | Directory to browse | - |
-| `--port <number>` | Server port | 3456 |
-| `--host <addr>` | Host to bind (`0.0.0.0` for remote) | localhost |
-| `--open` | Auto-open browser | false |
-| `--background` | Run in background | false |
-| `--stop` | Stop all servers | - |
+| Option            | Description                         | Default   |
+| ----------------- | ----------------------------------- | --------- |
+| `--file <path>`   | Markdown file to view               | -         |
+| `--dir <path>`    | Directory to browse                 | -         |
+| `--port <number>` | Server port                         | 3456      |
+| `--host <addr>`   | Host to bind (`0.0.0.0` for remote) | localhost |
+| `--open`          | Auto-open browser                   | false     |
+| `--background`    | Run in background                   | false     |
+| `--stop`          | Stop all servers                    | -         |
 
 ## Architecture
 
@@ -119,12 +124,12 @@ assets/
 
 ## HTTP Routes
 
-| Route | Description |
-|-------|-------------|
-| `/view?file=<path>` | Markdown file viewer |
-| `/browse?dir=<path>` | Directory browser |
-| `/assets/*` | Static assets |
-| `/file/*` | Local file serving (images) |
+| Route                | Description                 |
+| -------------------- | --------------------------- |
+| `/view?file=<path>`  | Markdown file viewer        |
+| `/browse?dir=<path>` | Directory browser           |
+| `/assets/*`          | Static assets               |
+| `/file/*`            | Local file serving (images) |
 
 ## Dependencies
 
@@ -136,18 +141,21 @@ assets/
 ### Theme Colors (CSS Variables)
 
 Light mode variables in `assets/novel-theme.css`:
+
 ```css
---bg-primary: #faf8f3;      /* Warm cream */
---accent: #8b4513;          /* Saddle brown */
+--bg-primary: #faf8f3; /* Warm cream */
+--accent: #8b4513; /* Saddle brown */
 ```
 
 Dark mode:
+
 ```css
---bg-primary: #1a1a1a;      /* Near black */
---accent: #d4a574;          /* Warm gold */
+--bg-primary: #1a1a1a; /* Near black */
+--accent: #d4a574; /* Warm gold */
 ```
 
 ### Content Width
+
 ```css
 --content-width: 720px;
 ```
@@ -165,10 +173,10 @@ When using `--host 0.0.0.0`, the server auto-detects your local network IP and i
 
 ```json
 {
-  "success": true,
-  "url": "http://localhost:3456/view?file=...",
-  "networkUrl": "http://192.168.2.75:3456/view?file=...",
-  "port": 3456
+    "success": true,
+    "url": "http://localhost:3456/view?file=...",
+    "networkUrl": "http://192.168.2.75:3456/view?file=...",
+    "port": 3456
 }
 ```
 

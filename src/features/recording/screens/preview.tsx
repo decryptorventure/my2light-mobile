@@ -5,14 +5,7 @@
  */
 
 import { useState } from "react";
-import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-    ScrollView,
-    Alert,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { Video, ResizeMode } from "expo-av";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -36,7 +29,8 @@ export default function VideoPreviewScreen() {
     const insets = useSafeAreaInsets();
     const { uri } = useLocalSearchParams<{ uri: string }>();
 
-    const { highlights, selectedHighlightIds, toggleHighlightSelection, selectAllHighlights } = useRecordingStore();
+    const { highlights, selectedHighlightIds, toggleHighlightSelection, selectAllHighlights } =
+        useRecordingStore();
     const [saving, setSaving] = useState(false);
 
     // Format time as MM:SS
@@ -53,18 +47,14 @@ export default function VideoPreviewScreen() {
     };
 
     const handleClose = () => {
-        Alert.alert(
-            "Xác nhận",
-            "Bạn có chắc muốn hủy video này?",
-            [
-                { text: "Không", style: "cancel" },
-                {
-                    text: "Hủy video",
-                    style: "destructive",
-                    onPress: () => router.replace("/(tabs)")
-                },
-            ]
-        );
+        Alert.alert("Xác nhận", "Bạn có chắc muốn hủy video này?", [
+            { text: "Không", style: "cancel" },
+            {
+                text: "Hủy video",
+                style: "destructive",
+                onPress: () => router.replace("/(tabs)"),
+            },
+        ]);
     };
 
     const handleSaveToDevice = async () => {
@@ -105,7 +95,7 @@ export default function VideoPreviewScreen() {
         haptics.medium();
         router.push({
             pathname: "/record/upload",
-            params: { uri }
+            params: { uri },
         });
     };
 
@@ -135,7 +125,11 @@ export default function VideoPreviewScreen() {
                     <Ionicons name="close" size={24} color={colors.text} />
                 </TouchableOpacity>
                 <Text style={styles.title}>Xem lại Video</Text>
-                <TouchableOpacity style={styles.headerButton} onPress={handleSaveToDevice} disabled={saving}>
+                <TouchableOpacity
+                    style={styles.headerButton}
+                    onPress={handleSaveToDevice}
+                    disabled={saving}
+                >
                     <Ionicons name="download-outline" size={24} color={colors.text} />
                 </TouchableOpacity>
             </View>
@@ -151,9 +145,7 @@ export default function VideoPreviewScreen() {
 
             {/* Highlight List */}
             <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-                <Text style={styles.sectionTitle}>
-                    DANH SÁCH HIGHLIGHT ({highlights.length})
-                </Text>
+                <Text style={styles.sectionTitle}>DANH SÁCH HIGHLIGHT ({highlights.length})</Text>
 
                 {highlights.length === 0 ? (
                     <Card style={styles.emptyCard}>
@@ -169,7 +161,8 @@ export default function VideoPreviewScreen() {
                             key={highlight.id}
                             style={[
                                 styles.highlightItem,
-                                selectedHighlightIds.includes(highlight.id) && styles.highlightItemSelected,
+                                selectedHighlightIds.includes(highlight.id) &&
+                                    styles.highlightItemSelected,
                             ]}
                             onPress={() => toggleHighlightSelection(highlight.id)}
                             activeOpacity={0.7}
@@ -198,9 +191,7 @@ export default function VideoPreviewScreen() {
             <View style={[styles.bottomActions, { paddingBottom: insets.bottom + spacing.lg }]}>
                 <TouchableOpacity style={styles.mergeButton} onPress={handleMergeHighlights}>
                     <Ionicons name="flash" size={20} color={colors.text} />
-                    <Text style={styles.mergeButtonText}>
-                        Ghép {highlights.length} Highlights
-                    </Text>
+                    <Text style={styles.mergeButtonText}>Ghép {highlights.length} Highlights</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.uploadButton} onPress={handleUpload}>

@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-    View,
-    Text,
-    StyleSheet,
-    ScrollView,
-    TouchableOpacity,
-    Alert,
-} from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -69,7 +62,12 @@ export default function CreateMatchScreen() {
                             style={[styles.option, matchType === "single" && styles.optionActive]}
                             onPress={() => setMatchType("single")}
                         >
-                            <Text style={[styles.optionText, matchType === "single" && styles.optionTextActive]}>
+                            <Text
+                                style={[
+                                    styles.optionText,
+                                    matchType === "single" && styles.optionTextActive,
+                                ]}
+                            >
                                 Đánh đơn
                             </Text>
                         </TouchableOpacity>
@@ -77,7 +75,12 @@ export default function CreateMatchScreen() {
                             style={[styles.option, matchType === "double" && styles.optionActive]}
                             onPress={() => setMatchType("double")}
                         >
-                            <Text style={[styles.optionText, matchType === "double" && styles.optionTextActive]}>
+                            <Text
+                                style={[
+                                    styles.optionText,
+                                    matchType === "double" && styles.optionTextActive,
+                                ]}
+                            >
                                 Đánh đôi
                             </Text>
                         </TouchableOpacity>
@@ -89,26 +92,50 @@ export default function CreateMatchScreen() {
                     <Text style={styles.sectionTitle}>Trình độ</Text>
                     <View style={styles.optionsRow}>
                         <TouchableOpacity
-                            style={[styles.optionSmall, level === "beginner" && styles.optionActive]}
+                            style={[
+                                styles.optionSmall,
+                                level === "beginner" && styles.optionActive,
+                            ]}
                             onPress={() => setLevel("beginner")}
                         >
-                            <Text style={[styles.optionText, level === "beginner" && styles.optionTextActive]}>
+                            <Text
+                                style={[
+                                    styles.optionText,
+                                    level === "beginner" && styles.optionTextActive,
+                                ]}
+                            >
                                 Beginner
                             </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={[styles.optionSmall, level === "intermediate" && styles.optionActive]}
+                            style={[
+                                styles.optionSmall,
+                                level === "intermediate" && styles.optionActive,
+                            ]}
                             onPress={() => setLevel("intermediate")}
                         >
-                            <Text style={[styles.optionText, level === "intermediate" && styles.optionTextActive]}>
+                            <Text
+                                style={[
+                                    styles.optionText,
+                                    level === "intermediate" && styles.optionTextActive,
+                                ]}
+                            >
                                 Intermediate
                             </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={[styles.optionSmall, level === "advanced" && styles.optionActive]}
+                            style={[
+                                styles.optionSmall,
+                                level === "advanced" && styles.optionActive,
+                            ]}
                             onPress={() => setLevel("advanced")}
                         >
-                            <Text style={[styles.optionText, level === "advanced" && styles.optionTextActive]}>
+                            <Text
+                                style={[
+                                    styles.optionText,
+                                    level === "advanced" && styles.optionTextActive,
+                                ]}
+                            >
                                 Advanced
                             </Text>
                         </TouchableOpacity>
@@ -123,7 +150,12 @@ export default function CreateMatchScreen() {
                             style={[styles.optionSmall, gender === "any" && styles.optionActive]}
                             onPress={() => setGender("any")}
                         >
-                            <Text style={[styles.optionText, gender === "any" && styles.optionTextActive]}>
+                            <Text
+                                style={[
+                                    styles.optionText,
+                                    gender === "any" && styles.optionTextActive,
+                                ]}
+                            >
                                 Bất kỳ
                             </Text>
                         </TouchableOpacity>
@@ -131,7 +163,12 @@ export default function CreateMatchScreen() {
                             style={[styles.optionSmall, gender === "male" && styles.optionActive]}
                             onPress={() => setGender("male")}
                         >
-                            <Text style={[styles.optionText, gender === "male" && styles.optionTextActive]}>
+                            <Text
+                                style={[
+                                    styles.optionText,
+                                    gender === "male" && styles.optionTextActive,
+                                ]}
+                            >
                                 Nam
                             </Text>
                         </TouchableOpacity>
@@ -139,7 +176,12 @@ export default function CreateMatchScreen() {
                             style={[styles.optionSmall, gender === "female" && styles.optionActive]}
                             onPress={() => setGender("female")}
                         >
-                            <Text style={[styles.optionText, gender === "female" && styles.optionTextActive]}>
+                            <Text
+                                style={[
+                                    styles.optionText,
+                                    gender === "female" && styles.optionTextActive,
+                                ]}
+                            >
                                 Nữ
                             </Text>
                         </TouchableOpacity>

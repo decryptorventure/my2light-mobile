@@ -81,9 +81,16 @@ export default function ProfileScreen() {
     return (
         <View style={styles.container}>
             <ScrollView
-                contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + spacing.md }]}
+                contentContainerStyle={[
+                    styles.scrollContent,
+                    { paddingTop: insets.top + spacing.md },
+                ]}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={colors.accent}
+                    />
                 }
             >
                 {/* Profile Header */}
@@ -128,16 +135,33 @@ export default function ProfileScreen() {
                             {achievements.map((achievement) => (
                                 <View
                                     key={achievement.id}
-                                    style={[styles.achievementItem, !achievement.unlocked && styles.achievementLocked]}
+                                    style={[
+                                        styles.achievementItem,
+                                        !achievement.unlocked && styles.achievementLocked,
+                                    ]}
                                 >
-                                    <View style={[styles.achievementIcon, achievement.unlocked && styles.achievementIconActive]}>
+                                    <View
+                                        style={[
+                                            styles.achievementIcon,
+                                            achievement.unlocked && styles.achievementIconActive,
+                                        ]}
+                                    >
                                         <Ionicons
                                             name={achievement.icon}
                                             size={24}
-                                            color={achievement.unlocked ? colors.accent : colors.textMuted}
+                                            color={
+                                                achievement.unlocked
+                                                    ? colors.accent
+                                                    : colors.textMuted
+                                            }
                                         />
                                     </View>
-                                    <Text style={[styles.achievementName, !achievement.unlocked && styles.achievementNameLocked]}>
+                                    <Text
+                                        style={[
+                                            styles.achievementName,
+                                            !achievement.unlocked && styles.achievementNameLocked,
+                                        ]}
+                                    >
                                         {achievement.name}
                                     </Text>
                                 </View>
@@ -152,7 +176,9 @@ export default function ProfileScreen() {
                         style={[styles.tab, activeTab === "info" && styles.tabActive]}
                         onPress={() => setActiveTab("info")}
                     >
-                        <Text style={[styles.tabText, activeTab === "info" && styles.tabTextActive]}>
+                        <Text
+                            style={[styles.tabText, activeTab === "info" && styles.tabTextActive]}
+                        >
                             Thông tin
                         </Text>
                     </TouchableOpacity>
@@ -160,7 +186,12 @@ export default function ProfileScreen() {
                         style={[styles.tab, activeTab === "history" && styles.tabActive]}
                         onPress={() => setActiveTab("history")}
                     >
-                        <Text style={[styles.tabText, activeTab === "history" && styles.tabTextActive]}>
+                        <Text
+                            style={[
+                                styles.tabText,
+                                activeTab === "history" && styles.tabTextActive,
+                            ]}
+                        >
                             Lịch sử đấu
                         </Text>
                     </TouchableOpacity>
@@ -194,10 +225,16 @@ export default function ProfileScreen() {
                 {/* Wallet */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>VÍ CỦA TÔI</Text>
-                    <TouchableOpacity style={styles.walletCard} onPress={() => router.push("/settings/wallet")} activeOpacity={0.8}>
+                    <TouchableOpacity
+                        style={styles.walletCard}
+                        onPress={() => router.push("/settings/wallet")}
+                        activeOpacity={0.8}
+                    >
                         <View>
                             <Text style={styles.walletLabel}>Số dư khả dụng</Text>
-                            <Text style={styles.walletBalance}>{userCredits.toLocaleString()}đ</Text>
+                            <Text style={styles.walletBalance}>
+                                {userCredits.toLocaleString()}đ
+                            </Text>
                         </View>
                         <View style={styles.topUpButton}>
                             <Text style={styles.topUpButtonText}>Nạp thêm</Text>
@@ -219,15 +256,18 @@ export default function ProfileScreen() {
                             </View>
                             <View>
                                 <Text style={styles.courtTitle}>
-                                    {isCourtOwner ? "Dashboard Chủ Sân" : isPendingOwner ? "Đang chờ duyệt" : "Trở thành Chủ Sân"}
+                                    {isCourtOwner
+                                        ? "Dashboard Chủ Sân"
+                                        : isPendingOwner
+                                          ? "Đang chờ duyệt"
+                                          : "Trở thành Chủ Sân"}
                                 </Text>
                                 <Text style={styles.courtSubtitle}>
                                     {isCourtOwner
                                         ? "Quản lý sân và booking"
                                         : isPendingOwner
-                                            ? "Hồ sơ đang được xét duyệt"
-                                            : "Đăng ký để quản lý sân của bạn"
-                                    }
+                                          ? "Hồ sơ đang được xét duyệt"
+                                          : "Đăng ký để quản lý sân của bạn"}
                                 </Text>
                             </View>
                         </View>
@@ -235,13 +275,17 @@ export default function ProfileScreen() {
                     <TouchableOpacity
                         style={[
                             styles.dashboardButton,
-                            isPendingOwner && styles.dashboardButtonDisabled
+                            isPendingOwner && styles.dashboardButtonDisabled,
                         ]}
                         onPress={handleCourtOwnerAction}
                         disabled={isPendingOwner}
                     >
                         <Text style={styles.dashboardButtonText}>
-                            {isCourtOwner ? "Mở Dashboard" : isPendingOwner ? "Đang chờ duyệt..." : "Đăng ký ngay"}
+                            {isCourtOwner
+                                ? "Mở Dashboard"
+                                : isPendingOwner
+                                  ? "Đang chờ duyệt..."
+                                  : "Đăng ký ngay"}
                         </Text>
                     </TouchableOpacity>
                 </View>

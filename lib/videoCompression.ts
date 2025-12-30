@@ -3,15 +3,15 @@
  * Compresses videos before upload to reduce file size and upload time
  */
 
-import * as FileSystem from 'expo-file-system/legacy';
-import { logger } from '../lib/logger';
+import * as FileSystem from "expo-file-system/legacy";
+import { logger } from "../lib/logger";
 
-const compressLogger = logger.create('VideoCompress');
+const compressLogger = logger.create("VideoCompress");
 
 export interface CompressionOptions {
     maxWidth?: number;
     maxHeight?: number;
-    quality?: 'low' | 'medium' | 'high';
+    quality?: "low" | "medium" | "high";
     maxDurationSec?: number;
 }
 
@@ -25,9 +25,9 @@ export interface CompressionResult {
 }
 
 const QUALITY_SETTINGS = {
-    low: { bitrate: 1_000_000, scale: 0.5 },     // 1 Mbps, 50% scale
+    low: { bitrate: 1_000_000, scale: 0.5 }, // 1 Mbps, 50% scale
     medium: { bitrate: 2_500_000, scale: 0.75 }, // 2.5 Mbps, 75% scale
-    high: { bitrate: 5_000_000, scale: 1.0 },    // 5 Mbps, full scale
+    high: { bitrate: 5_000_000, scale: 1.0 }, // 5 Mbps, full scale
 };
 
 /**
@@ -36,12 +36,12 @@ const QUALITY_SETTINGS = {
 export async function getVideoFileSize(uri: string): Promise<number> {
     try {
         const fileInfo = await FileSystem.getInfoAsync(uri);
-        if (fileInfo.exists && 'size' in fileInfo) {
+        if (fileInfo.exists && "size" in fileInfo) {
             return fileInfo.size as number;
         }
         return 0;
     } catch (error) {
-        compressLogger.error('Failed to get video size', error);
+        compressLogger.error("Failed to get video size", error);
         return 0;
     }
 }
@@ -61,12 +61,12 @@ export function needsCompression(fileSizeBytes: number): boolean {
  */
 export function estimateCompressedSize(
     originalSize: number,
-    quality: 'low' | 'medium' | 'high' = 'medium'
+    quality: "low" | "medium" | "high" = "medium"
 ): number {
     const compressionFactors = {
-        low: 0.2,    // ~80% reduction
+        low: 0.2, // ~80% reduction
         medium: 0.4, // ~60% reduction
-        high: 0.6,   // ~40% reduction
+        high: 0.6, // ~40% reduction
     };
 
     return Math.round(originalSize * compressionFactors[quality]);
@@ -81,19 +81,17 @@ export async function compressVideo(
     inputUri: string,
     options: CompressionOptions = {}
 ): Promise<CompressionResult | null> {
-    const {
-        quality = 'medium',
-    } = options;
+    const { quality = "medium" } = options;
 
     try {
-        compressLogger.debug('Starting video compression', { quality });
+        compressLogger.debug("Starting video compression", { quality });
 
         // Get original file size
         const originalSize = await getVideoFileSize(inputUri);
 
         if (!needsCompression(originalSize)) {
-            compressLogger.debug('Video does not need compression', {
-                sizeMB: Math.round(originalSize / 1024 / 1024 * 100) / 100
+            compressLogger.debug("Video does not need compression", {
+                sizeMB: Math.round((originalSize / 1024 / 1024) * 100) / 100,
             });
 
             return {
@@ -108,11 +106,11 @@ export async function compressVideo(
          * Note: For actual video compression, you would need to:
          * 1. Install expo-video-thumbnails or react-native-video-processing
          * 2. Use FFmpeg or similar for actual compression
-         * 
+         *
          * Example with react-native-video-processing:
-         * 
+         *
          * import { ProcessingManager } from 'react-native-video-processing';
-         * 
+         *
          * const compressed = await ProcessingManager.compress(inputUri, {
          *   width: 1080,
          *   height: 1920,
@@ -121,7 +119,7 @@ export async function compressVideo(
          * });
          */
 
-        compressLogger.warn('Full compression not implemented - returning original');
+        compressLogger.warn("Full compression not implemented - returning original");
 
         // For now, return original with metadata
         const estimatedSize = estimateCompressedSize(originalSize, quality);
@@ -133,7 +131,7 @@ export async function compressVideo(
             compressionRatio: 1,
         };
     } catch (error) {
-        compressLogger.error('Video compression failed', error);
+        compressLogger.error("Video compression failed", error);
         return null;
     }
 }
@@ -148,7 +146,7 @@ export async function compressIfNeeded(
     const fileSize = await getVideoFileSize(inputUri);
 
     if (!needsCompression(fileSize)) {
-        compressLogger.debug('Compression not needed');
+        compressLogger.debug("Compression not needed");
         return inputUri;
     }
 
@@ -166,8 +164,11 @@ export function getCompressionInfo(fileSizeBytes: number) {
     return {
         sizeMB: Math.round(sizeMB * 100) / 100,
         needsCompression: needs,
-        estimatedLow: Math.round(estimateCompressedSize(fileSizeBytes, 'low') / 1024 / 1024 * 100) / 100,
-        estimatedMedium: Math.round(estimateCompressedSize(fileSizeBytes, 'medium') / 1024 / 1024 * 100) / 100,
-        estimatedHigh: Math.round(estimateCompressedSize(fileSizeBytes, 'high') / 1024 / 1024 * 100) / 100,
+        estimatedLow:
+            Math.round((estimateCompressedSize(fileSizeBytes, "low") / 1024 / 1024) * 100) / 100,
+        estimatedMedium:
+            Math.round((estimateCompressedSize(fileSizeBytes, "medium") / 1024 / 1024) * 100) / 100,
+        estimatedHigh:
+            Math.round((estimateCompressedSize(fileSizeBytes, "high") / 1024 / 1024) * 100) / 100,
     };
 }

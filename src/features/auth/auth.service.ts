@@ -1,25 +1,27 @@
-import { supabase } from '../lib/supabase';
-import { User, ApiResponse } from '../types';
-import { maskSensitiveData } from '../../../lib/security';
+import { supabase } from "../lib/supabase";
+import { User, ApiResponse } from "../types";
+import { maskSensitiveData } from "../../../lib/security";
 
 export const AuthService = {
     getCurrentUser: async (): Promise<ApiResponse<User>> => {
         try {
-            const { data: { session } } = await supabase.auth.getSession();
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
 
             if (!session?.user) {
-                return { success: false, data: null as any, error: 'Not authenticated' };
+                return { success: false, data: null as any, error: "Not authenticated" };
             }
 
             // Try fetching profile from DB
             const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', session.user.id)
+                .from("profiles")
+                .select("*")
+                .eq("id", session.user.id)
                 .single();
 
             // Calculate fallback display name from email
-            const emailName = session.user.email?.split('@')[0] || 'User';
+            const emailName = session.user.email?.split("@")[0] || "User";
             const displayName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
 
             if (error || !data) {
@@ -28,20 +30,18 @@ export const AuthService = {
                     id: session.user.id,
                     name: displayName,
                     avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.user.id}`,
-                    phone: '',
+                    phone: "",
                     credits: 200000,
-                    membership_tier: 'free',
+                    membership_tier: "free",
                     total_highlights: 0,
-                    has_onboarded: false
+                    has_onboarded: false,
                 };
 
-                const { error: insertError } = await supabase
-                    .from('profiles')
-                    .insert(newProfile);
+                const { error: insertError } = await supabase.from("profiles").insert(newProfile);
 
                 if (insertError) {
-                    console.error('Failed to create profile:', insertError);
-                    return { success: false, data: null as any, error: 'Failed to create profile' };
+                    console.error("Failed to create profile:", insertError);
+                    return { success: false, data: null as any, error: "Failed to create profile" };
                 }
 
                 return {
@@ -55,24 +55,26 @@ export const AuthService = {
                         hoursPlayed: 0,
                         courtsVisited: 0,
                         credits: newProfile.credits,
-                        membershipTier: 'free'
-                    }
+                        membershipTier: "free",
+                    },
                 };
             }
 
             // Calculate stats from bookings
             const { data: bookings } = await supabase
-                .from('bookings')
-                .select('court_id, start_time, end_time, status')
-                .eq('user_id', session.user.id)
-                .eq('status', 'completed');
+                .from("bookings")
+                .select("court_id, start_time, end_time, status")
+                .eq("user_id", session.user.id)
+                .eq("status", "completed");
 
             let hoursPlayed = 0;
             const visitedCourts = new Set();
 
             if (bookings) {
                 bookings.forEach((b: any) => {
-                    const duration = (new Date(b.end_time).getTime() - new Date(b.start_time).getTime()) / 3600000;
+                    const duration =
+                        (new Date(b.end_time).getTime() - new Date(b.start_time).getTime()) /
+                        3600000;
                     hoursPlayed += duration;
                     visitedCourts.add(b.court_id);
                 });
@@ -80,53 +82,57 @@ export const AuthService = {
 
             // Calculate total highlights
             const { count: highlightsCount } = await supabase
-                .from('highlights')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', session.user.id);
+                .from("highlights")
+                .select("*", { count: "exact", head: true })
+                .eq("user_id", session.user.id);
 
             const user: User = {
                 id: data.id,
                 name: data.name || displayName,
                 avatar: data.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${data.id}`,
-                phone: data.phone || '',
+                phone: data.phone || "",
                 totalHighlights: highlightsCount || 0,
                 hoursPlayed: Number(hoursPlayed.toFixed(1)),
                 courtsVisited: visitedCourts.size,
                 credits: data.credits || 0,
-                membershipTier: (data.membership_tier as any) || 'free',
-                role: (data.role as any) || 'player',
+                membershipTier: (data.membership_tier as any) || "free",
+                role: (data.role as any) || "player",
                 bio: data.bio,
                 isPublic: data.is_public,
                 followersCount: data.followers_count || 0,
-                followingCount: data.following_count || 0
+                followingCount: data.following_count || 0,
             };
 
             return { success: true, data: user };
         } catch (e) {
             // Mask sensitive data in error logs
             const maskedError = maskSensitiveData(JSON.stringify(e));
-            console.error('getCurrentUser error:', maskedError);
-            return { success: false, data: null as any, error: 'Failed to fetch user' };
+            console.error("getCurrentUser error:", maskedError);
+            return { success: false, data: null as any, error: "Failed to fetch user" };
         }
     },
 
-    updateUserProfile: async (updates: Partial<{
-        name: string;
-        phone: string;
-        avatar: string;
-        credits: number;
-        has_onboarded: boolean;
-        bio: string;
-        is_public: boolean;
-    }>): Promise<ApiResponse<boolean>> => {
-        const { data: { user } } = await supabase.auth.getUser();
+    updateUserProfile: async (
+        updates: Partial<{
+            name: string;
+            phone: string;
+            avatar: string;
+            credits: number;
+            has_onboarded: boolean;
+            bio: string;
+            is_public: boolean;
+        }>
+    ): Promise<ApiResponse<boolean>> => {
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
         if (!user) return { success: false, data: false };
 
         try {
             const { error: updateError } = await supabase
-                .from('profiles')
+                .from("profiles")
                 .update(updates)
-                .eq('id', user.id);
+                .eq("id", user.id);
 
             if (updateError) {
                 console.error("Update profile error", updateError);
@@ -138,7 +144,7 @@ export const AuthService = {
             // Mask sensitive data in error logs
             const maskedError = maskSensitiveData(JSON.stringify(e));
             console.error("Exception in updateUserProfile:", maskedError);
-            return { success: false, data: false, error: 'Internal error' };
+            return { success: false, data: false, error: "Internal error" };
         }
-    }
+    },
 };

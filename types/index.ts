@@ -9,8 +9,8 @@ export interface User {
     hoursPlayed: number;
     courtsVisited: number;
     credits: number; // Wallet balance (VND)
-    membershipTier: 'free' | 'pro' | 'elite';
-    role?: 'player' | 'court_owner' | 'both';
+    membershipTier: "free" | "pro" | "elite";
+    role?: "player" | "court_owner" | "both";
     // Social fields
     bio?: string;
     isPublic?: boolean;
@@ -23,7 +23,7 @@ export interface Court {
     id: string;
     name: string;
     address: string;
-    status: 'live' | 'busy' | 'available' | 'maintenance';
+    status: "live" | "busy" | "available" | "maintenance";
     thumbnailUrl: string;
     distanceKm: number;
     pricePerHour: number;
@@ -72,7 +72,7 @@ export interface Package {
     description: string;
     isBestValue?: boolean;
     features: string[];
-    type?: 'per_booking' | 'monthly' | 'session_pack' | 'fixed_slot';
+    type?: "per_booking" | "monthly" | "session_pack" | "fixed_slot";
     sessionCount?: number;
     validityDays?: number;
 }
@@ -84,23 +84,22 @@ export interface Booking {
     packageId: string;
     startTime: number; // timestamp
     endTime: number; // timestamp
-    status: 'pending' | 'approved' | 'active' | 'completed' | 'cancelled' | 'rejected';
+    status: "pending" | "approved" | "active" | "completed" | "cancelled" | "rejected";
     totalAmount: number;
     courtName?: string; // Expanded for UI
     packageName?: string; // Expanded for UI
-    packageType?: 'standard' | 'full_match';
+    packageType?: "standard" | "full_match";
 }
-
 
 export interface MatchRequest {
     id: string;
     userId: string;
     courtId?: string;
     preferredTime: string;
-    skillLevel: 'beginner' | 'intermediate' | 'advanced' | 'pro';
-    matchType: 'singles' | 'doubles' | 'any';
-    gender: 'male' | 'female' | 'mixed' | 'any';
-    status: 'open' | 'matched' | 'cancelled' | 'expired';
+    skillLevel: "beginner" | "intermediate" | "advanced" | "pro";
+    matchType: "singles" | "doubles" | "any";
+    gender: "male" | "female" | "mixed" | "any";
+    status: "open" | "matched" | "cancelled" | "expired";
     description?: string;
     createdAt: string;
     profile?: {
@@ -116,7 +115,7 @@ export interface UserMembership {
     remainingSessions: number;
     startDate: string;
     endDate?: string;
-    status: 'active' | 'expired' | 'used_up';
+    status: "active" | "expired" | "used_up";
     package?: Package;
 }
 
@@ -145,7 +144,7 @@ export interface VideoSegment {
     startTime: number;
     endTime: number;
     duration: number;
-    status: 'pending' | 'uploaded' | 'processed' | 'failed';
+    status: "pending" | "uploaded" | "processed" | "failed";
     createdAt: string;
     videoUrl?: string;
     thumbnailUrl?: string;
@@ -155,7 +154,7 @@ export interface VideoSegment {
 export interface VideoProcessingJob {
     id: string;
     userId: string;
-    status: 'pending' | 'processing' | 'completed' | 'failed';
+    status: "pending" | "processing" | "completed" | "failed";
     createdAt: string;
     updatedAt: string;
     resultUrl?: string;
@@ -166,9 +165,9 @@ export interface VideoProcessingJob {
 // Transaction type for Wallet
 export interface Transaction {
     id: string;
-    type: 'topup' | 'booking' | 'refund';
+    type: "topup" | "booking" | "refund";
     amount: number;
     description: string;
     timestamp: number;
-    status: 'completed' | 'pending' | 'failed';
+    status: "completed" | "pending" | "failed";
 }

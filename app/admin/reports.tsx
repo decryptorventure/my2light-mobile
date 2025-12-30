@@ -68,7 +68,7 @@ export default function ReportsScreen() {
         }
 
         const now = new Date();
-        let startDate = new Date();
+        const startDate = new Date();
 
         switch (period) {
             case "today":
@@ -209,9 +209,7 @@ Xuất từ ứng dụng My2Light
                 {/* Summary Cards */}
                 <View style={styles.summaryCard}>
                     <Text style={styles.summaryLabel}>Tổng doanh thu</Text>
-                    <Text style={styles.summaryValue}>
-                        {revenueData.total.toLocaleString()}đ
-                    </Text>
+                    <Text style={styles.summaryValue}>{revenueData.total.toLocaleString()}đ</Text>
                 </View>
 
                 <View style={styles.statsRow}>
@@ -236,9 +234,7 @@ Xuất từ ứng dụng My2Light
                     revenueData.byDay.map((day, index) => (
                         <View key={index} style={styles.dayRow}>
                             <Text style={styles.dayDate}>{day.date}</Text>
-                            <Text style={styles.dayAmount}>
-                                {day.amount.toLocaleString()}đ
-                            </Text>
+                            <Text style={styles.dayAmount}>{day.amount.toLocaleString()}đ</Text>
                         </View>
                     ))
                 ) : (

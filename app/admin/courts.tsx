@@ -31,7 +31,11 @@ export default function AdminCourtsScreen() {
     const [modalVisible, setModalVisible] = useState(false);
     const [editingCourt, setEditingCourt] = useState<any>(null);
 
-    const { data: courts, refetch, isLoading } = useQuery({
+    const {
+        data: courts,
+        refetch,
+        isLoading,
+    } = useQuery({
         queryKey: ["admin", "courts"],
         queryFn: async () => {
             const result = await AdminService.getOwnCourts();
@@ -41,18 +45,19 @@ export default function AdminCourtsScreen() {
     });
 
     const createMutation = useMutation({
-        mutationFn: (data: any) => AdminService.createCourt({
-            name: data.name,
-            address: data.address,
-            description: data.description,
-            pricePerHour: parseInt(data.pricePerHour, 10),
-            openTime: data.openTime,
-            closeTime: data.closeTime,
-            facilities: data.facilities,
-            images: data.images,
-            isActive: data.isActive,
-            autoApproveBookings: data.autoApproveBookings,
-        }),
+        mutationFn: (data: any) =>
+            AdminService.createCourt({
+                name: data.name,
+                address: data.address,
+                description: data.description,
+                pricePerHour: parseInt(data.pricePerHour, 10),
+                openTime: data.openTime,
+                closeTime: data.closeTime,
+                facilities: data.facilities,
+                images: data.images,
+                isActive: data.isActive,
+                autoApproveBookings: data.autoApproveBookings,
+            }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["admin", "courts"] });
             Alert.alert("Thành công", "Đã thêm sân mới");
@@ -126,7 +131,12 @@ export default function AdminCourtsScreen() {
 
     const handleCourtActions = (court: any) => {
         haptics.medium();
-        const options = ["Chỉnh sửa", court.is_active ? "Tạm ngưng" : "Kích hoạt", "Xoá sân", "Huỷ"];
+        const options = [
+            "Chỉnh sửa",
+            court.is_active ? "Tạm ngưng" : "Kích hoạt",
+            "Xoá sân",
+            "Huỷ",
+        ];
 
         if (Platform.OS === "ios") {
             ActionSheetIOS.showActionSheetWithOptions(
@@ -137,14 +147,19 @@ export default function AdminCourtsScreen() {
                 },
                 (buttonIndex) => {
                     if (buttonIndex === 0) handleEditCourt(court);
-                    if (buttonIndex === 1) toggleStatusMutation.mutate({ id: court.id, isActive: !court.is_active });
+                    if (buttonIndex === 1)
+                        toggleStatusMutation.mutate({ id: court.id, isActive: !court.is_active });
                     if (buttonIndex === 2) confirmDelete(court.id);
                 }
             );
         } else {
             Alert.alert("Thao tác", "Chọn hành động", [
                 { text: "Chỉnh sửa", onPress: () => handleEditCourt(court) },
-                { text: court.is_active ? "Tạm ngưng" : "Kích hoạt", onPress: () => toggleStatusMutation.mutate({ id: court.id, isActive: !court.is_active }) },
+                {
+                    text: court.is_active ? "Tạm ngưng" : "Kích hoạt",
+                    onPress: () =>
+                        toggleStatusMutation.mutate({ id: court.id, isActive: !court.is_active }),
+                },
                 { text: "Xoá sân", style: "destructive", onPress: () => confirmDelete(court.id) },
                 { text: "Huỷ", style: "cancel" },
             ]);
@@ -157,7 +172,11 @@ export default function AdminCourtsScreen() {
             "Bạn có chắc muốn xoá sân này? Hành động này không thể hoàn tác.",
             [
                 { text: "Huỷ", style: "cancel" },
-                { text: "Xoá", style: "destructive", onPress: () => deleteMutation.mutate(courtId) },
+                {
+                    text: "Xoá",
+                    style: "destructive",
+                    onPress: () => deleteMutation.mutate(courtId),
+                },
             ]
         );
     };
@@ -173,7 +192,12 @@ export default function AdminCourtsScreen() {
     const renderCourtItem = ({ item }: { item: any }) => (
         <View style={styles.courtCard}>
             <Image
-                source={{ uri: item.thumbnail_url || item.images?.[0] || "https://images.unsplash.com/photo-1622163642998-1ea36b1dde3b?q=80&w=400" }}
+                source={{
+                    uri:
+                        item.thumbnail_url ||
+                        item.images?.[0] ||
+                        "https://images.unsplash.com/photo-1622163642998-1ea36b1dde3b?q=80&w=400",
+                }}
                 style={styles.courtImage}
             />
             <View style={styles.courtInfo}>
@@ -185,12 +209,7 @@ export default function AdminCourtsScreen() {
                     <Text style={styles.courtPrice}>
                         {(item.price_per_hour || 0).toLocaleString()}đ/h
                     </Text>
-                    <View
-                        style={[
-                            styles.statusBadge,
-                            !item.is_active && styles.statusInactive,
-                        ]}
-                    >
+                    <View style={[styles.statusBadge, !item.is_active && styles.statusInactive]}>
                         <Text
                             style={[
                                 styles.statusText,

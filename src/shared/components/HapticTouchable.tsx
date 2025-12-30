@@ -21,12 +21,15 @@ export function HapticTouchable({
     children,
     ...props
 }: HapticTouchableProps) {
-    const handlePress = useCallback((event: any) => {
-        if (hapticEnabled) {
-            haptics[hapticStyle]();
-        }
-        onPress?.(event);
-    }, [onPress, hapticStyle, hapticEnabled]);
+    const handlePress = useCallback(
+        (event: any) => {
+            if (hapticEnabled) {
+                haptics[hapticStyle]();
+            }
+            onPress?.(event);
+        },
+        [onPress, hapticStyle, hapticEnabled]
+    );
 
     return (
         <TouchableOpacity onPress={handlePress} activeOpacity={0.7} {...props}>

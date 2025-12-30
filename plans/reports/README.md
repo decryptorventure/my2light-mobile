@@ -14,7 +14,9 @@ Comprehensive review of testing infrastructure for My2Light Mobile (React Native
 ## Documents in This Review
 
 ### 1. **QUICK-REFERENCE.md** 📍 START HERE
+
 **Best for**: Quick understanding of issues and fixes
+
 - Critical failures at a glance
 - 3 specific fixes with code snippets
 - Coverage breakdown table
@@ -27,7 +29,9 @@ Comprehensive review of testing infrastructure for My2Light Mobile (React Native
 ---
 
 ### 2. **TESTING-REVIEW-SUMMARY.txt** 📊 EXECUTIVE SUMMARY
+
 **Best for**: Project managers and decision makers
+
 - Key findings summary
 - Test failure details explanation
 - Coverage gaps by category
@@ -40,7 +44,9 @@ Comprehensive review of testing infrastructure for My2Light Mobile (React Native
 ---
 
 ### 3. **code-reviewer-251230-1621-testing-review.md** 📖 DETAILED ANALYSIS
+
 **Best for**: Developers understanding root causes
+
 - Complete analysis of all 6 test failures with root causes
 - Jest configuration issues explained
 - Mock setup problems detailed (14 missing methods)
@@ -57,7 +63,9 @@ Comprehensive review of testing infrastructure for My2Light Mobile (React Native
 ---
 
 ### 4. **code-reviewer-251230-1621-testing-action-plan.md** 🚀 IMPLEMENTATION GUIDE
+
 **Best for**: Developers implementing fixes
+
 - Phase 1: Critical fixes (1-2 hours) with exact code changes
 - Phase 2: Configuration updates (45 min) with complete jest.config.js
 - Phase 3: Hook testing (2-3 hours) with test templates
@@ -75,6 +83,7 @@ Comprehensive review of testing infrastructure for My2Light Mobile (React Native
 ## Quick Navigation
 
 ### 🚨 I need to fix failing tests
+
 1. Read: QUICK-REFERENCE.md (Critical Failures section)
 2. Implement: code-reviewer-251230-1621-testing-action-plan.md (Phase 1)
 3. Verify: Run `npm test` - should get 100% pass rate
@@ -84,6 +93,7 @@ Comprehensive review of testing infrastructure for My2Light Mobile (React Native
 ---
 
 ### 📈 I need to improve code coverage
+
 1. Read: TESTING-REVIEW-SUMMARY.txt (Coverage Gaps section)
 2. Read: code-reviewer-251230-1621-testing-review.md (Coverage Analysis section)
 3. Implement: code-reviewer-251230-1621-testing-action-plan.md (Phases 2-6)
@@ -94,6 +104,7 @@ Comprehensive review of testing infrastructure for My2Light Mobile (React Native
 ---
 
 ### 🔍 I need to understand what's broken
+
 1. Read: QUICK-REFERENCE.md (all sections)
 2. Read: TESTING-REVIEW-SUMMARY.txt (immediately)
 3. Detailed: code-reviewer-251230-1621-testing-review.md if needed
@@ -103,6 +114,7 @@ Comprehensive review of testing infrastructure for My2Light Mobile (React Native
 ---
 
 ### 🏗️ I need to implement new tests
+
 1. Read: code-reviewer-251230-1621-testing-action-plan.md (relevant phase)
 2. Use: Common test patterns from QUICK-REFERENCE.md
 3. Reference: code-reviewer-251230-1621-testing-review.md for best practices
@@ -115,12 +127,12 @@ Comprehensive review of testing infrastructure for My2Light Mobile (React Native
 
 ### Test Failures (6 out of 89)
 
-| # | Test | Issue | Location | Time to Fix |
-|---|------|-------|----------|-------------|
-| 1-2 | getActiveBooking | `.in()` not in mock | tests/setup.ts:63 | 30 min |
-| 3 | createBooking insufficient credits | checkSlotConflict not mocked | booking.service.test.ts:192 | 15 min |
-| 4-5 | Admin service tests | `.select()` not in mock | admin.service.test.ts:46 | 20 min |
-| 6 | cancelBooking | Mock chain incomplete | admin.service.test.ts | 15 min |
+| #   | Test                               | Issue                        | Location                    | Time to Fix |
+| --- | ---------------------------------- | ---------------------------- | --------------------------- | ----------- |
+| 1-2 | getActiveBooking                   | `.in()` not in mock          | tests/setup.ts:63           | 30 min      |
+| 3   | createBooking insufficient credits | checkSlotConflict not mocked | booking.service.test.ts:192 | 15 min      |
+| 4-5 | Admin service tests                | `.select()` not in mock      | admin.service.test.ts:46    | 20 min      |
+| 6   | cancelBooking                      | Mock chain incomplete        | admin.service.test.ts       | 15 min      |
 
 **Total to fix**: 1-2 hours
 
@@ -128,21 +140,22 @@ Comprehensive review of testing infrastructure for My2Light Mobile (React Native
 
 ### Coverage Gaps (17.69% → target 60%+)
 
-| Category | Current | Target | Gap | Priority |
-|----------|---------|--------|-----|----------|
-| Hooks | 0% | 70% | -70% | 🔴 HIGH |
-| Match Service | 0% | 70% | -70% | 🔴 HIGH |
-| Push Service | 0% | 70% | -70% | 🔴 HIGH |
-| Real-time Service | 0% | 70% | -70% | 🔴 HIGH |
-| Auth Service | 18.96% | 70% | -51% | 🟠 MEDIUM |
-| Booking Service | 26.81% | 70% | -43% | 🟠 MEDIUM |
-| Stores | 50% | 70% | -20% | 🟡 LOW |
+| Category          | Current | Target | Gap  | Priority  |
+| ----------------- | ------- | ------ | ---- | --------- |
+| Hooks             | 0%      | 70%    | -70% | 🔴 HIGH   |
+| Match Service     | 0%      | 70%    | -70% | 🔴 HIGH   |
+| Push Service      | 0%      | 70%    | -70% | 🔴 HIGH   |
+| Real-time Service | 0%      | 70%    | -70% | 🔴 HIGH   |
+| Auth Service      | 18.96%  | 70%    | -51% | 🟠 MEDIUM |
+| Booking Service   | 26.81%  | 70%    | -43% | 🟠 MEDIUM |
+| Stores            | 50%     | 70%    | -20% | 🟡 LOW    |
 
 ---
 
 ## Implementation Timeline
 
 ### Week 1: Fix Critical Issues + Setup (5 hours)
+
 - Day 1: Fix 3 mock issues (1-2 hours)
 - Day 2: Update Jest config (45 min)
 - Day 3-4: Add hook tests (2-3 hours)
@@ -150,12 +163,14 @@ Comprehensive review of testing infrastructure for My2Light Mobile (React Native
 - **Target**: 40% coverage
 
 ### Week 2: Expand Coverage (4 hours)
+
 - Add remaining 7 service tests (2-3 hours)
 - Add store tests (1 hour)
 - Add edge case tests (1 hour)
 - **Target**: 60% coverage
 
 ### Ongoing: Maintain Quality (continuous)
+
 - Require tests for new features
 - Enforce 60%+ coverage threshold
 - Regular coverage reviews
@@ -211,22 +226,26 @@ Testing Review Reports/
 ## How to Use These Documents
 
 ### Scenario: Team Lead Reviewing Findings
+
 1. **5 min**: Read TESTING-REVIEW-SUMMARY.txt
 2. **10 min**: Review key metrics and risk assessment
 3. **Decision**: Allocate 8-10 hours for fixes
 
 ### Scenario: Developer Fixing Tests
+
 1. **5 min**: Read QUICK-REFERENCE.md (Critical Failures)
 2. **60 min**: Implement Phase 1 from action-plan.md
 3. **5 min**: Run `npm test` to verify fixes
 
 ### Scenario: Tech Lead Planning Sprint
+
 1. **15 min**: Read TESTING-REVIEW-SUMMARY.txt
 2. **30 min**: Read code-reviewer-251230-1621-testing-review.md
 3. **20 min**: Review 3-week timeline in action-plan.md
 4. **Plan**: Create 3 sprint tasks (one per week)
 
 ### Scenario: QA Person Understanding Coverage
+
 1. **10 min**: Read TESTING-REVIEW-SUMMARY.txt (Coverage Gaps)
 2. **20 min**: Review coverage breakdown tables
 3. **Reference**: Use success criteria from action-plan.md
@@ -236,17 +255,20 @@ Testing Review Reports/
 ## Key Recommendations
 
 ### CRITICAL (Do Today)
+
 1. Fix Supabase mock chain - 30 min
 2. Add checkSlotConflict spy - 15 min
 3. Fix admin service mocks - 20 min
 4. Verify `npm test` passes 100%
 
 ### HIGH (Do This Week)
+
 1. Update jest.config.js - 45 min
 2. Add hook tests - 2-3 hours
 3. Add critical service tests - 2 hours
 
 ### MEDIUM (Do Next Week)
+
 1. Add remaining service tests - 2-3 hours
 2. Add edge case coverage - 1 hour
 3. Add error scenario tests - 1 hour
@@ -256,6 +278,7 @@ Testing Review Reports/
 ## Reference Information
 
 ### Test Files Organization
+
 ```
 tests/
 ├── services/              # Service unit tests (7 of 14 tested)
@@ -285,6 +308,7 @@ tests/
 ```
 
 ### Coverage Status by File
+
 ```
 EXCELLENT (>80%):
 ✓ court.service.ts: 86.2%
@@ -308,27 +332,31 @@ NOT TESTED (0%):
 ## Support & Questions
 
 ### If you're unclear about a finding:
+
 → Read the relevant section in `code-reviewer-251230-1621-testing-review.md`
 
 ### If you need implementation details:
+
 → Reference specific examples in `code-reviewer-251230-1621-testing-action-plan.md`
 
 ### If you need a quick overview:
+
 → Start with `QUICK-REFERENCE.md`
 
 ### If you need executive summary:
+
 → Read `TESTING-REVIEW-SUMMARY.txt`
 
 ---
 
 ## Document Statistics
 
-| Document | Length | Read Time | Best For |
-|----------|--------|-----------|----------|
-| QUICK-REFERENCE.md | 2 pages | 5 min | Quick answers |
-| TESTING-REVIEW-SUMMARY.txt | 2 pages | 10 min | Executives |
-| review.md | 8 pages | 40 min | Technical deep dive |
-| action-plan.md | 12 pages | 30 min | Implementation |
+| Document                   | Length   | Read Time | Best For            |
+| -------------------------- | -------- | --------- | ------------------- |
+| QUICK-REFERENCE.md         | 2 pages  | 5 min     | Quick answers       |
+| TESTING-REVIEW-SUMMARY.txt | 2 pages  | 10 min    | Executives          |
+| review.md                  | 8 pages  | 40 min    | Technical deep dive |
+| action-plan.md             | 12 pages | 30 min    | Implementation      |
 
 **Total recommended reading time for first implementation: 60-90 minutes**
 

@@ -3,7 +3,7 @@
  * Allows users to rate and review a court
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
     View,
     Text,
@@ -14,11 +14,11 @@ import {
     ActivityIndicator,
     KeyboardAvoidingView,
     Platform,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
-import { ReviewService } from '../../services/review.service';
-import haptics from '../../lib/haptics';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
+import { ReviewService } from "../../services/review.service";
+import haptics from "../../lib/haptics";
 
 interface ReviewFormProps {
     visible: boolean;
@@ -42,14 +42,14 @@ export default function ReviewForm({
     onSuccess,
 }: ReviewFormProps) {
     const [rating, setRating] = useState(existingRating || 0);
-    const [comment, setComment] = useState(existingComment || '');
+    const [comment, setComment] = useState(existingComment || "");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (visible) {
             setRating(existingRating || 0);
-            setComment(existingComment || '');
+            setComment(existingComment || "");
             setError(null);
         }
     }, [visible, existingRating, existingComment]);
@@ -61,7 +61,7 @@ export default function ReviewForm({
 
     const handleSubmit = async () => {
         if (rating === 0) {
-            setError('Vui lòng chọn số sao');
+            setError("Vui lòng chọn số sao");
             return;
         }
 
@@ -82,7 +82,7 @@ export default function ReviewForm({
             onSuccess?.();
             onClose();
         } else {
-            setError(result.error || 'Có lỗi xảy ra');
+            setError(result.error || "Có lỗi xảy ra");
         }
     };
 
@@ -96,7 +96,7 @@ export default function ReviewForm({
                         style={styles.starButton}
                     >
                         <Ionicons
-                            name={star <= rating ? 'star' : 'star-outline'}
+                            name={star <= rating ? "star" : "star-outline"}
                             size={40}
                             color={star <= rating ? colors.warning : colors.textMuted}
                         />
@@ -108,24 +108,25 @@ export default function ReviewForm({
 
     const getRatingText = () => {
         switch (rating) {
-            case 1: return 'Rất tệ';
-            case 2: return 'Tệ';
-            case 3: return 'Bình thường';
-            case 4: return 'Tốt';
-            case 5: return 'Tuyệt vời';
-            default: return 'Chạm để đánh giá';
+            case 1:
+                return "Rất tệ";
+            case 2:
+                return "Tệ";
+            case 3:
+                return "Bình thường";
+            case 4:
+                return "Tốt";
+            case 5:
+                return "Tuyệt vời";
+            default:
+                return "Chạm để đánh giá";
         }
     };
 
     return (
-        <Modal
-            visible={visible}
-            animationType="slide"
-            transparent
-            onRequestClose={onClose}
-        >
+        <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
             <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={styles.overlay}
             >
                 <View style={styles.container}>
@@ -158,16 +159,11 @@ export default function ReviewForm({
                     />
 
                     {/* Error */}
-                    {error && (
-                        <Text style={styles.errorText}>{error}</Text>
-                    )}
+                    {error && <Text style={styles.errorText}>{error}</Text>}
 
                     {/* Submit Button */}
                     <TouchableOpacity
-                        style={[
-                            styles.submitButton,
-                            rating === 0 && styles.submitButtonDisabled,
-                        ]}
+                        style={[styles.submitButton, rating === 0 && styles.submitButtonDisabled]}
                         onPress={handleSubmit}
                         disabled={isSubmitting || rating === 0}
                     >
@@ -175,7 +171,7 @@ export default function ReviewForm({
                             <ActivityIndicator color={colors.background} />
                         ) : (
                             <Text style={styles.submitButtonText}>
-                                {existingRating ? 'Cập nhật đánh giá' : 'Gửi đánh giá'}
+                                {existingRating ? "Cập nhật đánh giá" : "Gửi đánh giá"}
                             </Text>
                         )}
                     </TouchableOpacity>
@@ -188,8 +184,8 @@ export default function ReviewForm({
 const styles = StyleSheet.create({
     overlay: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        justifyContent: 'flex-end',
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        justifyContent: "flex-end",
     },
     container: {
         backgroundColor: colors.surface,
@@ -199,16 +195,16 @@ const styles = StyleSheet.create({
         paddingBottom: spacing.xl + 20,
     },
     header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
         marginBottom: spacing.lg,
     },
     closeButton: {
         width: 32,
         height: 32,
-        alignItems: 'center',
-        justifyContent: 'center',
+        alignItems: "center",
+        justifyContent: "center",
     },
     title: {
         fontSize: fontSize.lg,
@@ -219,12 +215,12 @@ const styles = StyleSheet.create({
         fontSize: fontSize.md,
         fontWeight: fontWeight.semibold,
         color: colors.textSecondary,
-        textAlign: 'center',
+        textAlign: "center",
         marginBottom: spacing.lg,
     },
     starsContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
+        flexDirection: "row",
+        justifyContent: "center",
         gap: spacing.sm,
         marginBottom: spacing.sm,
     },
@@ -234,7 +230,7 @@ const styles = StyleSheet.create({
     ratingText: {
         fontSize: fontSize.md,
         color: colors.textSecondary,
-        textAlign: 'center',
+        textAlign: "center",
         marginBottom: spacing.lg,
     },
     commentInput: {
@@ -244,20 +240,20 @@ const styles = StyleSheet.create({
         fontSize: fontSize.md,
         color: colors.text,
         minHeight: 100,
-        textAlignVertical: 'top',
+        textAlignVertical: "top",
         marginBottom: spacing.md,
     },
     errorText: {
         color: colors.error,
         fontSize: fontSize.sm,
-        textAlign: 'center',
+        textAlign: "center",
         marginBottom: spacing.md,
     },
     submitButton: {
         backgroundColor: colors.accent,
         borderRadius: borderRadius.lg,
         paddingVertical: spacing.md,
-        alignItems: 'center',
+        alignItems: "center",
     },
     submitButtonDisabled: {
         backgroundColor: colors.textMuted,

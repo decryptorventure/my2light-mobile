@@ -1,13 +1,10 @@
-import { supabase } from '../lib/supabase';
-import { Court, ApiResponse } from '../types';
+import { supabase } from "../lib/supabase";
+import { Court, ApiResponse } from "../types";
 
 export const CourtService = {
     getCourts: async (): Promise<ApiResponse<Court[]>> => {
         try {
-            const { data, error } = await supabase
-                .from('courts')
-                .select('*')
-                .eq('is_active', true);
+            const { data, error } = await supabase.from("courts").select("*").eq("is_active", true);
 
             if (error || !data) {
                 console.error("Error fetching courts:", error);
@@ -19,7 +16,10 @@ export const CourtService = {
                 name: c.name,
                 address: c.address,
                 status: c.status,
-                thumbnailUrl: c.thumbnail_url || c.images?.[0] || 'https://images.unsplash.com/photo-1622163642998-1ea36b1dde3b?q=80&w=800',
+                thumbnailUrl:
+                    c.thumbnail_url ||
+                    c.images?.[0] ||
+                    "https://images.unsplash.com/photo-1622163642998-1ea36b1dde3b?q=80&w=800",
                 distanceKm: c.distance_km || 0,
                 pricePerHour: c.price_per_hour,
                 rating: c.rating || 0,
@@ -28,26 +28,22 @@ export const CourtService = {
                 description: c.description,
                 openTime: c.open_time,
                 closeTime: c.close_time,
-                totalReviews: c.total_reviews || 0
+                totalReviews: c.total_reviews || 0,
             }));
 
             return { success: true, data: courts };
         } catch (e) {
-            console.error('getCourts error:', e);
+            console.error("getCourts error:", e);
             return { success: false, data: [] };
         }
     },
 
     getCourtById: async (id: string): Promise<ApiResponse<Court | undefined>> => {
-        const { data, error } = await supabase
-            .from('courts')
-            .select('*')
-            .eq('id', id)
-            .single();
+        const { data, error } = await supabase.from("courts").select("*").eq("id", id).single();
 
         if (error || !data) {
-            console.error('getCourtById error:', error);
-            return { success: false, data: undefined, error: error?.message || 'Court not found' };
+            console.error("getCourtById error:", error);
+            return { success: false, data: undefined, error: error?.message || "Court not found" };
         }
 
         return {
@@ -57,7 +53,7 @@ export const CourtService = {
                 name: data.name,
                 address: data.address,
                 status: data.status,
-                thumbnailUrl: data.thumbnail_url || data.images?.[0] || '',
+                thumbnailUrl: data.thumbnail_url || data.images?.[0] || "",
                 distanceKm: data.distance_km || 0,
                 pricePerHour: data.price_per_hour,
                 rating: data.rating || 0,
@@ -66,8 +62,8 @@ export const CourtService = {
                 description: data.description,
                 openTime: data.open_time,
                 closeTime: data.close_time,
-                totalReviews: data.total_reviews || 0
-            }
+                totalReviews: data.total_reviews || 0,
+            },
         };
-    }
+    },
 };

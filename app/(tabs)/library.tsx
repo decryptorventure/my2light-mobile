@@ -27,7 +27,11 @@ export default function LibraryScreen() {
     const router = useRouter();
     const { user: authUser } = useAuthStore();
     const { data: profile, refetch: refetchProfile } = useCurrentUser();
-    const { data: myHighlights, refetch: refetchHighlights, isLoading } = useUserHighlights(profile?.id || "");
+    const {
+        data: myHighlights,
+        refetch: refetchHighlights,
+        isLoading,
+    } = useUserHighlights(profile?.id || "");
 
     const [activeTab, setActiveTab] = useState<TabType>("posts");
     const [refreshing, setRefreshing] = useState(false);
@@ -46,8 +50,8 @@ export default function LibraryScreen() {
             pathname: "/feed",
             params: {
                 startIndex: String(index),
-                userId: profile?.id || ""
-            }
+                userId: profile?.id || "",
+            },
         });
     };
 
@@ -101,7 +105,11 @@ export default function LibraryScreen() {
                 renderItem={renderVideoItem}
                 contentContainerStyle={styles.scrollContent}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={colors.accent}
+                    />
                 }
                 ListHeaderComponent={
                     <>
@@ -112,7 +120,11 @@ export default function LibraryScreen() {
                                     <Image source={{ uri: profile.avatar }} style={styles.avatar} />
                                 ) : (
                                     <View style={styles.avatar}>
-                                        <Ionicons name="person" size={48} color={colors.textMuted} />
+                                        <Ionicons
+                                            name="person"
+                                            size={48}
+                                            color={colors.textMuted}
+                                        />
                                     </View>
                                 )}
                             </View>
@@ -168,7 +180,9 @@ export default function LibraryScreen() {
                                     <Ionicons
                                         name={tab.icon}
                                         size={24}
-                                        color={activeTab === tab.key ? colors.text : colors.textMuted}
+                                        color={
+                                            activeTab === tab.key ? colors.text : colors.textMuted
+                                        }
                                     />
                                 </TouchableOpacity>
                             ))}
@@ -179,8 +193,11 @@ export default function LibraryScreen() {
                     <View style={styles.emptyState}>
                         <Ionicons name="videocam-outline" size={64} color={colors.surfaceLight} />
                         <Text style={styles.emptyTitle}>
-                            {activeTab === "posts" ? "Chưa có video nào" :
-                                activeTab === "saved" ? "Chưa lưu video nào" : "Chưa thích video nào"}
+                            {activeTab === "posts"
+                                ? "Chưa có video nào"
+                                : activeTab === "saved"
+                                  ? "Chưa lưu video nào"
+                                  : "Chưa thích video nào"}
                         </Text>
                         {activeTab === "posts" && (
                             <TouchableOpacity onPress={() => router.push("/record/settings")}>

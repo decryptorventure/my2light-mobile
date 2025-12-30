@@ -53,7 +53,7 @@ export default function UploadInfoScreen() {
         const timeStr = now.toLocaleTimeString("vi-VN", {
             hour: "2-digit",
             minute: "2-digit",
-            second: "2-digit"
+            second: "2-digit",
         });
         const dateStr = now.toLocaleDateString("vi-VN");
         setTitle(`Highlight ${timeStr} ${dateStr}`);
@@ -85,18 +85,14 @@ export default function UploadInfoScreen() {
         try {
             // TODO: Implement actual upload
             // For now, simulate upload
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise((resolve) => setTimeout(resolve, 2000));
 
-            Alert.alert(
-                "Thành công! 🎉",
-                "Video đã được đăng lên thư viện",
-                [
-                    {
-                        text: "OK",
-                        onPress: () => router.replace("/(tabs)")
-                    }
-                ]
-            );
+            Alert.alert("Thành công! 🎉", "Video đã được đăng lên thư viện", [
+                {
+                    text: "OK",
+                    onPress: () => router.replace("/(tabs)"),
+                },
+            ]);
         } catch (error) {
             console.error("Upload error:", error);
             Alert.alert("Lỗi", "Không thể upload video. Vui lòng thử lại.");
@@ -179,12 +175,19 @@ export default function UploadInfoScreen() {
                                     <Ionicons
                                         name="location"
                                         size={18}
-                                        color={selectedCourtId === court.id ? colors.accent : colors.textMuted}
+                                        color={
+                                            selectedCourtId === court.id
+                                                ? colors.accent
+                                                : colors.textMuted
+                                        }
                                     />
-                                    <Text style={[
-                                        styles.courtName,
-                                        selectedCourtId === court.id && styles.courtNameSelected,
-                                    ]}>
+                                    <Text
+                                        style={[
+                                            styles.courtName,
+                                            selectedCourtId === court.id &&
+                                                styles.courtNameSelected,
+                                        ]}
+                                    >
                                         {court.name}
                                     </Text>
                                 </TouchableOpacity>
@@ -202,12 +205,18 @@ export default function UploadInfoScreen() {
                                 <Ionicons
                                     name="location-outline"
                                     size={18}
-                                    color={selectedCourtId === "other" ? colors.accent : colors.textMuted}
+                                    color={
+                                        selectedCourtId === "other"
+                                            ? colors.accent
+                                            : colors.textMuted
+                                    }
                                 />
-                                <Text style={[
-                                    styles.courtName,
-                                    selectedCourtId === "other" && styles.courtNameSelected,
-                                ]}>
+                                <Text
+                                    style={[
+                                        styles.courtName,
+                                        selectedCourtId === "other" && styles.courtNameSelected,
+                                    ]}
+                                >
                                     Sân khác / Không xác định
                                 </Text>
                             </TouchableOpacity>

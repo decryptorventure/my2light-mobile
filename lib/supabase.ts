@@ -38,7 +38,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: false, // Important for React Native
-        flowType: 'pkce', // Recommended for mobile
+        flowType: "pkce", // Recommended for mobile
     },
 });
 
@@ -51,12 +51,14 @@ export const isSupabaseConfigured = () => {
 export const waitForSession = async (timeoutMs = 3000): Promise<boolean> => {
     const start = Date.now();
     while (Date.now() - start < timeoutMs) {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+            data: { session },
+        } = await supabase.auth.getSession();
         if (session) {
             storageLogger.debug(`Session ready after ${Date.now() - start}ms`);
             return true;
         }
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
     }
     storageLogger.warn(`Session timeout after ${timeoutMs}ms`);
     return false;

@@ -31,8 +31,8 @@ function HighlightCardComponent({ highlight, cardWidth, index = 0 }: HighlightCa
         router.push({
             pathname: "/feed",
             params: {
-                startIndex: String(index)
-            }
+                startIndex: String(index),
+            },
         });
     }, [index, router]);
 

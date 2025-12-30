@@ -48,10 +48,11 @@ export default function BookingScreen() {
     const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
 
     // Real-time slot availability
-    const { slots: availableSlots, isLoading: slotsLoading, refetch: refetchSlots } = useSlotAvailability(
-        id || null,
-        selectedDate
-    );
+    const {
+        slots: availableSlots,
+        isLoading: slotsLoading,
+        refetch: refetchSlots,
+    } = useSlotAvailability(id || null, selectedDate);
 
     // User credits from database
     const { data: userCredits = 0 } = useUserCredits();
@@ -171,7 +172,6 @@ export default function BookingScreen() {
     const totalPrice = courtPrice + packagePrice;
     const canAfford = userCredits >= totalPrice;
 
-
     const canProceed = () => {
         if (step === "datetime") return !!selectedTime;
         return true;
@@ -224,8 +224,7 @@ export default function BookingScreen() {
                 ].map((s, index) => {
                     const isActive = step === s.key;
                     const isPast =
-                        (step === "package" && index === 0) ||
-                        (step === "payment" && index <= 1);
+                        (step === "package" && index === 0) || (step === "payment" && index <= 1);
 
                     return (
                         <View key={s.key} style={styles.stepItem}>
@@ -236,7 +235,11 @@ export default function BookingScreen() {
                                 ]}
                             >
                                 {isPast ? (
-                                    <Ionicons name="checkmark" size={14} color={colors.background} />
+                                    <Ionicons
+                                        name="checkmark"
+                                        size={14}
+                                        color={colors.background}
+                                    />
                                 ) : (
                                     <Ionicons
                                         name={s.icon as any}
@@ -325,8 +328,14 @@ export default function BookingScreen() {
                                 </View>
                             ) : availableSlots.length === 0 ? (
                                 <View style={styles.noSlots}>
-                                    <Ionicons name="calendar-outline" size={32} color={colors.textMuted} />
-                                    <Text style={styles.noSlotsText}>Không còn khung giờ trống</Text>
+                                    <Ionicons
+                                        name="calendar-outline"
+                                        size={32}
+                                        color={colors.textMuted}
+                                    />
+                                    <Text style={styles.noSlotsText}>
+                                        Không còn khung giờ trống
+                                    </Text>
                                 </View>
                             ) : (
                                 availableSlots.map((slot, i) => {
@@ -388,7 +397,11 @@ export default function BookingScreen() {
                             <Text style={styles.packagePrice}>0đ</Text>
                             {selectedPackage === null && (
                                 <View style={styles.packageCheck}>
-                                    <Ionicons name="checkmark" size={14} color={colors.background} />
+                                    <Ionicons
+                                        name="checkmark"
+                                        size={14}
+                                        color={colors.background}
+                                    />
                                 </View>
                             )}
                         </TouchableOpacity>
@@ -406,7 +419,12 @@ export default function BookingScreen() {
                                     haptics.light();
                                 }}
                             >
-                                <View style={[styles.packageIcon, { backgroundColor: `${colors.accent}20` }]}>
+                                <View
+                                    style={[
+                                        styles.packageIcon,
+                                        { backgroundColor: `${colors.accent}20` },
+                                    ]}
+                                >
                                     <Ionicons name="videocam" size={24} color={colors.accent} />
                                 </View>
                                 <View style={styles.packageInfo}>
@@ -420,7 +438,11 @@ export default function BookingScreen() {
                                 </Text>
                                 {selectedPackage === pkg.id && (
                                     <View style={styles.packageCheck}>
-                                        <Ionicons name="checkmark" size={14} color={colors.background} />
+                                        <Ionicons
+                                            name="checkmark"
+                                            size={14}
+                                            color={colors.background}
+                                        />
                                     </View>
                                 )}
                             </TouchableOpacity>
@@ -477,17 +499,14 @@ export default function BookingScreen() {
 
                             <View style={styles.summaryRow}>
                                 <Text style={styles.summaryLabel}>Tổng cộng</Text>
-                                <Text style={styles.totalPrice}>{totalPrice.toLocaleString()}đ</Text>
+                                <Text style={styles.totalPrice}>
+                                    {totalPrice.toLocaleString()}đ
+                                </Text>
                             </View>
                         </View>
 
                         {/* Wallet Info */}
-                        <View
-                            style={[
-                                styles.walletCard,
-                                !canAfford && styles.walletCardError,
-                            ]}
-                        >
+                        <View style={[styles.walletCard, !canAfford && styles.walletCardError]}>
                             <Ionicons
                                 name="wallet"
                                 size={24}
@@ -520,7 +539,7 @@ export default function BookingScreen() {
                     style={[
                         styles.ctaButton,
                         (!canProceed() || (step === "payment" && !canAfford)) &&
-                        styles.ctaButtonDisabled,
+                            styles.ctaButtonDisabled,
                     ]}
                     disabled={!canProceed() || isProcessing || (step === "payment" && !canAfford)}
                     onPress={step === "payment" ? handlePayment : handleNext}
@@ -533,11 +552,15 @@ export default function BookingScreen() {
                                 {step === "datetime"
                                     ? "Tiếp tục chọn gói"
                                     : step === "package"
-                                        ? "Tiếp tục thanh toán"
-                                        : "Xác nhận thanh toán"}
+                                      ? "Tiếp tục thanh toán"
+                                      : "Xác nhận thanh toán"}
                             </Text>
                             {step !== "payment" && (
-                                <Ionicons name="arrow-forward" size={20} color={colors.background} />
+                                <Ionicons
+                                    name="arrow-forward"
+                                    size={20}
+                                    color={colors.background}
+                                />
                             )}
                             {step === "payment" && (
                                 <Ionicons name="checkmark" size={20} color={colors.background} />
@@ -894,4 +917,3 @@ const styles = StyleSheet.create({
         marginTop: spacing.sm,
     },
 });
-

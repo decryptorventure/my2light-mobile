@@ -1,12 +1,5 @@
 import { useState, useCallback } from "react";
-import {
-    View,
-    Text,
-    StyleSheet,
-    FlatList,
-    TouchableOpacity,
-    RefreshControl,
-} from "react-native";
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -72,24 +65,25 @@ export default function MatchScreen() {
 
     // Get unread message count
     const { data: unreadCount = 0 } = useQuery({
-        queryKey: ['unreadMessages'],
+        queryKey: ["unreadMessages"],
         queryFn: () => MatchService.getUnreadCount(),
         refetchInterval: 30000, // Check every 30 seconds
     });
 
     // Transform API data to UI format or use mock
-    const matches: MatchRequest[] = apiMatches && apiMatches.length > 0
-        ? apiMatches.map(m => ({
-            id: m.id,
-            userName: m.profile?.name || "Người chơi ẩn danh",
-            level: m.skillLevel.toUpperCase() as any,
-            matchType: m.matchType === "singles" ? "ĐÁNH ĐƠN" : "ĐÁNH ĐÔI",
-            dateTime: new Date(m.preferredTime).toLocaleString("vi-VN"),
-            location: "Sân tự do",
-            gender: m.gender === "any" ? "Bất kỳ" : m.gender === "male" ? "Nam" : "Nữ",
-            note: m.description ? `"${m.description}"` : '""',
-        }))
-        : mockMatches;
+    const matches: MatchRequest[] =
+        apiMatches && apiMatches.length > 0
+            ? apiMatches.map((m) => ({
+                  id: m.id,
+                  userName: m.profile?.name || "Người chơi ẩn danh",
+                  level: m.skillLevel.toUpperCase() as any,
+                  matchType: m.matchType === "singles" ? "ĐÁNH ĐƠN" : "ĐÁNH ĐÔI",
+                  dateTime: new Date(m.preferredTime).toLocaleString("vi-VN"),
+                  location: "Sân tự do",
+                  gender: m.gender === "any" ? "Bất kỳ" : m.gender === "male" ? "Nam" : "Nữ",
+                  note: m.description ? `"${m.description}"` : '""',
+              }))
+            : mockMatches;
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -120,18 +114,23 @@ export default function MatchScreen() {
                 <View style={styles.headerButtons}>
                     <TouchableOpacity
                         style={styles.messagesBtn}
-                        onPress={() => router.push('/match/conversations')}
+                        onPress={() => router.push("/match/conversations")}
                     >
                         <Ionicons name="chatbubbles-outline" size={22} color={colors.text} />
                         {unreadCount > 0 && (
                             <View style={styles.unreadBadge}>
                                 <Text style={styles.unreadText}>
-                                    {unreadCount > 9 ? '9+' : unreadCount}
+                                    {unreadCount > 9 ? "9+" : unreadCount}
                                 </Text>
                             </View>
                         )}
                     </TouchableOpacity>
-                    <AnimatedPressable style={styles.createButton} onPress={() => router.push("/create-match")} hapticStyle="medium" scaleValue={0.95}>
+                    <AnimatedPressable
+                        style={styles.createButton}
+                        onPress={() => router.push("/create-match")}
+                        hapticStyle="medium"
+                        scaleValue={0.95}
+                    >
                         <Ionicons name="add" size={20} color={colors.background} />
                         <Text style={styles.createButtonText}>Tạo kèo</Text>
                     </AnimatedPressable>
@@ -156,7 +155,11 @@ export default function MatchScreen() {
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={styles.scrollContent}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={colors.accent}
+                    />
                 }
                 renderItem={({ item: match }) => (
                     <TouchableOpacity
@@ -167,12 +170,21 @@ export default function MatchScreen() {
                         <View style={styles.matchHeader}>
                             <View style={styles.matchUserInfo}>
                                 <View style={styles.matchAvatar}>
-                                    <Ionicons name="person-outline" size={20} color={colors.textMuted} />
+                                    <Ionicons
+                                        name="person-outline"
+                                        size={20}
+                                        color={colors.textMuted}
+                                    />
                                 </View>
                                 <View>
                                     <Text style={styles.matchUserName}>{match.userName}</Text>
                                     <View style={styles.matchBadges}>
-                                        <View style={[styles.levelBadge, { backgroundColor: getLevelColor(match.level) }]}>
+                                        <View
+                                            style={[
+                                                styles.levelBadge,
+                                                { backgroundColor: getLevelColor(match.level) },
+                                            ]}
+                                        >
                                             <Text style={styles.levelBadgeText}>{match.level}</Text>
                                         </View>
                                         <Text style={styles.matchTypeDot}>•</Text>
@@ -188,15 +200,27 @@ export default function MatchScreen() {
 
                         <View style={styles.matchDetails}>
                             <View style={styles.detailRow}>
-                                <Ionicons name="calendar-outline" size={16} color={colors.textMuted} />
+                                <Ionicons
+                                    name="calendar-outline"
+                                    size={16}
+                                    color={colors.textMuted}
+                                />
                                 <Text style={styles.detailText}>{match.dateTime}</Text>
                             </View>
                             <View style={styles.detailRow}>
-                                <Ionicons name="location-outline" size={16} color={colors.textMuted} />
+                                <Ionicons
+                                    name="location-outline"
+                                    size={16}
+                                    color={colors.textMuted}
+                                />
                                 <Text style={styles.detailText}>{match.location}</Text>
                             </View>
                             <View style={styles.detailRow}>
-                                <Ionicons name="people-outline" size={16} color={colors.textMuted} />
+                                <Ionicons
+                                    name="people-outline"
+                                    size={16}
+                                    color={colors.textMuted}
+                                />
                                 <Text style={styles.detailText}>Giới tính: {match.gender}</Text>
                             </View>
                         </View>

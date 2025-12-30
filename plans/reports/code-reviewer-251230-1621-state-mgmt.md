@@ -15,26 +15,30 @@ Architecture demonstrates solid fundamentals with well-separated concerns (Zusta
 ## Critical Issues
 
 ### 1. **TypeScript Import Path Resolution Failure**
+
 **Severity:** CRITICAL
 **Status:** BLOCKING BUILD
 
 Services using relative paths with outdated structure:
+
 ```typescript
 // ❌ FAILS
-import { supabase } from '../lib/supabase';  // Auth service
-import { Booking, ApiResponse } from '../types';
+import { supabase } from "../lib/supabase"; // Auth service
+import { Booking, ApiResponse } from "../types";
 ```
 
 **Impact:** Build fails. 18+ type errors in feature screens/services.
 
 **Fix:** Update service imports to use absolute paths from correct locations:
+
 ```typescript
 // ✅ CORRECT
-import { supabase } from '@/lib/supabase';
-import type { Booking, ApiResponse } from '@/types';
+import { supabase } from "@/lib/supabase";
+import type { Booking, ApiResponse } from "@/types";
 ```
 
 **Affected Files:**
+
 - `/Users/tommac/Desktop/Solo Builder/my2light-mobile/src/features/auth/auth.service.ts`
 - `/Users/tommac/Desktop/Solo Builder/my2light-mobile/src/features/bookings/booking.service.ts`
 - `/Users/tommac/Desktop/Solo Builder/my2light-mobile/src/features/courts/court.service.ts`
@@ -43,33 +47,36 @@ import type { Booking, ApiResponse } from '@/types';
 ---
 
 ### 2. **Storage Module MMKV Initialization Bug**
+
 **Severity:** CRITICAL
 **File:** `/Users/tommac/Desktop/Solo Builder/my2light-mobile/src/lib/storage.ts:8`
 
 ```typescript
 // ❌ ERROR: Cannot instantiate MMKV at module load time
 export const storage = new MMKV({
-    id: 'my2light-storage',
-    encryptionKey: 'my2light-encryption-key', // Hardcoded key in source!
+    id: "my2light-storage",
+    encryptionKey: "my2light-encryption-key", // Hardcoded key in source!
 });
 ```
 
 **Issues:**
+
 - Type error: `MMKV` is type-only import, cannot instantiate
 - Hardcoded encryption key violates security (should use env variable or device keychain)
 - Initialization at module load may fail if MMKV native module not ready
 
 **Fix:**
+
 ```typescript
-import { MMKV } from 'react-native-mmkv';
+import { MMKV } from "react-native-mmkv";
 
 let storage: MMKV | null = null;
 
 export const getStorage = (): MMKV => {
     if (!storage) {
         storage = new MMKV({
-            id: 'my2light-storage',
-            encryptionKey: process.env.EXPO_PUBLIC_ENCRYPTION_KEY || 'default-key',
+            id: "my2light-storage",
+            encryptionKey: process.env.EXPO_PUBLIC_ENCRYPTION_KEY || "default-key",
         });
     }
     return storage;
@@ -89,6 +96,7 @@ export const zustandStorage = {
 ## High Priority Findings
 
 ### 3. **Cache Invalidation Too Aggressive**
+
 **Severity:** HIGH
 **File:** `/Users/tommac/Desktop/Solo Builder/my2light-mobile/src/features/highlights/hooks/useHighlights.ts:54,66`
 
@@ -102,6 +110,7 @@ onSuccess: () => {
 **Impact:** Single like action refetches entire feed. Unnecessary network calls, poor UX with loading spinners.
 
 **Fix - Use precise cache updates:**
+
 ```typescript
 export function useToggleLike() {
     const queryClient = useQueryClient();
@@ -113,16 +122,18 @@ export function useToggleLike() {
         onSuccess: (_, params) => {
             // Option A: Optimistic update
             queryClient.setQueryData(highlightQueryKeys.lists(), (old: any) => {
-                return old?.map((h: any) =>
-                    h.id === params.highlightId
-                        ? { ...h, likes: params.isLiked ? h.likes - 1 : h.likes + 1 }
-                        : h
-                ) || old;
+                return (
+                    old?.map((h: any) =>
+                        h.id === params.highlightId
+                            ? { ...h, likes: params.isLiked ? h.likes - 1 : h.likes + 1 }
+                            : h
+                    ) || old
+                );
             });
 
             // Option B: Selective invalidation of specific highlight
             queryClient.invalidateQueries({
-                queryKey: highlightQueryKeys.detail?.(params.highlightId)
+                queryKey: highlightQueryKeys.detail?.(params.highlightId),
             });
         },
     });
@@ -132,29 +143,33 @@ export function useToggleLike() {
 ---
 
 ### 4. **Missing Error Handling in React Query Hooks**
+
 **Severity:** HIGH
 **Files:** All useBookings, useCourts, useHighlights hooks
 
 **Pattern Issue:**
+
 ```typescript
 // ❌ No error handling, no retry strategy
 return useQuery({
     queryKey: bookingQueryKeys.history(),
     queryFn: async () => {
         const result = await BookingService.getBookingHistory();
-        return result.data;  // Silently returns undefined on error
+        return result.data; // Silently returns undefined on error
     },
     staleTime: 60000,
 });
 ```
 
 **Problems:**
+
 - Throws if service returns error - no try/catch
 - No retry configuration (defaults to 3 retries but not explicit)
 - No error boundary handling
 - UI gets undefined data without knowing it's an error
 
 **Fix:**
+
 ```typescript
 export function useBookingHistory() {
     return useQuery({
@@ -162,7 +177,7 @@ export function useBookingHistory() {
         queryFn: async () => {
             const result = await BookingService.getBookingHistory();
             if (!result.success || result.error) {
-                throw new Error(result.error || 'Failed to fetch bookings');
+                throw new Error(result.error || "Failed to fetch bookings");
             }
             return result.data;
         },
@@ -178,6 +193,7 @@ export function useBookingHistory() {
 ---
 
 ### 5. **Offline Queue Logic Flaw**
+
 **Severity:** HIGH
 **File:** `/Users/tommac/Desktop/Solo Builder/my2light-mobile/src/lib/network.ts:60-75`
 
@@ -201,6 +217,7 @@ while (this.queue.length > 0) {
 ```
 
 **Issues:**
+
 - Retry loop can run forever if action always fails (e.g., auth error)
 - Moves failed items to back creating potentially infinite queue cycling
 - No exponential backoff
@@ -208,6 +225,7 @@ while (this.queue.length > 0) {
 - Should not retry auth/permission errors
 
 **Fix:**
+
 ```typescript
 async process() {
     if (this.processing || this.queue.length === 0) return;
@@ -253,42 +271,47 @@ async process() {
 ---
 
 ### 6. **API Wrapper Caching Inconsistency**
+
 **Severity:** HIGH
 **File:** `/Users/tommac/Desktop/Solo Builder/my2light-mobile/src/lib/apiWrapper.ts`
 
 **Problem 1: Cache key collision**
+
 ```typescript
 // ❌ Same cache key for different contexts
-const cached = cache.get<T>(key);  // Called twice, even in offline
+const cached = cache.get<T>(key); // Called twice, even in offline
 ```
 
 **Problem 2: Double cache fetching**
+
 ```typescript
 // ❌ Fetches cache twice when offline
 if (useCache) {
-    const cached = cache.get<T>(key);  // First fetch
+    const cached = cache.get<T>(key); // First fetch
     if (cached) return { data: cached, error: null, cached: true };
 }
 
 const online = await isOnline();
 if (!online) {
     // ... queue logic ...
-    const cached = cache.get<T>(key);  // Second fetch - redundant!
+    const cached = cache.get<T>(key); // Second fetch - redundant!
 }
 ```
 
 **Problem 3: No TTL validation in offline queue**
+
 ```typescript
 // ❌ Queue stores actions but doesn't prevent stale data re-upload
 offlineQueue.add(async () => {
     const result = await apiFunction();
     if (result.data && useCache) {
-        cache.set(key, result.data, cacheTTL);  // Could be stale
+        cache.set(key, result.data, cacheTTL); // Could be stale
     }
 });
 ```
 
 **Fix:**
+
 ```typescript
 export async function apiCall<T>(
     key: string,
@@ -326,7 +349,7 @@ export async function apiCall<T>(
         }
 
         // Return cached or error (don't fetch cache again)
-        return { data: null, error: 'No internet connection' };
+        return { data: null, error: "No internet connection" };
     }
 
     try {
@@ -346,13 +369,16 @@ export async function apiCall<T>(
 ## Medium Priority Improvements
 
 ### 7. **Missing Type Safety in Service Responses**
+
 **Severity:** MEDIUM
 **Files:** All service files (auth, bookings, courts, highlights)
 
 **Issue:**
+
 ```typescript
 // ❌ Incomplete transformations
-const bookings: Booking[] = data.map((b: any) => ({  // Using 'any'
+const bookings: Booking[] = data.map((b: any) => ({
+    // Using 'any'
     id: b.id,
     userId: b.user_id,
     // ...
@@ -360,6 +386,7 @@ const bookings: Booking[] = data.map((b: any) => ({  // Using 'any'
 ```
 
 **Fix:**
+
 ```typescript
 // Define DB type
 interface BookingRow {
@@ -380,13 +407,17 @@ const bookings: Booking[] = (data as BookingRow[]).map((b) => ({
 ---
 
 ### 8. **Zustand Store Pattern Inconsistency**
+
 **Severity:** MEDIUM
 **Files:** authStore.ts vs recordingStore.ts
 
 **Issue:** Different patterns reduce maintainability
+
 ```typescript
 // authStore.ts - Uses persist middleware, complex getter pattern
-const { data: { session } } = await supabase.auth.getSession();
+const {
+    data: { session },
+} = await supabase.auth.getSession();
 set({ session, user: session?.user || null });
 
 // recordingStore.ts - No persistence, simpler state
@@ -396,6 +427,7 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
 ```
 
 **Recommendation:**
+
 - Persist recordingStore if session continuity needed
 - Document when/why persistence used
 - Consider moving auth listener setup to useEffect in component
@@ -403,8 +435,10 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
 ---
 
 ### 9. **Stale Time Configuration Inconsistent**
+
 **Severity:** MEDIUM
 **Comparison:**
+
 - `useBookingHistory`: 60s stale
 - `useActiveBooking`: 30s stale
 - `useCourts`: 300s (5min) stale
@@ -413,20 +447,23 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
 **Issue:** No documented rationale. Highlights change frequently but courts rarely do - these times seem backwards.
 
 **Recommendation:**
+
 ```typescript
 // Define constants
 const STALE_TIME = {
-    REAL_TIME: 10000,      // Active bookings
-    FREQUENT: 60000,       // Highlights, user data
-    NORMAL: 300000,        // Courts, stable data
-    LONG: 600000,          // Reference data
+    REAL_TIME: 10000, // Active bookings
+    FREQUENT: 60000, // Highlights, user data
+    NORMAL: 300000, // Courts, stable data
+    LONG: 600000, // Reference data
 } as const;
 
 // Use consistently
 export function useActiveBooking() {
     return useQuery({
         queryKey: bookingQueryKeys.active(),
-        queryFn: async () => { /* ... */ },
+        queryFn: async () => {
+            /* ... */
+        },
         staleTime: STALE_TIME.REAL_TIME,
         gcTime: STALE_TIME.REAL_TIME * 2,
     });
@@ -436,9 +473,11 @@ export function useActiveBooking() {
 ---
 
 ### 10. **No Optimistic Updates in Mutations**
-**Severity:** MEDIUM**
+
+**Severity:** MEDIUM\*\*
 
 Mutations lack optimistic UI updates:
+
 ```typescript
 // ❌ User waits for server response
 useToggleLike() {
@@ -458,6 +497,7 @@ useToggleLike() {
 ## Low Priority Suggestions
 
 ### 11. **No Activity Logging for Debugging**
+
 - Offline queue has no persistent logs (lost on app restart)
 - API errors not tracked for analytics
 - Cache hits/misses not instrumented
@@ -467,6 +507,7 @@ useToggleLike() {
 ---
 
 ### 12. **Hardcoded Magic Values**
+
 - Retry count: 3 (magic number)
 - Retry delay: 1000ms base (not configurable)
 - Cache TTL defaults: 300000ms (5 min)
@@ -476,6 +517,7 @@ useToggleLike() {
 ---
 
 ### 13. **Service Layer Missing Abort Signal Support**
+
 - Long-running requests not cancellable
 - No timeout enforcement
 - Memory leak potential if component unmounts during fetch
@@ -495,16 +537,19 @@ useToggleLike() {
 ## Recommended Actions (Priority Order)
 
 ### Phase 1 (Blocking)
+
 1. **Fix TypeScript paths** - Update all service imports to use `@/` aliases
 2. **Fix MMKV initialization** - Lazy load, fix type error, use env encryption key
 
 ### Phase 2 (High Impact)
+
 3. **Implement precise cache invalidation** - Optimistic updates for mutations
 4. **Add error handling to React Query** - Proper error states, retry config
 5. **Fix offline queue retry logic** - Exponential backoff, auth error handling
 6. **Remove duplicate cache fetches** - Simplify apiWrapper
 
 ### Phase 3 (Quality)
+
 7. **Add type safety to service responses** - Remove `any` type casts
 8. **Standardize stale times** - Document and use constants
 9. **Add mutation error boundaries** - Catch and handle errors properly
@@ -527,4 +572,3 @@ useToggleLike() {
 2. **Cache Strategy per Resource:** Should courts use longer TTL than highlights? Document policy.
 3. **Network Retry Behavior:** Should we retry on 400 errors (client fault) or only 5xx?
 4. **Offline Queue Persistence:** Should queued actions persist across app restarts?
-

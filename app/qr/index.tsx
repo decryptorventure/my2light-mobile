@@ -1,11 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-    Alert,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -49,23 +43,19 @@ export default function QRScannerScreen() {
         setScanned(true);
 
         // Handle QR code data
-        Alert.alert(
-            "Quét thành công!",
-            `Mã: ${data}`,
-            [
-                {
-                    text: "Quét lại",
-                    onPress: () => setScanned(false),
+        Alert.alert("Quét thành công!", `Mã: ${data}`, [
+            {
+                text: "Quét lại",
+                onPress: () => setScanned(false),
+            },
+            {
+                text: "Xác nhận",
+                onPress: () => {
+                    // TODO: Process check-in with QR code
+                    router.back();
                 },
-                {
-                    text: "Xác nhận",
-                    onPress: () => {
-                        // TODO: Process check-in with QR code
-                        router.back();
-                    },
-                },
-            ]
-        );
+            },
+        ]);
     };
 
     return (
@@ -98,9 +88,7 @@ export default function QRScannerScreen() {
 
                 {/* Instructions */}
                 <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.xl }]}>
-                    <Text style={styles.instruction}>
-                        Đưa camera vào mã QR tại sân để check-in
-                    </Text>
+                    <Text style={styles.instruction}>Đưa camera vào mã QR tại sân để check-in</Text>
                 </View>
             </CameraView>
         </View>

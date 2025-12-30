@@ -75,7 +75,7 @@ export default function UploadInfoScreen() {
         const timeStr = now.toLocaleTimeString("vi-VN", {
             hour: "2-digit",
             minute: "2-digit",
-            second: "2-digit"
+            second: "2-digit",
         });
         const dateStr = now.toLocaleDateString("vi-VN");
 
@@ -150,16 +150,12 @@ export default function UploadInfoScreen() {
             setUploadProgress(100);
             console.log("✅ Highlight created successfully!");
 
-            Alert.alert(
-                "Thành công! 🎉",
-                "Video đã được đăng lên thư viện",
-                [
-                    {
-                        text: "OK",
-                        onPress: () => router.replace("/(tabs)")
-                    }
-                ]
-            );
+            Alert.alert("Thành công! 🎉", "Video đã được đăng lên thư viện", [
+                {
+                    text: "OK",
+                    onPress: () => router.replace("/(tabs)"),
+                },
+            ]);
         } catch (error) {
             console.error("Upload error:", error);
             Alert.alert(
@@ -247,12 +243,19 @@ export default function UploadInfoScreen() {
                                     <Ionicons
                                         name="location"
                                         size={18}
-                                        color={selectedCourtId === court.id ? colors.accent : colors.textMuted}
+                                        color={
+                                            selectedCourtId === court.id
+                                                ? colors.accent
+                                                : colors.textMuted
+                                        }
                                     />
-                                    <Text style={[
-                                        styles.courtName,
-                                        selectedCourtId === court.id && styles.courtNameSelected,
-                                    ]}>
+                                    <Text
+                                        style={[
+                                            styles.courtName,
+                                            selectedCourtId === court.id &&
+                                                styles.courtNameSelected,
+                                        ]}
+                                    >
                                         {court.name}
                                     </Text>
                                 </TouchableOpacity>
@@ -270,12 +273,18 @@ export default function UploadInfoScreen() {
                                 <Ionicons
                                     name="location-outline"
                                     size={18}
-                                    color={selectedCourtId === "other" ? colors.accent : colors.textMuted}
+                                    color={
+                                        selectedCourtId === "other"
+                                            ? colors.accent
+                                            : colors.textMuted
+                                    }
                                 />
-                                <Text style={[
-                                    styles.courtName,
-                                    selectedCourtId === "other" && styles.courtNameSelected,
-                                ]}>
+                                <Text
+                                    style={[
+                                        styles.courtName,
+                                        selectedCourtId === "other" && styles.courtNameSelected,
+                                    ]}
+                                >
                                     Sân khác / Không xác định
                                 </Text>
                             </TouchableOpacity>
@@ -293,17 +302,14 @@ export default function UploadInfoScreen() {
                             <View style={[styles.progressFill, { width: `${uploadProgress}%` }]} />
                         </View>
                         <Text style={styles.progressText}>
-                            {uploadProgress < 80 ? "Đang tải video..." : "Đang lưu..."}
-                            {" "}{uploadProgress}%
+                            {uploadProgress < 80 ? "Đang tải video..." : "Đang lưu..."}{" "}
+                            {uploadProgress}%
                         </Text>
                     </View>
                 )}
 
                 <TouchableOpacity
-                    style={[
-                        styles.submitButton,
-                        uploading && styles.submitButtonDisabled,
-                    ]}
+                    style={[styles.submitButton, uploading && styles.submitButtonDisabled]}
                     onPress={handleSubmit}
                     disabled={uploading}
                 >

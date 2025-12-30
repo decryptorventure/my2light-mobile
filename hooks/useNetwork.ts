@@ -3,19 +3,19 @@
  * Monitors network status and provides offline handling utilities
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import NetInfo, { NetInfoState, NetInfoSubscription } from '@react-native-community/netinfo';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { logger } from '../lib/logger';
+import { useState, useEffect, useCallback } from "react";
+import NetInfo, { NetInfoState, NetInfoSubscription } from "@react-native-community/netinfo";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { logger } from "../lib/logger";
 
-const networkLogger = logger.create('Network');
+const networkLogger = logger.create("Network");
 
 // Use AsyncStorage for offline queue (more compatible than MMKV for this use case)
-const QUEUE_STORAGE_KEY = '@offline_queue';
+const QUEUE_STORAGE_KEY = "@offline_queue";
 
 interface QueuedAction {
     id: string;
-    type: 'upload' | 'api_call' | 'sync';
+    type: "upload" | "api_call" | "sync";
     payload: any;
     timestamp: number;
     retries: number;
@@ -34,7 +34,7 @@ export function useNetworkStatus() {
     const [status, setStatus] = useState<NetworkStatus>({
         isConnected: true,
         isInternetReachable: true,
-        type: 'unknown',
+        type: "unknown",
     });
 
     useEffect(() => {
@@ -59,9 +59,9 @@ export function useNetworkStatus() {
             setStatus(newStatus);
 
             if (!newStatus.isConnected) {
-                networkLogger.warn('Network disconnected');
+                networkLogger.warn("Network disconnected");
             } else if (newStatus.isConnected && !status.isConnected) {
-                networkLogger.info('Network reconnected');
+                networkLogger.info("Network reconnected");
             }
         };
 
@@ -86,7 +86,7 @@ export const OfflineQueue = {
     /**
      * Add an action to the offline queue
      */
-    enqueue: async (type: QueuedAction['type'], payload: any): Promise<string> => {
+    enqueue: async (type: QueuedAction["type"], payload: any): Promise<string> => {
         const action: QueuedAction = {
             id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
             type,
@@ -99,7 +99,7 @@ export const OfflineQueue = {
         queue.push(action);
         await AsyncStorage.setItem(OfflineQueue.QUEUE_KEY, JSON.stringify(queue));
 
-        networkLogger.debug('Action queued for offline', { type, id: action.id });
+        networkLogger.debug("Action queued for offline", { type, id: action.id });
         return action.id;
     },
 
@@ -121,7 +121,7 @@ export const OfflineQueue = {
      */
     dequeue: async (actionId: string): Promise<void> => {
         const queue = await OfflineQueue.getQueue();
-        const filtered = queue.filter(a => a.id !== actionId);
+        const filtered = queue.filter((a) => a.id !== actionId);
         await AsyncStorage.setItem(OfflineQueue.QUEUE_KEY, JSON.stringify(filtered));
     },
 
@@ -130,7 +130,7 @@ export const OfflineQueue = {
      */
     updateRetries: async (actionId: string): Promise<void> => {
         const queue = await OfflineQueue.getQueue();
-        const updated = queue.map(a => {
+        const updated = queue.map((a) => {
             if (a.id === actionId) {
                 return { ...a, retries: a.retries + 1 };
             }
@@ -158,9 +158,7 @@ export const OfflineQueue = {
 /**
  * Hook to use offline queue with automatic sync
  */
-export function useOfflineQueue(
-    processAction: (action: QueuedAction) => Promise<boolean>
-) {
+export function useOfflineQueue(processAction: (action: QueuedAction) => Promise<boolean>) {
     const { isConnected } = useNetworkStatus();
     const [isProcessing, setIsProcessing] = useState(false);
     const [pendingCount, setPendingCount] = useState(0);
@@ -186,11 +184,11 @@ export function useOfflineQueue(
         if (queue.length === 0) return;
 
         setIsProcessing(true);
-        networkLogger.info('Processing offline queue', { count: queue.length });
+        networkLogger.info("Processing offline queue", { count: queue.length });
 
         for (const action of queue) {
             if (action.retries >= 3) {
-                networkLogger.warn('Action exceeded max retries, removing', { id: action.id });
+                networkLogger.warn("Action exceeded max retries, removing", { id: action.id });
                 await OfflineQueue.dequeue(action.id);
                 continue;
             }
@@ -199,12 +197,12 @@ export function useOfflineQueue(
                 const success = await processAction(action);
                 if (success) {
                     await OfflineQueue.dequeue(action.id);
-                    networkLogger.debug('Queued action processed', { id: action.id });
+                    networkLogger.debug("Queued action processed", { id: action.id });
                 } else {
                     await OfflineQueue.updateRetries(action.id);
                 }
             } catch (error) {
-                networkLogger.error('Failed to process queued action', error);
+                networkLogger.error("Failed to process queued action", error);
                 await OfflineQueue.updateRetries(action.id);
             }
         }
@@ -214,7 +212,7 @@ export function useOfflineQueue(
         setIsProcessing(false);
     }, [processAction]);
 
-    const queueAction = useCallback(async (type: QueuedAction['type'], payload: any) => {
+    const queueAction = useCallback(async (type: QueuedAction["type"], payload: any) => {
         const id = await OfflineQueue.enqueue(type, payload);
         const count = await OfflineQueue.getPendingCount();
         setPendingCount(count);
@@ -238,7 +236,7 @@ export async function withOfflineSupport<T>(
     fallback: T,
     options?: {
         queueOnFailure?: boolean;
-        actionType?: QueuedAction['type'];
+        actionType?: QueuedAction["type"];
         payload?: any;
     }
 ): Promise<{ data: T; fromCache: boolean }> {
@@ -255,7 +253,7 @@ export async function withOfflineSupport<T>(
         const data = await apiCall();
         return { data, fromCache: false };
     } catch (error) {
-        networkLogger.error('API call failed', error);
+        networkLogger.error("API call failed", error);
         if (options?.queueOnFailure && options.actionType && options.payload) {
             OfflineQueue.enqueue(options.actionType, options.payload);
         }

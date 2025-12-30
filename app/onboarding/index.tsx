@@ -31,15 +31,35 @@ const TOTAL_STEPS = 6;
 
 // Skill levels configuration
 const SKILL_LEVELS = [
-    { id: "beginner", label: "Mới chơi 🌱", desc: "Chưa nắm rõ luật, đang học hỏi", color: "#10b981" },
-    { id: "intermediate", label: "Phong trào 🎯", desc: "Đã chơi > 6 tháng, nắm rõ luật", color: "#3b82f6" },
-    { id: "advanced", label: "Chuyên nghiệp 🏆", desc: "Thi đấu thường xuyên, kỹ năng cao", color: "#8b5cf6" },
+    {
+        id: "beginner",
+        label: "Mới chơi 🌱",
+        desc: "Chưa nắm rõ luật, đang học hỏi",
+        color: "#10b981",
+    },
+    {
+        id: "intermediate",
+        label: "Phong trào 🎯",
+        desc: "Đã chơi > 6 tháng, nắm rõ luật",
+        color: "#3b82f6",
+    },
+    {
+        id: "advanced",
+        label: "Chuyên nghiệp 🏆",
+        desc: "Thi đấu thường xuyên, kỹ năng cao",
+        color: "#8b5cf6",
+    },
 ];
 
 // Play styles configuration
 const PLAY_STYLES = [
     { id: "attack", label: "Tấn công ⚔️", desc: "Thích đập cầu, chơi nhanh", color: "#ef4444" },
-    { id: "defense", label: "Phòng thủ 🛡️", desc: "Kiên nhẫn, điều cầu, phản công", color: "#3b82f6" },
+    {
+        id: "defense",
+        label: "Phòng thủ 🛡️",
+        desc: "Kiên nhẫn, điều cầu, phản công",
+        color: "#3b82f6",
+    },
     { id: "all_round", label: "Toàn diện ⚖️", desc: "Linh hoạt công thủ", color: "#8b5cf6" },
 ];
 
@@ -60,11 +80,16 @@ export default function OnboardingScreen() {
     // Validation
     const canProceed = () => {
         switch (step) {
-            case 1: return name.trim().length >= 2;
-            case 2: return avatar !== "";
-            case 3: return skillLevel !== "";
-            case 4: return playStyle !== "";
-            default: return true;
+            case 1:
+                return name.trim().length >= 2;
+            case 2:
+                return avatar !== "";
+            case 3:
+                return skillLevel !== "";
+            case 4:
+                return playStyle !== "";
+            default:
+                return true;
         }
     };
 
@@ -149,13 +174,29 @@ export default function OnboardingScreen() {
 
                         <View style={styles.featureList}>
                             {[
-                                { icon: "videocam", title: "Ghi lại mọi khoảnh khắc", desc: "Quay video và tạo highlight" },
-                                { icon: "trophy", title: "Theo dõi tiến bộ", desc: "Thống kê chi tiết về trận đấu" },
-                                { icon: "people", title: "Kết nối", desc: "Tìm đối thủ và bạn chơi" },
+                                {
+                                    icon: "videocam",
+                                    title: "Ghi lại mọi khoảnh khắc",
+                                    desc: "Quay video và tạo highlight",
+                                },
+                                {
+                                    icon: "trophy",
+                                    title: "Theo dõi tiến bộ",
+                                    desc: "Thống kê chi tiết về trận đấu",
+                                },
+                                {
+                                    icon: "people",
+                                    title: "Kết nối",
+                                    desc: "Tìm đối thủ và bạn chơi",
+                                },
                             ].map((item, i) => (
                                 <View key={i} style={styles.featureItem}>
                                     <View style={styles.featureIcon}>
-                                        <Ionicons name={item.icon as any} size={20} color={colors.accent} />
+                                        <Ionicons
+                                            name={item.icon as any}
+                                            size={20}
+                                            color={colors.accent}
+                                        />
                                     </View>
                                     <View style={styles.featureText}>
                                         <Text style={styles.featureTitle}>{item.title}</Text>
@@ -215,7 +256,9 @@ export default function OnboardingScreen() {
                 return (
                     <View style={styles.stepContent}>
                         <Text style={styles.stepTitle}>Trình độ của bạn?</Text>
-                        <Text style={styles.stepSubtitle}>Giúp chúng tôi gợi ý đối thủ phù hợp</Text>
+                        <Text style={styles.stepSubtitle}>
+                            Giúp chúng tôi gợi ý đối thủ phù hợp
+                        </Text>
 
                         <View style={styles.optionList}>
                             {SKILL_LEVELS.map((level) => (
@@ -223,11 +266,22 @@ export default function OnboardingScreen() {
                                     key={level.id}
                                     style={[
                                         styles.optionItem,
-                                        skillLevel === level.id && { borderColor: level.color, backgroundColor: `${level.color}15` }
+                                        skillLevel === level.id && {
+                                            borderColor: level.color,
+                                            backgroundColor: `${level.color}15`,
+                                        },
                                     ]}
-                                    onPress={() => { setSkillLevel(level.id); haptics.light(); }}
+                                    onPress={() => {
+                                        setSkillLevel(level.id);
+                                        haptics.light();
+                                    }}
                                 >
-                                    <View style={[styles.optionIcon, { backgroundColor: `${level.color}20` }]}>
+                                    <View
+                                        style={[
+                                            styles.optionIcon,
+                                            { backgroundColor: `${level.color}20` },
+                                        ]}
+                                    >
                                         <Ionicons name="star" size={24} color={level.color} />
                                     </View>
                                     <View style={styles.optionText}>
@@ -235,7 +289,12 @@ export default function OnboardingScreen() {
                                         <Text style={styles.optionDesc}>{level.desc}</Text>
                                     </View>
                                     {skillLevel === level.id && (
-                                        <View style={[styles.checkBadge, { backgroundColor: level.color }]}>
+                                        <View
+                                            style={[
+                                                styles.checkBadge,
+                                                { backgroundColor: level.color },
+                                            ]}
+                                        >
                                             <Ionicons name="checkmark" size={16} color="#fff" />
                                         </View>
                                     )}
@@ -258,11 +317,22 @@ export default function OnboardingScreen() {
                                     key={style.id}
                                     style={[
                                         styles.optionItem,
-                                        playStyle === style.id && { borderColor: style.color, backgroundColor: `${style.color}15` }
+                                        playStyle === style.id && {
+                                            borderColor: style.color,
+                                            backgroundColor: `${style.color}15`,
+                                        },
                                     ]}
-                                    onPress={() => { setPlayStyle(style.id); haptics.light(); }}
+                                    onPress={() => {
+                                        setPlayStyle(style.id);
+                                        haptics.light();
+                                    }}
                                 >
-                                    <View style={[styles.optionIcon, { backgroundColor: `${style.color}20` }]}>
+                                    <View
+                                        style={[
+                                            styles.optionIcon,
+                                            { backgroundColor: `${style.color}20` },
+                                        ]}
+                                    >
                                         <Ionicons name="flash" size={24} color={style.color} />
                                     </View>
                                     <View style={styles.optionText}>
@@ -270,7 +340,12 @@ export default function OnboardingScreen() {
                                         <Text style={styles.optionDesc}>{style.desc}</Text>
                                     </View>
                                     {playStyle === style.id && (
-                                        <View style={[styles.checkBadge, { backgroundColor: style.color }]}>
+                                        <View
+                                            style={[
+                                                styles.checkBadge,
+                                                { backgroundColor: style.color },
+                                            ]}
+                                        >
                                             <Ionicons name="checkmark" size={16} color="#fff" />
                                         </View>
                                     )}
@@ -296,10 +371,18 @@ export default function OnboardingScreen() {
                         </View>
 
                         <View style={styles.checkList}>
-                            {["Tài khoản đã được kích hoạt", "Hồ sơ đã được thiết lập", "200k credit miễn phí"].map((text, i) => (
+                            {[
+                                "Tài khoản đã được kích hoạt",
+                                "Hồ sơ đã được thiết lập",
+                                "200k credit miễn phí",
+                            ].map((text, i) => (
                                 <View key={i} style={styles.checkItem}>
                                     <View style={styles.checkCircle}>
-                                        <Ionicons name="checkmark" size={12} color={colors.accent} />
+                                        <Ionicons
+                                            name="checkmark"
+                                            size={12}
+                                            color={colors.accent}
+                                        />
                                     </View>
                                     <Text style={styles.checkText}>{text}</Text>
                                 </View>
@@ -330,7 +413,9 @@ export default function OnboardingScreen() {
                     <View style={styles.headerBtn} />
                 )}
 
-                <Text style={styles.stepIndicator}>{step + 1} / {TOTAL_STEPS}</Text>
+                <Text style={styles.stepIndicator}>
+                    {step + 1} / {TOTAL_STEPS}
+                </Text>
 
                 {step < TOTAL_STEPS - 1 ? (
                     <TouchableOpacity onPress={handleSkip} style={styles.headerBtn}>
@@ -365,7 +450,11 @@ export default function OnboardingScreen() {
                                 {step === TOTAL_STEPS - 1 ? "Bắt đầu ngay" : "Tiếp tục"}
                             </Text>
                             {step < TOTAL_STEPS - 1 && (
-                                <Ionicons name="arrow-forward" size={20} color={colors.background} />
+                                <Ionicons
+                                    name="arrow-forward"
+                                    size={20}
+                                    color={colors.background}
+                                />
                             )}
                         </>
                     )}

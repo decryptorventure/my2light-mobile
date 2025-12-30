@@ -21,7 +21,14 @@ import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../const
 import { AdminService, BookingManagement } from "../../services/admin.service";
 import haptics from "../../lib/haptics";
 
-type FilterType = "all" | "pending" | "approved" | "active" | "completed" | "cancelled" | "rejected";
+type FilterType =
+    | "all"
+    | "pending"
+    | "approved"
+    | "active"
+    | "completed"
+    | "cancelled"
+    | "rejected";
 
 export default function AdminBookingsScreen() {
     const insets = useSafeAreaInsets();
@@ -30,7 +37,11 @@ export default function AdminBookingsScreen() {
     const [filter, setFilter] = useState<FilterType>("all");
     const [processingId, setProcessingId] = useState<string | null>(null);
 
-    const { data: bookings, refetch, isLoading } = useQuery({
+    const {
+        data: bookings,
+        refetch,
+        isLoading,
+    } = useQuery({
         queryKey: ["admin", "bookings"],
         queryFn: async () => {
             const result = await AdminService.getCourtBookings();
@@ -40,9 +51,7 @@ export default function AdminBookingsScreen() {
     });
 
     const filteredBookings =
-        filter === "all"
-            ? bookings
-            : bookings?.filter((b) => b.status === filter);
+        filter === "all" ? bookings : bookings?.filter((b) => b.status === filter);
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
@@ -75,7 +84,10 @@ export default function AdminBookingsScreen() {
                     setProcessingId(bookingId);
                     haptics.light();
 
-                    const result = await AdminService.cancelBooking(bookingId, "Cancelled by owner");
+                    const result = await AdminService.cancelBooking(
+                        bookingId,
+                        "Cancelled by owner"
+                    );
                     setProcessingId(null);
 
                     if (result.success) {
@@ -113,13 +125,20 @@ export default function AdminBookingsScreen() {
         // Get status display
         const getStatusDisplay = () => {
             switch (item.status) {
-                case "pending": return "Chờ duyệt";
-                case "approved": return "Đã duyệt";
-                case "active": return "Đang diễn ra";
-                case "completed": return "Hoàn thành";
-                case "cancelled": return "Đã huỷ";
-                case "rejected": return "Bị từ chối";
-                default: return item.status;
+                case "pending":
+                    return "Chờ duyệt";
+                case "approved":
+                    return "Đã duyệt";
+                case "active":
+                    return "Đang diễn ra";
+                case "completed":
+                    return "Hoàn thành";
+                case "cancelled":
+                    return "Đã huỷ";
+                case "rejected":
+                    return "Bị từ chối";
+                default:
+                    return item.status;
             }
         };
 
@@ -134,9 +153,10 @@ export default function AdminBookingsScreen() {
                         style={[
                             styles.statusBadge,
                             item.status === "pending" && styles.statusPending,
-                            (item.status === "approved" || item.status === "active") && styles.statusApproved,
+                            (item.status === "approved" || item.status === "active") &&
+                                styles.statusApproved,
                             item.status === "cancelled" && styles.statusCancelled,
-                            (item.status === "rejected") && styles.statusCancelled,
+                            item.status === "rejected" && styles.statusCancelled,
                             item.status === "completed" && styles.statusCompleted,
                         ]}
                     >
@@ -144,15 +164,16 @@ export default function AdminBookingsScreen() {
                             style={[
                                 styles.statusText,
                                 item.status === "pending" && styles.statusTextPending,
-                                (item.status === "approved" || item.status === "active") && styles.statusTextApproved,
-                                (item.status === "cancelled" || item.status === "rejected") && styles.statusTextCancelled,
+                                (item.status === "approved" || item.status === "active") &&
+                                    styles.statusTextApproved,
+                                (item.status === "cancelled" || item.status === "rejected") &&
+                                    styles.statusTextCancelled,
                             ]}
                         >
                             {getStatusDisplay()}
                         </Text>
                     </View>
                 </View>
-
 
                 <View style={styles.bookingDetails}>
                     <View style={styles.detailRow}>
@@ -185,7 +206,11 @@ export default function AdminBookingsScreen() {
                                     <ActivityIndicator size="small" color={colors.background} />
                                 ) : (
                                     <>
-                                        <Ionicons name="checkmark" size={16} color={colors.background} />
+                                        <Ionicons
+                                            name="checkmark"
+                                            size={16}
+                                            color={colors.background}
+                                        />
                                         <Text style={styles.approveButtonText}>Duyệt</Text>
                                     </>
                                 )}
@@ -224,10 +249,7 @@ export default function AdminBookingsScreen() {
                         }}
                     >
                         <Text
-                            style={[
-                                styles.filterText,
-                                filter === f.key && styles.filterTextActive,
-                            ]}
+                            style={[styles.filterText, filter === f.key && styles.filterTextActive]}
                         >
                             {f.label}
                         </Text>

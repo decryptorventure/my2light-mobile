@@ -3,7 +3,7 @@
  * Used by markdown-novel-viewer server
  */
 
-const net = require('net');
+const net = require("net");
 
 const DEFAULT_PORT = 3456;
 const PORT_RANGE_END = 3500;
@@ -14,15 +14,15 @@ const PORT_RANGE_END = 3500;
  * @returns {Promise<boolean>} - True if available
  */
 function isPortAvailable(port) {
-  return new Promise((resolve) => {
-    const server = net.createServer();
-    server.once('error', () => resolve(false));
-    server.once('listening', () => {
-      server.close();
-      resolve(true);
+    return new Promise((resolve) => {
+        const server = net.createServer();
+        server.once("error", () => resolve(false));
+        server.once("listening", () => {
+            server.close();
+            resolve(true);
+        });
+        server.listen(port);
     });
-    server.listen(port);
-  });
 }
 
 /**
@@ -32,17 +32,17 @@ function isPortAvailable(port) {
  * @throws {Error} - If no port available in range
  */
 async function findAvailablePort(startPort = DEFAULT_PORT) {
-  for (let port = startPort; port <= PORT_RANGE_END; port++) {
-    if (await isPortAvailable(port)) {
-      return port;
+    for (let port = startPort; port <= PORT_RANGE_END; port++) {
+        if (await isPortAvailable(port)) {
+            return port;
+        }
     }
-  }
-  throw new Error(`No available port in range ${startPort}-${PORT_RANGE_END}`);
+    throw new Error(`No available port in range ${startPort}-${PORT_RANGE_END}`);
 }
 
 module.exports = {
-  isPortAvailable,
-  findAvailablePort,
-  DEFAULT_PORT,
-  PORT_RANGE_END
+    isPortAvailable,
+    findAvailablePort,
+    DEFAULT_PORT,
+    PORT_RANGE_END,
 };

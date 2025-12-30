@@ -3,8 +3,8 @@
  * @module lib/apiWrapper
  */
 
-import { isOnline, offlineQueue } from './network';
-import { cache } from './storage';
+import { isOnline, offlineQueue } from "./network";
+import { cache } from "./storage";
 
 export interface ApiResponse<T> {
     data: T | null;
@@ -54,7 +54,7 @@ export async function apiCall<T>(
             return { data: cached, error: null, cached: true };
         }
 
-        return { data: null, error: 'No internet connection' };
+        return { data: null, error: "No internet connection" };
     }
 
     // Make API call

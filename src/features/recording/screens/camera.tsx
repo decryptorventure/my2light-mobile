@@ -5,15 +5,13 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Animated } from "react-native";
 import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-    Alert,
-    Animated,
-} from "react-native";
-import { CameraView, CameraType, useCameraPermissions, useMicrophonePermissions } from "expo-camera";
+    CameraView,
+    CameraType,
+    useCameraPermissions,
+    useMicrophonePermissions,
+} from "expo-camera";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -55,17 +53,17 @@ export default function CameraRecordingScreen() {
 
     // Recording timer - using ref to avoid closure issues and prevent memory leak
     const elapsedTimeRef = useRef(0);
-    
+
     useEffect(() => {
         if (isRecording) {
             elapsedTimeRef.current = 0;
             updateElapsedTime(0);
-            
+
             const interval = setInterval(() => {
                 elapsedTimeRef.current += 1;
                 updateElapsedTime(elapsedTimeRef.current);
             }, 1000);
-            
+
             return () => clearInterval(interval);
         }
     }, [isRecording]);
@@ -111,7 +109,7 @@ export default function CameraRecordingScreen() {
                 stopRecording(video.uri);
                 router.push({
                     pathname: "/record/preview",
-                    params: { uri: video.uri }
+                    params: { uri: video.uri },
                 });
             }
         } catch (error) {
@@ -171,12 +169,7 @@ export default function CameraRecordingScreen() {
 
     return (
         <View style={styles.container}>
-            <CameraView
-                ref={cameraRef}
-                style={styles.camera}
-                facing={facing}
-                mode="video"
-            >
+            <CameraView ref={cameraRef} style={styles.camera} facing={facing} mode="video">
                 {/* Top Controls */}
                 <View style={[styles.topControls, { paddingTop: insets.top + spacing.md }]}>
                     {/* REC Indicator */}
@@ -214,7 +207,12 @@ export default function CameraRecordingScreen() {
                                     {
                                         left: `${Math.random() * 100}%`,
                                         top: `${Math.random() * 100}%`,
-                                        backgroundColor: ['#a3e635', '#f97316', '#3b82f6', '#ef4444'][i % 4],
+                                        backgroundColor: [
+                                            "#a3e635",
+                                            "#f97316",
+                                            "#3b82f6",
+                                            "#ef4444",
+                                        ][i % 4],
                                         transform: [
                                             { rotate: `${Math.random() * 360}deg` },
                                             { scale: 0.5 + Math.random() * 0.5 },
@@ -227,7 +225,9 @@ export default function CameraRecordingScreen() {
                 )}
 
                 {/* Bottom Controls */}
-                <View style={[styles.bottomControls, { paddingBottom: insets.bottom + spacing.xl }]}>
+                <View
+                    style={[styles.bottomControls, { paddingBottom: insets.bottom + spacing.xl }]}
+                >
                     {/* Highlight Counter */}
                     {isRecording && highlights.length > 0 && (
                         <View style={styles.highlightBadge}>
@@ -255,10 +255,12 @@ export default function CameraRecordingScreen() {
                             style={[styles.recordButton, isRecording && styles.recordButtonActive]}
                             onPress={isRecording ? handleStopRecording : handleStartRecording}
                         >
-                            <View style={[
-                                styles.recordButtonInner,
-                                isRecording && styles.recordButtonInnerActive
-                            ]} />
+                            <View
+                                style={[
+                                    styles.recordButtonInner,
+                                    isRecording && styles.recordButtonInnerActive,
+                                ]}
+                            />
                         </TouchableOpacity>
 
                         {/* Spacer for alignment */}

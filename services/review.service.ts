@@ -3,11 +3,11 @@
  * Handles court reviews and ratings
  */
 
-import { supabase } from '../lib/supabase';
-import { ApiResponse } from '../types';
-import { logger } from '../lib/logger';
+import { supabase } from "../lib/supabase";
+import { ApiResponse } from "../types";
+import { logger } from "../lib/logger";
 
-const reviewLogger = logger.create('Review');
+const reviewLogger = logger.create("Review");
 
 export interface Review {
     id: string;
@@ -42,16 +42,18 @@ export const ReviewService = {
     getCourtReviews: async (courtId: string): Promise<ApiResponse<Review[]>> => {
         try {
             const { data, error } = await supabase
-                .from('court_reviews')
-                .select(`
+                .from("court_reviews")
+                .select(
+                    `
                     *,
                     profiles:user_id (name, avatar)
-                `)
-                .eq('court_id', courtId)
-                .order('created_at', { ascending: false });
+                `
+                )
+                .eq("court_id", courtId)
+                .order("created_at", { ascending: false });
 
             if (error) {
-                reviewLogger.error('getCourtReviews error', error);
+                reviewLogger.error("getCourtReviews error", error);
                 return { success: false, data: [], error: error.message };
             }
 
@@ -64,14 +66,14 @@ export const ReviewService = {
                 comment: r.comment,
                 createdAt: r.created_at,
                 updatedAt: r.updated_at,
-                userName: r.profiles?.name || 'Ẩn danh',
+                userName: r.profiles?.name || "Ẩn danh",
                 userAvatar: r.profiles?.avatar,
             }));
 
             return { success: true, data: reviews };
         } catch (e) {
-            reviewLogger.error('getCourtReviews exception', e);
-            return { success: false, data: [], error: 'Failed to load reviews' };
+            reviewLogger.error("getCourtReviews exception", e);
+            return { success: false, data: [], error: "Failed to load reviews" };
         }
     },
 
@@ -81,9 +83,9 @@ export const ReviewService = {
     getReviewStats: async (courtId: string): Promise<ApiResponse<ReviewStats>> => {
         try {
             const { data, error } = await supabase
-                .from('court_reviews')
-                .select('rating')
-                .eq('court_id', courtId);
+                .from("court_reviews")
+                .select("rating")
+                .eq("court_id", courtId);
 
             if (error) {
                 return {
@@ -91,19 +93,17 @@ export const ReviewService = {
                     data: {
                         averageRating: 0,
                         totalReviews: 0,
-                        ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
-                    }
+                        ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+                    },
                 };
             }
 
             const ratings = data || [];
             const total = ratings.length;
-            const avg = total > 0
-                ? ratings.reduce((sum, r) => sum + r.rating, 0) / total
-                : 0;
+            const avg = total > 0 ? ratings.reduce((sum, r) => sum + r.rating, 0) / total : 0;
 
             const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-            ratings.forEach(r => {
+            ratings.forEach((r) => {
                 distribution[r.rating as keyof typeof distribution]++;
             });
 
@@ -113,7 +113,7 @@ export const ReviewService = {
                     averageRating: Math.round(avg * 10) / 10,
                     totalReviews: total,
                     ratingDistribution: distribution,
-                }
+                },
             };
         } catch (e) {
             return {
@@ -121,8 +121,8 @@ export const ReviewService = {
                 data: {
                     averageRating: 0,
                     totalReviews: 0,
-                    ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
-                }
+                    ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+                },
             };
         }
     },
@@ -136,34 +136,39 @@ export const ReviewService = {
         comment?: string;
         bookingId?: string;
     }): Promise<ApiResponse<Review | null>> => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
         if (!user) {
-            return { success: false, data: null, error: 'Not authenticated' };
+            return { success: false, data: null, error: "Not authenticated" };
         }
 
         try {
             // Upsert - update if exists, insert if not
             const { data: review, error } = await supabase
-                .from('court_reviews')
-                .upsert({
-                    court_id: data.courtId,
-                    user_id: user.id,
-                    booking_id: data.bookingId || null,
-                    rating: data.rating,
-                    comment: data.comment || null,
-                    updated_at: new Date().toISOString(),
-                }, {
-                    onConflict: 'user_id,court_id',
-                })
+                .from("court_reviews")
+                .upsert(
+                    {
+                        court_id: data.courtId,
+                        user_id: user.id,
+                        booking_id: data.bookingId || null,
+                        rating: data.rating,
+                        comment: data.comment || null,
+                        updated_at: new Date().toISOString(),
+                    },
+                    {
+                        onConflict: "user_id,court_id",
+                    }
+                )
                 .select()
                 .single();
 
             if (error) {
-                reviewLogger.error('submitReview error', error);
+                reviewLogger.error("submitReview error", error);
                 return { success: false, data: null, error: error.message };
             }
 
-            reviewLogger.info('Review submitted', { courtId: data.courtId, rating: data.rating });
+            reviewLogger.info("Review submitted", { courtId: data.courtId, rating: data.rating });
 
             return {
                 success: true,
@@ -176,11 +181,11 @@ export const ReviewService = {
                     comment: review.comment,
                     createdAt: review.created_at,
                     updatedAt: review.updated_at,
-                }
+                },
             };
         } catch (e) {
-            reviewLogger.error('submitReview exception', e);
-            return { success: false, data: null, error: 'Failed to submit review' };
+            reviewLogger.error("submitReview exception", e);
+            return { success: false, data: null, error: "Failed to submit review" };
         }
     },
 
@@ -188,17 +193,19 @@ export const ReviewService = {
      * Delete user's review
      */
     deleteReview: async (reviewId: string): Promise<ApiResponse<boolean>> => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
         if (!user) {
-            return { success: false, data: false, error: 'Not authenticated' };
+            return { success: false, data: false, error: "Not authenticated" };
         }
 
         try {
             const { error } = await supabase
-                .from('court_reviews')
+                .from("court_reviews")
                 .delete()
-                .eq('id', reviewId)
-                .eq('user_id', user.id);
+                .eq("id", reviewId)
+                .eq("user_id", user.id);
 
             if (error) {
                 return { success: false, data: false, error: error.message };
@@ -206,7 +213,7 @@ export const ReviewService = {
 
             return { success: true, data: true };
         } catch (e) {
-            return { success: false, data: false, error: 'Failed to delete review' };
+            return { success: false, data: false, error: "Failed to delete review" };
         }
     },
 
@@ -214,17 +221,19 @@ export const ReviewService = {
      * Check if user has reviewed a court
      */
     getUserReview: async (courtId: string): Promise<ApiResponse<Review | null>> => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
         if (!user) {
             return { success: false, data: null };
         }
 
         try {
             const { data, error } = await supabase
-                .from('court_reviews')
-                .select('*')
-                .eq('court_id', courtId)
-                .eq('user_id', user.id)
+                .from("court_reviews")
+                .select("*")
+                .eq("court_id", courtId)
+                .eq("user_id", user.id)
                 .maybeSingle();
 
             if (error || !data) {
@@ -242,7 +251,7 @@ export const ReviewService = {
                     comment: data.comment,
                     createdAt: data.created_at,
                     updatedAt: data.updated_at,
-                }
+                },
             };
         } catch (e) {
             return { success: false, data: null };
@@ -253,20 +262,24 @@ export const ReviewService = {
      * Get user's reviews (for profile page)
      */
     getMyReviews: async (): Promise<ApiResponse<Review[]>> => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
         if (!user) {
             return { success: false, data: [] };
         }
 
         try {
             const { data, error } = await supabase
-                .from('court_reviews')
-                .select(`
+                .from("court_reviews")
+                .select(
+                    `
                     *,
                     courts:court_id (name)
-                `)
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false });
+                `
+                )
+                .eq("user_id", user.id)
+                .order("created_at", { ascending: false });
 
             if (error) {
                 return { success: false, data: [] };

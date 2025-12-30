@@ -7,6 +7,7 @@ Installation, usage, customization, and accessibility for RemixIcon library.
 RemixIcon provides 3,100+ icons in outlined (-line) and filled (-fill) styles, built on 24x24px grid.
 
 **Icon naming:** `ri-{name}-{style}`
+
 - Examples: `ri-home-line`, `ri-heart-fill`, `ri-search-line`
 
 ## Installation
@@ -42,10 +43,7 @@ npm install @remixicon/vue
 ### CDN
 
 ```html
-<link
-  href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css"
-  rel="stylesheet"
-/>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.7.0/fonts/remixicon.css" rel="stylesheet" />
 ```
 
 ## Usage Methods
@@ -72,13 +70,18 @@ export default function RootLayout({ children }) {
 ```
 
 **With sizing classes:**
+
 ```html
-<i className="ri-home-line ri-2x"></i>    <!-- 2em -->
-<i className="ri-search-line ri-lg"></i>  <!-- 1.33em -->
-<i className="ri-heart-fill ri-xl"></i>   <!-- 1.5em -->
+<i className="ri-home-line ri-2x"></i>
+<!-- 2em -->
+<i className="ri-search-line ri-lg"></i>
+<!-- 1.33em -->
+<i className="ri-heart-fill ri-xl"></i>
+<!-- 1.5em -->
 ```
 
 **Available sizes:**
+
 - `ri-xxs` (0.5em)
 - `ri-xs` (0.75em)
 - `ri-sm` (0.875em)
@@ -91,20 +94,21 @@ export default function RootLayout({ children }) {
 ### 2. React Components
 
 ```tsx
-import { RiHomeLine, RiSearchFill, RiHeartLine } from "@remixicon/react"
+import { RiHomeLine, RiSearchFill, RiHeartLine } from "@remixicon/react";
 
 export function MyComponent() {
-  return (
-    <div>
-      <RiHomeLine size={24} />
-      <RiSearchFill size={32} color="blue" />
-      <RiHeartLine size="1.5em" className="icon" />
-    </div>
-  )
+    return (
+        <div>
+            <RiHomeLine size={24} />
+            <RiSearchFill size={32} color="blue" />
+            <RiHeartLine size="1.5em" className="icon" />
+        </div>
+    );
 }
 ```
 
 **Props:**
+
 - `size` - Number (pixels) or string (em, rem)
 - `color` - CSS color value
 - `className` - CSS class
@@ -114,14 +118,14 @@ export function MyComponent() {
 
 ```vue
 <script setup lang="ts">
-import { RiHomeLine, RiSearchFill } from "@remixicon/vue"
+import { RiHomeLine, RiSearchFill } from "@remixicon/vue";
 </script>
 
 <template>
-  <div>
-    <RiHomeLine :size="24" />
-    <RiSearchFill :size="32" color="blue" />
-  </div>
+    <div>
+        <RiHomeLine :size="24" />
+        <RiSearchFill :size="32" color="blue" />
+    </div>
 </template>
 ```
 
@@ -129,10 +133,10 @@ import { RiHomeLine, RiSearchFill } from "@remixicon/vue"
 
 ```tsx
 // Download SVG file and import
-import HomeIcon from '@/icons/home-line.svg'
+import HomeIcon from "@/icons/home-line.svg";
 
 export function Component() {
-  return <img src={HomeIcon} alt="Home" width={24} height={24} />
+    return <img src={HomeIcon} alt="Home" width={24} height={24} />;
 }
 ```
 
@@ -140,15 +144,15 @@ export function Component() {
 
 ```html
 <svg className="icon">
-  <use xlinkHref="path/to/remixicon.symbol.svg#ri-home-line"></use>
+    <use xlinkHref="path/to/remixicon.symbol.svg#ri-home-line"></use>
 </svg>
 ```
 
 ```css
 .icon {
-  width: 24px;
-  height: 24px;
-  fill: currentColor;
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
 }
 ```
 
@@ -157,35 +161,42 @@ export function Component() {
 20 semantic categories with 3,100+ icons:
 
 **Navigation & UI:**
+
 - Arrows (arrow-left, arrow-right, arrow-up-down)
 - System (settings, delete, add, close, more)
 - Editor (bold, italic, link, list, code)
 
 **Communication:**
+
 - Communication (chat, phone, mail, message)
 - User (user, account, team, contacts)
 
 **Media & Content:**
+
 - Media (play, pause, volume, camera, video)
 - Document (file, folder, article, draft)
 - Design (brush, palette, magic, crop)
 
 **Business & Commerce:**
+
 - Business (briefcase, pie-chart, bar-chart)
 - Finance (money, wallet, bank-card, coin)
 - Map (map, pin, compass, navigation)
 
 **Objects & Places:**
+
 - Buildings (home, bank, hospital, store)
 - Device (phone, laptop, tablet, printer)
 - Food (restaurant, cake, cup, knife)
 - Weather (sun, cloud, rain, moon)
 
 **Development & Logos:**
+
 - Development (code, terminal, bug, git-branch)
 - Logos (github, twitter, facebook, google)
 
 **Health & Medical:**
+
 - Health (heart-pulse, capsule, stethoscope)
 
 ## Common Patterns
@@ -195,59 +206,59 @@ export function Component() {
 ```tsx
 // Webfont approach
 export function Navigation() {
-  return (
-    <nav>
-      <a href="/home">
-        <i className="ri-home-line"></i>
-        <span>Home</span>
-      </a>
-      <a href="/search">
-        <i className="ri-search-line"></i>
-        <span>Search</span>
-      </a>
-      <a href="/profile">
-        <i className="ri-user-line"></i>
-        <span>Profile</span>
-      </a>
-    </nav>
-  )
+    return (
+        <nav>
+            <a href="/home">
+                <i className="ri-home-line"></i>
+                <span>Home</span>
+            </a>
+            <a href="/search">
+                <i className="ri-search-line"></i>
+                <span>Search</span>
+            </a>
+            <a href="/profile">
+                <i className="ri-user-line"></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+    );
 }
 
 // React component approach
-import { RiHomeLine, RiSearchLine, RiUserLine } from "@remixicon/react"
+import { RiHomeLine, RiSearchLine, RiUserLine } from "@remixicon/react";
 
 export function Navigation() {
-  return (
-    <nav>
-      <a href="/home">
-        <RiHomeLine size={20} />
-        <span>Home</span>
-      </a>
-      <a href="/search">
-        <RiSearchLine size={20} />
-        <span>Search</span>
-      </a>
-      <a href="/profile">
-        <RiUserLine size={20} />
-        <span>Profile</span>
-      </a>
-    </nav>
-  )
+    return (
+        <nav>
+            <a href="/home">
+                <RiHomeLine size={20} />
+                <span>Home</span>
+            </a>
+            <a href="/search">
+                <RiSearchLine size={20} />
+                <span>Search</span>
+            </a>
+            <a href="/profile">
+                <RiUserLine size={20} />
+                <span>Profile</span>
+            </a>
+        </nav>
+    );
 }
 ```
 
 ### Button with Icon
 
 ```tsx
-import { RiDownloadLine } from "@remixicon/react"
+import { RiDownloadLine } from "@remixicon/react";
 
 export function DownloadButton() {
-  return (
-    <button className="btn-primary">
-      <RiDownloadLine size={18} />
-      <span>Download</span>
-    </button>
-  )
+    return (
+        <button className="btn-primary">
+            <RiDownloadLine size={18} />
+            <span>Download</span>
+        </button>
+    );
 }
 ```
 
@@ -255,77 +266,77 @@ export function DownloadButton() {
 
 ```tsx
 import {
-  RiCheckboxCircleFill,
-  RiErrorWarningFill,
-  RiAlertFill,
-  RiInformationFill
-} from "@remixicon/react"
+    RiCheckboxCircleFill,
+    RiErrorWarningFill,
+    RiAlertFill,
+    RiInformationFill,
+} from "@remixicon/react";
 
-type Status = 'success' | 'error' | 'warning' | 'info'
+type Status = "success" | "error" | "warning" | "info";
 
 export function StatusIcon({ status }: { status: Status }) {
-  const icons = {
-    success: <RiCheckboxCircleFill color="green" size={20} />,
-    error: <RiErrorWarningFill color="red" size={20} />,
-    warning: <RiAlertFill color="orange" size={20} />,
-    info: <RiInformationFill color="blue" size={20} />
-  }
+    const icons = {
+        success: <RiCheckboxCircleFill color="green" size={20} />,
+        error: <RiErrorWarningFill color="red" size={20} />,
+        warning: <RiAlertFill color="orange" size={20} />,
+        info: <RiInformationFill color="blue" size={20} />,
+    };
 
-  return icons[status]
+    return icons[status];
 }
 ```
 
 ### Input with Icon
 
 ```tsx
-import { RiSearchLine } from "@remixicon/react"
+import { RiSearchLine } from "@remixicon/react";
 
 export function SearchInput() {
-  return (
-    <div className="input-group">
-      <RiSearchLine size={20} className="input-icon" />
-      <input type="text" placeholder="Search..." />
-    </div>
-  )
+    return (
+        <div className="input-group">
+            <RiSearchLine size={20} className="input-icon" />
+            <input type="text" placeholder="Search..." />
+        </div>
+    );
 }
 ```
 
 ```css
 .input-group {
-  position: relative;
+    position: relative;
 }
 
 .input-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #666;
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
 }
 
 input {
-  padding-left: 40px;
+    padding-left: 40px;
 }
 ```
 
 ### Dynamic Icon Selection
 
 ```tsx
-import { RiHomeLine, RiHeartFill, RiStarLine } from "@remixicon/react"
+import { RiHomeLine, RiHeartFill, RiStarLine } from "@remixicon/react";
 
 const iconMap = {
-  home: RiHomeLine,
-  heart: RiHeartFill,
-  star: RiStarLine,
-}
+    home: RiHomeLine,
+    heart: RiHeartFill,
+    star: RiStarLine,
+};
 
 export function DynamicIcon({ name, size = 24 }: { name: string; size?: number }) {
-  const Icon = iconMap[name]
-  return Icon ? <Icon size={size} /> : null
+    const Icon = iconMap[name];
+    return Icon ? <Icon size={size} /> : null;
 }
 
 // Usage
-<DynamicIcon name="home" size={24} />
+<DynamicIcon name="home" size={24} />;
 ```
 
 ## Styling & Customization
@@ -360,13 +371,13 @@ export function DynamicIcon({ name, size = 24 }: { name: string; size?: number }
 
 ```css
 .icon {
-  font-size: 24px;
+    font-size: 24px;
 }
 
 @media (max-width: 768px) {
-  .icon {
-    font-size: 20px;
-  }
+    .icon {
+        font-size: 20px;
+    }
 }
 ```
 
@@ -374,12 +385,16 @@ export function DynamicIcon({ name, size = 24 }: { name: string; size?: number }
 
 ```css
 .spin {
-  animation: spin 1s linear infinite;
+    animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 ```
 
@@ -391,11 +406,11 @@ export function DynamicIcon({ name, size = 24 }: { name: string; size?: number }
 
 ```css
 .icon-button {
-  transition: color 0.2s;
+    transition: color 0.2s;
 }
 
 .icon-button:hover {
-  color: #007bff;
+    color: #007bff;
 }
 ```
 
@@ -404,6 +419,7 @@ export function DynamicIcon({ name, size = 24 }: { name: string; size?: number }
 ### Provide Labels
 
 **Icon-only buttons:**
+
 ```tsx
 <button aria-label="Search">
   <i className="ri-search-line"></i>
@@ -434,8 +450,8 @@ Hide from screen readers:
 
 ```tsx
 <button>
-  <RiDownloadLine size={18} aria-hidden="true" />
-  <span>Download</span>
+    <RiDownloadLine size={18} aria-hidden="true" />
+    <span>Download</span>
 </button>
 ```
 
@@ -447,21 +463,21 @@ Text provides context, icon is decorative.
 
 ```tsx
 // app/layout.tsx
-import 'remixicon/fonts/remixicon.css'
+import "remixicon/fonts/remixicon.css";
 
 export default function RootLayout({ children }) {
-  return (
-    <html>
-      <body>{children}</body>
-    </html>
-  )
+    return (
+        <html>
+            <body>{children}</body>
+        </html>
+    );
 }
 
 // app/page.tsx
-import { RiHomeLine } from "@remixicon/react"
+import { RiHomeLine } from "@remixicon/react";
 
 export default function Page() {
-  return <RiHomeLine size={24} />
+    return <RiHomeLine size={24} />;
 }
 ```
 
@@ -476,11 +492,11 @@ export default function Page() {
 ### CSS Modules
 
 ```tsx
-import styles from './component.module.css'
-import 'remixicon/fonts/remixicon.css'
+import styles from "./component.module.css";
+import "remixicon/fonts/remixicon.css";
 
 export function Component() {
-  return <i className={`ri-home-line ${styles.icon}`}></i>
+    return <i className={`ri-home-line ${styles.icon}`}></i>;
 }
 ```
 
@@ -489,11 +505,13 @@ export function Component() {
 ### Webfont (Recommended for Multiple Icons)
 
 **Pros:**
+
 - Single HTTP request
 - All icons available
 - Easy to use
 
 **Cons:**
+
 - 179KB WOFF2 file
 - Loads all icons even if unused
 
@@ -502,11 +520,13 @@ export function Component() {
 ### Individual SVG (Recommended for Few Icons)
 
 **Pros:**
+
 - Only load what you need
 - Smallest bundle size
 - Tree-shakeable with React package
 
 **Cons:**
+
 - Multiple imports
 
 **Best for:** Apps using 1-5 icons
@@ -514,11 +534,13 @@ export function Component() {
 ### React/Vue Package
 
 **Pros:**
+
 - Tree-shakeable (only imports used icons)
 - TypeScript support
 - Component API
 
 **Cons:**
+
 - Slightly larger than raw SVG
 - Requires React/Vue
 
@@ -529,11 +551,13 @@ export function Component() {
 ### Icons Not Displaying
 
 **Check CSS import:**
+
 ```tsx
-import 'remixicon/fonts/remixicon.css'
+import "remixicon/fonts/remixicon.css";
 ```
 
 **Verify class name:**
+
 ```html
 <!-- Correct -->
 <i className="ri-home-line"></i>
@@ -544,10 +568,12 @@ import 'remixicon/fonts/remixicon.css'
 ```
 
 **Check font loading:**
+
 ```css
 /* Ensure font-family is applied */
-[class^="ri-"], [class*=" ri-"] {
-  font-family: "remixicon" !important;
+[class^="ri-"],
+[class*=" ri-"] {
+    font-family: "remixicon" !important;
 }
 ```
 
@@ -568,13 +594,15 @@ Use multiples of 24px for crisp rendering:
 ### Wrong Icon Size
 
 **Set parent font-size:**
+
 ```css
 .icon-container {
-  font-size: 24px;
+    font-size: 24px;
 }
 ```
 
 **Or use size prop:**
+
 ```tsx
 <RiHomeLine size={24} />
 ```

@@ -3,18 +3,18 @@
  * Privacy-focused match-making with in-app messaging
  */
 
-import { supabase } from '../lib/supabase';
-import { MatchRequest, ApiResponse } from '../types';
-import { logger } from '../lib/logger';
+import { supabase } from "../lib/supabase";
+import { MatchRequest, ApiResponse } from "../types";
+import { logger } from "../lib/logger";
 
-const matchLogger = logger.create('Match');
+const matchLogger = logger.create("Match");
 
 // Types for match system
 export interface MatchResponse {
     id: string;
     matchRequestId: string;
     responderId: string;
-    status: 'pending' | 'accepted' | 'declined' | 'cancelled';
+    status: "pending" | "accepted" | "declined" | "cancelled";
     message?: string;
     createdAt: string;
     responderName?: string;
@@ -27,7 +27,7 @@ export interface MatchConversation {
     otherUserId: string;
     otherUserName: string;
     otherUserAvatar?: string;
-    status: 'active' | 'archived' | 'blocked';
+    status: "active" | "archived" | "blocked";
     lastMessage?: string;
     lastMessageAt?: string;
     unreadCount: number;
@@ -49,18 +49,20 @@ export const MatchService = {
      * Get open match requests (excludes blocked users)
      */
     getMatchRequests: async (): Promise<ApiResponse<MatchRequest[]>> => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
 
         try {
             let query = supabase
-                .from('match_requests')
-                .select('*, profiles:user_id(name, avatar)')
-                .eq('status', 'open')
-                .order('created_at', { ascending: false });
+                .from("match_requests")
+                .select("*, profiles:user_id(name, avatar)")
+                .eq("status", "open")
+                .order("created_at", { ascending: false });
 
             // Exclude user's own requests
             if (user) {
-                query = query.neq('user_id', user.id);
+                query = query.neq("user_id", user.id);
             }
 
             const { data, error } = await query;
@@ -73,10 +75,10 @@ export const MatchService = {
             let blockedIds: string[] = [];
             if (user) {
                 const { data: blocks } = await supabase
-                    .from('user_blocks')
-                    .select('blocked_id')
-                    .eq('blocker_id', user.id);
-                blockedIds = (blocks || []).map(b => b.blocked_id);
+                    .from("user_blocks")
+                    .select("blocked_id")
+                    .eq("blocker_id", user.id);
+                blockedIds = (blocks || []).map((b) => b.blocked_id);
             }
 
             const matches: MatchRequest[] = data
@@ -92,12 +94,12 @@ export const MatchService = {
                     status: m.status,
                     description: m.description,
                     createdAt: m.created_at,
-                    profile: m.profiles
+                    profile: m.profiles,
                 }));
 
             return { success: true, data: matches };
         } catch (e) {
-            matchLogger.error('getMatchRequests error', e);
+            matchLogger.error("getMatchRequests error", e);
             return { success: false, data: [] };
         }
     },
@@ -106,15 +108,17 @@ export const MatchService = {
      * Get user's own match requests
      */
     getMyMatchRequests: async (): Promise<ApiResponse<MatchRequest[]>> => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
         if (!user) return { success: false, data: [] };
 
         try {
             const { data, error } = await supabase
-                .from('match_requests')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false });
+                .from("match_requests")
+                .select("*")
+                .eq("user_id", user.id)
+                .order("created_at", { ascending: false });
 
             if (error || !data) {
                 return { success: false, data: [] };
@@ -142,13 +146,17 @@ export const MatchService = {
     /**
      * Create a new match request
      */
-    createMatchRequest: async (request: Omit<MatchRequest, 'id' | 'userId' | 'status' | 'createdAt'>): Promise<ApiResponse<MatchRequest | null>> => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return { success: false, data: null, error: 'Not authenticated' };
+    createMatchRequest: async (
+        request: Omit<MatchRequest, "id" | "userId" | "status" | "createdAt">
+    ): Promise<ApiResponse<MatchRequest | null>> => {
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) return { success: false, data: null, error: "Not authenticated" };
 
         try {
             const { data, error } = await supabase
-                .from('match_requests')
+                .from("match_requests")
                 .insert({
                     user_id: user.id,
                     court_id: request.courtId || null,
@@ -157,72 +165,78 @@ export const MatchService = {
                     match_type: request.matchType,
                     gender: request.gender,
                     description: request.description,
-                    status: 'open'
+                    status: "open",
                 })
                 .select()
                 .single();
 
             if (error) {
-                matchLogger.error('createMatchRequest error', error);
+                matchLogger.error("createMatchRequest error", error);
                 return { success: false, data: null, error: error.message };
             }
 
             return { success: true, data: data as any };
         } catch (e) {
-            return { success: false, data: null, error: 'Failed to create request' };
+            return { success: false, data: null, error: "Failed to create request" };
         }
     },
 
     /**
      * Respond to a match request (express interest)
      */
-    respondToMatch: async (matchRequestId: string, message?: string): Promise<ApiResponse<MatchResponse | null>> => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return { success: false, data: null, error: 'Not authenticated' };
+    respondToMatch: async (
+        matchRequestId: string,
+        message?: string
+    ): Promise<ApiResponse<MatchResponse | null>> => {
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) return { success: false, data: null, error: "Not authenticated" };
 
         try {
             // Check if blocked
             const { data: request } = await supabase
-                .from('match_requests')
-                .select('user_id')
-                .eq('id', matchRequestId)
+                .from("match_requests")
+                .select("user_id")
+                .eq("id", matchRequestId)
                 .single();
 
             if (!request) {
-                return { success: false, data: null, error: 'Match request not found' };
+                return { success: false, data: null, error: "Match request not found" };
             }
 
             // Check for blocks
             const { data: block } = await supabase
-                .from('user_blocks')
-                .select('id')
+                .from("user_blocks")
+                .select("id")
                 .or(`blocker_id.eq.${request.user_id},blocked_id.eq.${request.user_id}`)
-                .eq('blocker_id', user.id)
+                .eq("blocker_id", user.id)
                 .maybeSingle();
 
             if (block) {
-                return { success: false, data: null, error: 'Cannot respond to this request' };
+                return { success: false, data: null, error: "Cannot respond to this request" };
             }
 
             const { data, error } = await supabase
-                .from('match_responses')
+                .from("match_responses")
                 .insert({
                     match_request_id: matchRequestId,
                     responder_id: user.id,
                     message: message?.substring(0, 200), // Limit intro message
-                    status: 'pending'
+                    status: "pending",
                 })
                 .select()
                 .single();
 
             if (error) {
-                if (error.code === '23505') { // Unique constraint
-                    return { success: false, data: null, error: 'Bạn đã đăng ký tham gia rồi' };
+                if (error.code === "23505") {
+                    // Unique constraint
+                    return { success: false, data: null, error: "Bạn đã đăng ký tham gia rồi" };
                 }
                 return { success: false, data: null, error: error.message };
             }
 
-            matchLogger.info('Match response created', { matchRequestId, responderId: user.id });
+            matchLogger.info("Match response created", { matchRequestId, responderId: user.id });
 
             return {
                 success: true,
@@ -233,11 +247,11 @@ export const MatchService = {
                     status: data.status,
                     message: data.message,
                     createdAt: data.created_at,
-                }
+                },
             };
         } catch (e) {
-            matchLogger.error('respondToMatch error', e);
-            return { success: false, data: null, error: 'Failed to respond' };
+            matchLogger.error("respondToMatch error", e);
+            return { success: false, data: null, error: "Failed to respond" };
         }
     },
 
@@ -247,13 +261,15 @@ export const MatchService = {
     getMatchResponses: async (matchRequestId: string): Promise<ApiResponse<MatchResponse[]>> => {
         try {
             const { data, error } = await supabase
-                .from('match_responses')
-                .select(`
+                .from("match_responses")
+                .select(
+                    `
                     *,
                     profiles:responder_id(name, avatar)
-                `)
-                .eq('match_request_id', matchRequestId)
-                .order('created_at', { ascending: false });
+                `
+                )
+                .eq("match_request_id", matchRequestId)
+                .order("created_at", { ascending: false });
 
             if (error || !data) {
                 return { success: false, data: [] };
@@ -266,7 +282,7 @@ export const MatchService = {
                 status: r.status,
                 message: r.message,
                 createdAt: r.created_at,
-                responderName: r.profiles?.name || 'Ẩn danh',
+                responderName: r.profiles?.name || "Ẩn danh",
                 responderAvatar: r.profiles?.avatar,
             }));
 
@@ -279,51 +295,57 @@ export const MatchService = {
     /**
      * Accept a match response (creates conversation)
      */
-    acceptResponse: async (responseId: string): Promise<ApiResponse<{ conversationId: string } | null>> => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return { success: false, data: null, error: 'Not authenticated' };
+    acceptResponse: async (
+        responseId: string
+    ): Promise<ApiResponse<{ conversationId: string } | null>> => {
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) return { success: false, data: null, error: "Not authenticated" };
 
         try {
             // Get the response
             const { data: response } = await supabase
-                .from('match_responses')
-                .select('*, match_requests!inner(user_id)')
-                .eq('id', responseId)
+                .from("match_responses")
+                .select("*, match_requests!inner(user_id)")
+                .eq("id", responseId)
                 .single();
 
             if (!response) {
-                return { success: false, data: null, error: 'Response not found' };
+                return { success: false, data: null, error: "Response not found" };
             }
 
             // Verify ownership
             if ((response.match_requests as any).user_id !== user.id) {
-                return { success: false, data: null, error: 'Not authorized' };
+                return { success: false, data: null, error: "Not authorized" };
             }
 
             // Update response status
             await supabase
-                .from('match_responses')
-                .update({ status: 'accepted', updated_at: new Date().toISOString() })
-                .eq('id', responseId);
+                .from("match_responses")
+                .update({ status: "accepted", updated_at: new Date().toISOString() })
+                .eq("id", responseId);
 
             // Create conversation
-            const { data: conversationId, error: convError } = await supabase
-                .rpc('create_match_conversation', {
+            const { data: conversationId, error: convError } = await supabase.rpc(
+                "create_match_conversation",
+                {
                     p_match_request_id: response.match_request_id,
-                    p_responder_id: response.responder_id
-                });
+                    p_responder_id: response.responder_id,
+                }
+            );
 
             if (convError) {
-                matchLogger.error('Failed to create conversation', convError);
-                return { success: false, data: null, error: 'Failed to create conversation' };
+                matchLogger.error("Failed to create conversation", convError);
+                return { success: false, data: null, error: "Failed to create conversation" };
             }
 
-            matchLogger.info('Match accepted', { responseId, conversationId });
+            matchLogger.info("Match accepted", { responseId, conversationId });
 
             return { success: true, data: { conversationId } };
         } catch (e) {
-            matchLogger.error('acceptResponse error', e);
-            return { success: false, data: null, error: 'Failed to accept' };
+            matchLogger.error("acceptResponse error", e);
+            return { success: false, data: null, error: "Failed to accept" };
         }
     },
 
@@ -331,14 +353,16 @@ export const MatchService = {
      * Decline a match response
      */
     declineResponse: async (responseId: string): Promise<ApiResponse<boolean>> => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return { success: false, data: false, error: 'Not authenticated' };
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) return { success: false, data: false, error: "Not authenticated" };
 
         try {
             const { error } = await supabase
-                .from('match_responses')
-                .update({ status: 'declined', updated_at: new Date().toISOString() })
-                .eq('id', responseId);
+                .from("match_responses")
+                .update({ status: "declined", updated_at: new Date().toISOString() })
+                .eq("id", responseId);
 
             if (error) {
                 return { success: false, data: false, error: error.message };
@@ -346,7 +370,7 @@ export const MatchService = {
 
             return { success: true, data: true };
         } catch (e) {
-            return { success: false, data: false, error: 'Failed to decline' };
+            return { success: false, data: false, error: "Failed to decline" };
         }
     },
 
@@ -354,20 +378,24 @@ export const MatchService = {
      * Get user's conversations
      */
     getConversations: async (): Promise<ApiResponse<MatchConversation[]>> => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
         if (!user) return { success: false, data: [] };
 
         try {
             const { data, error } = await supabase
-                .from('match_conversations')
-                .select(`
+                .from("match_conversations")
+                .select(
+                    `
                     *,
                     user_a_profile:user_a(name, avatar),
                     user_b_profile:user_b(name, avatar)
-                `)
+                `
+                )
                 .or(`user_a.eq.${user.id},user_b.eq.${user.id}`)
-                .neq('status', 'blocked')
-                .order('created_at', { ascending: false });
+                .neq("status", "blocked")
+                .order("created_at", { ascending: false });
 
             if (error || !data) {
                 return { success: false, data: [] };
@@ -382,26 +410,26 @@ export const MatchService = {
 
                     // Get last message
                     const { data: lastMsg } = await supabase
-                        .from('match_messages')
-                        .select('content, created_at')
-                        .eq('conversation_id', c.id)
-                        .order('created_at', { ascending: false })
+                        .from("match_messages")
+                        .select("content, created_at")
+                        .eq("conversation_id", c.id)
+                        .order("created_at", { ascending: false })
                         .limit(1)
                         .maybeSingle();
 
                     // Get unread count
                     const { count } = await supabase
-                        .from('match_messages')
-                        .select('*', { count: 'exact', head: true })
-                        .eq('conversation_id', c.id)
-                        .neq('sender_id', user.id)
-                        .eq('is_read', false);
+                        .from("match_messages")
+                        .select("*", { count: "exact", head: true })
+                        .eq("conversation_id", c.id)
+                        .neq("sender_id", user.id)
+                        .eq("is_read", false);
 
                     return {
                         id: c.id,
                         matchRequestId: c.match_request_id,
                         otherUserId,
-                        otherUserName: otherProfile?.name || 'Người dùng',
+                        otherUserName: otherProfile?.name || "Người dùng",
                         otherUserAvatar: otherProfile?.avatar,
                         status: c.status,
                         lastMessage: lastMsg?.content,
@@ -421,7 +449,7 @@ export const MatchService = {
 
             return { success: true, data: conversations };
         } catch (e) {
-            matchLogger.error('getConversations error', e);
+            matchLogger.error("getConversations error", e);
             return { success: false, data: [] };
         }
     },
@@ -429,16 +457,21 @@ export const MatchService = {
     /**
      * Get messages in a conversation
      */
-    getMessages: async (conversationId: string, limit = 50): Promise<ApiResponse<MatchMessage[]>> => {
-        const { data: { user } } = await supabase.auth.getUser();
+    getMessages: async (
+        conversationId: string,
+        limit = 50
+    ): Promise<ApiResponse<MatchMessage[]>> => {
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
         if (!user) return { success: false, data: [] };
 
         try {
             const { data, error } = await supabase
-                .from('match_messages')
-                .select('*')
-                .eq('conversation_id', conversationId)
-                .order('created_at', { ascending: false })
+                .from("match_messages")
+                .select("*")
+                .eq("conversation_id", conversationId)
+                .order("created_at", { ascending: false })
                 .limit(limit);
 
             if (error || !data) {
@@ -457,11 +490,11 @@ export const MatchService = {
 
             // Mark unread messages as read
             await supabase
-                .from('match_messages')
+                .from("match_messages")
                 .update({ is_read: true })
-                .eq('conversation_id', conversationId)
-                .neq('sender_id', user.id)
-                .eq('is_read', false);
+                .eq("conversation_id", conversationId)
+                .neq("sender_id", user.id)
+                .eq("is_read", false);
 
             return { success: true, data: messages };
         } catch (e) {
@@ -472,17 +505,22 @@ export const MatchService = {
     /**
      * Send a message
      */
-    sendMessage: async (conversationId: string, content: string): Promise<ApiResponse<MatchMessage | null>> => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return { success: false, data: null, error: 'Not authenticated' };
+    sendMessage: async (
+        conversationId: string,
+        content: string
+    ): Promise<ApiResponse<MatchMessage | null>> => {
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) return { success: false, data: null, error: "Not authenticated" };
 
         if (!content.trim()) {
-            return { success: false, data: null, error: 'Message cannot be empty' };
+            return { success: false, data: null, error: "Message cannot be empty" };
         }
 
         try {
             const { data, error } = await supabase
-                .from('match_messages')
+                .from("match_messages")
                 .insert({
                     conversation_id: conversationId,
                     sender_id: user.id,
@@ -505,10 +543,10 @@ export const MatchService = {
                     isRead: data.is_read,
                     createdAt: data.created_at,
                     isMine: true,
-                }
+                },
             };
         } catch (e) {
-            return { success: false, data: null, error: 'Failed to send message' };
+            return { success: false, data: null, error: "Failed to send message" };
         }
     },
 
@@ -516,30 +554,32 @@ export const MatchService = {
      * Block a user
      */
     blockUser: async (userId: string, reason?: string): Promise<ApiResponse<boolean>> => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return { success: false, data: false, error: 'Not authenticated' };
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) return { success: false, data: false, error: "Not authenticated" };
 
         try {
             // Create block
-            await supabase
-                .from('user_blocks')
-                .insert({
-                    blocker_id: user.id,
-                    blocked_id: userId,
-                    reason,
-                });
+            await supabase.from("user_blocks").insert({
+                blocker_id: user.id,
+                blocked_id: userId,
+                reason,
+            });
 
             // Archive any existing conversations
             await supabase
-                .from('match_conversations')
-                .update({ status: 'blocked' })
-                .or(`and(user_a.eq.${user.id},user_b.eq.${userId}),and(user_a.eq.${userId},user_b.eq.${user.id})`);
+                .from("match_conversations")
+                .update({ status: "blocked" })
+                .or(
+                    `and(user_a.eq.${user.id},user_b.eq.${userId}),and(user_a.eq.${userId},user_b.eq.${user.id})`
+                );
 
-            matchLogger.info('User blocked', { blockedId: userId });
+            matchLogger.info("User blocked", { blockedId: userId });
 
             return { success: true, data: true };
         } catch (e) {
-            return { success: false, data: false, error: 'Failed to block user' };
+            return { success: false, data: false, error: "Failed to block user" };
         }
     },
 
@@ -547,15 +587,17 @@ export const MatchService = {
      * Unblock a user
      */
     unblockUser: async (userId: string): Promise<ApiResponse<boolean>> => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
         if (!user) return { success: false, data: false };
 
         try {
             await supabase
-                .from('user_blocks')
+                .from("user_blocks")
                 .delete()
-                .eq('blocker_id', user.id)
-                .eq('blocked_id', userId);
+                .eq("blocker_id", user.id)
+                .eq("blocked_id", userId);
 
             return { success: true, data: true };
         } catch (e) {
@@ -566,25 +608,29 @@ export const MatchService = {
     /**
      * Report a user
      */
-    reportUser: async (userId: string, reason: string, description?: string): Promise<ApiResponse<boolean>> => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return { success: false, data: false, error: 'Not authenticated' };
+    reportUser: async (
+        userId: string,
+        reason: string,
+        description?: string
+    ): Promise<ApiResponse<boolean>> => {
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) return { success: false, data: false, error: "Not authenticated" };
 
         try {
-            await supabase
-                .from('user_reports')
-                .insert({
-                    reporter_id: user.id,
-                    reported_id: userId,
-                    reason,
-                    description,
-                });
+            await supabase.from("user_reports").insert({
+                reporter_id: user.id,
+                reported_id: userId,
+                reason,
+                description,
+            });
 
-            matchLogger.info('User reported', { reportedId: userId, reason });
+            matchLogger.info("User reported", { reportedId: userId, reason });
 
             return { success: true, data: true };
         } catch (e) {
-            return { success: false, data: false, error: 'Failed to report user' };
+            return { success: false, data: false, error: "Failed to report user" };
         }
     },
 
@@ -592,15 +638,17 @@ export const MatchService = {
      * Cancel my match request
      */
     cancelMatchRequest: async (requestId: string): Promise<ApiResponse<boolean>> => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
         if (!user) return { success: false, data: false };
 
         try {
             const { error } = await supabase
-                .from('match_requests')
-                .update({ status: 'cancelled' })
-                .eq('id', requestId)
-                .eq('user_id', user.id);
+                .from("match_requests")
+                .update({ status: "cancelled" })
+                .eq("id", requestId)
+                .eq("user_id", user.id);
 
             if (error) {
                 return { success: false, data: false, error: error.message };
@@ -616,12 +664,14 @@ export const MatchService = {
      * Get total unread message count
      */
     getUnreadCount: async (): Promise<number> => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
         if (!user) return 0;
 
         try {
-            const { data } = await supabase.rpc('get_unread_message_count', {
-                p_user_id: user.id
+            const { data } = await supabase.rpc("get_unread_message_count", {
+                p_user_id: user.id,
             });
             return data || 0;
         } catch {

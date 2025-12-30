@@ -10,7 +10,7 @@ import Constants from "expo-constants";
 import { supabase } from "../lib/supabase";
 import { logger } from "../lib/logger";
 
-const pushLogger = logger.create('Push');
+const pushLogger = logger.create("Push");
 
 // Configure notification handling
 Notifications.setNotificationHandler({
@@ -51,8 +51,8 @@ export const PushNotificationService = {
             }
 
             // Get project ID from Constants (works in both dev and production)
-            const projectId = Constants.expoConfig?.extra?.eas?.projectId
-                ?? Constants.easConfig?.projectId;
+            const projectId =
+                Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
 
             if (!projectId) {
                 pushLogger.debug("No projectId found - push notifications disabled in dev mode");
@@ -65,7 +65,9 @@ export const PushNotificationService = {
             });
 
             // Save token to user profile
-            const { data: { user } } = await supabase.auth.getUser();
+            const {
+                data: { user },
+            } = await supabase.auth.getUser();
             if (user) {
                 await supabase
                     .from("profiles")
@@ -109,12 +111,15 @@ export const PushNotificationService = {
      * Send push notification to court owner when new booking is created
      * This should be called from a backend/Supabase Edge Function
      */
-    notifyCourtOwner: async (ownerId: string, bookingData: {
-        courtName: string;
-        playerName: string;
-        startTime: string;
-        totalAmount: number;
-    }) => {
+    notifyCourtOwner: async (
+        ownerId: string,
+        bookingData: {
+            courtName: string;
+            playerName: string;
+            startTime: string;
+            totalAmount: number;
+        }
+    ) => {
         // Get owner's push token
         const { data: owner } = await supabase
             .from("profiles")
@@ -162,12 +167,15 @@ export const PushNotificationService = {
     /**
      * Create in-app notification record
      */
-    createNotification: async (userId: string, data: {
-        type: string;
-        title: string;
-        message: string;
-        metadata?: object;
-    }) => {
+    createNotification: async (
+        userId: string,
+        data: {
+            type: string;
+            title: string;
+            message: string;
+            metadata?: object;
+        }
+    ) => {
         const { error } = await supabase.from("notifications").insert({
             user_id: userId,
             type: data.type,
@@ -190,9 +198,7 @@ export const PushNotificationService = {
         const subscriptions: Notifications.Subscription[] = [];
 
         if (handlers.onReceive) {
-            subscriptions.push(
-                Notifications.addNotificationReceivedListener(handlers.onReceive)
-            );
+            subscriptions.push(Notifications.addNotificationReceivedListener(handlers.onReceive));
         }
 
         if (handlers.onTap) {
@@ -291,7 +297,9 @@ export const PushNotificationService = {
                 });
             }
 
-            pushLogger.info("Booking created notification sent", { bookingId: bookingData.bookingId });
+            pushLogger.info("Booking created notification sent", {
+                bookingId: bookingData.bookingId,
+            });
             return true;
         } catch (error) {
             pushLogger.error("Failed to send booking created notification", error);
@@ -306,7 +314,7 @@ export const PushNotificationService = {
         bookingId: string;
         userId: string;
         courtName: string;
-        newStatus: 'approved' | 'rejected' | 'cancelled';
+        newStatus: "approved" | "rejected" | "cancelled";
         reason?: string;
     }) => {
         try {
@@ -375,7 +383,7 @@ export const PushNotificationService = {
 
             pushLogger.info("Booking status notification sent", {
                 bookingId: data.bookingId,
-                status: data.newStatus
+                status: data.newStatus,
             });
             return true;
         } catch (error) {
@@ -439,4 +447,3 @@ export const PushNotificationService = {
         }
     },
 };
-

@@ -1,6 +1,6 @@
 export interface HighlightEvent {
     timestamp: number;
-    type: 'spike' | 'block' | 'ace' | 'save';
+    type: "spike" | "block" | "ace" | "save";
 }
 
 export interface Highlight {

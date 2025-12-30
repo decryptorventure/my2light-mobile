@@ -1,9 +1,11 @@
 # /components - UI Components
 
 ## Overview
+
 Reusable UI components following atomic design principles.
 
 ## Structure
+
 ```
 components/
 ├── ui/                    # Base UI primitives
@@ -23,11 +25,12 @@ components/
 ## UI Components
 
 ### Button
+
 ```typescript
 import { Button } from '@/components/ui';
 
-<Button 
-  title="Submit" 
+<Button
+  title="Submit"
   variant="primary" // 'primary' | 'secondary' | 'ghost'
   size="md"         // 'sm' | 'md' | 'lg'
   loading={false}
@@ -37,6 +40,7 @@ import { Button } from '@/components/ui';
 ```
 
 ### Input
+
 ```typescript
 import { Input } from '@/components/ui';
 
@@ -52,6 +56,7 @@ import { Input } from '@/components/ui';
 ```
 
 ### Card
+
 ```typescript
 import { Card } from '@/components/ui';
 
@@ -61,6 +66,7 @@ import { Card } from '@/components/ui';
 ```
 
 ### Skeleton (Loading States)
+
 ```typescript
 import { Skeleton, HighlightCardSkeleton, ProfileSkeleton } from '@/components/ui';
 
@@ -75,13 +81,14 @@ import { Skeleton, HighlightCardSkeleton, ProfileSkeleton } from '@/components/u
 ```
 
 ### State Components
+
 ```typescript
 import { ErrorState, EmptyState, OfflineIndicator } from '@/components/ui';
 
 // Error with retry
-<ErrorState 
-  message="Failed to load" 
-  onRetry={() => refetch()} 
+<ErrorState
+  message="Failed to load"
+  onRetry={() => refetch()}
 />
 
 // Empty state with action
@@ -102,27 +109,27 @@ import { ErrorState, EmptyState, OfflineIndicator } from '@/components/ui';
 All components use tokens from `/constants/theme.ts`:
 
 ```typescript
-import { colors, spacing, fontSize, fontWeight, borderRadius } from '@/constants/theme';
+import { colors, spacing, fontSize, fontWeight, borderRadius } from "@/constants/theme";
 
 // Colors
-colors.background  // #0f172a
-colors.surface     // #1e293b
-colors.accent      // #a3e635
-colors.text        // #f1f5f9
+colors.background; // #0f172a
+colors.surface; // #1e293b
+colors.accent; // #a3e635
+colors.text; // #f1f5f9
 
 // Spacing (4px base)
-spacing.xs  // 4
-spacing.sm  // 8
-spacing.md  // 16
-spacing.lg  // 24
-spacing.xl  // 32
+spacing.xs; // 4
+spacing.sm; // 8
+spacing.md; // 16
+spacing.lg; // 24
+spacing.xl; // 32
 
 // Typography
-fontSize.xs  // 12
-fontSize.sm  // 14
-fontSize.md  // 16
-fontSize.lg  // 18
-fontSize.xl  // 24
+fontSize.xs; // 12
+fontSize.sm; // 14
+fontSize.md; // 16
+fontSize.lg; // 18
+fontSize.xl; // 24
 ```
 
 ## Adding New Components
@@ -134,6 +141,7 @@ fontSize.xl  // 24
 5. Update this README
 
 ### Template
+
 ```typescript
 import { View, Text, StyleSheet } from 'react-native';
 import { colors, spacing } from '@/constants/theme';

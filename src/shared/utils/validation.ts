@@ -17,33 +17,34 @@ export interface ValidationResult {
  */
 export function validateEmail(email: string): ValidationResult {
     // RFC 5322 simplified - prevents most invalid formats
-    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    const emailRegex =
+        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
     if (!email || email.trim().length === 0) {
-        return { valid: false, error: 'Email is required' };
+        return { valid: false, error: "Email is required" };
     }
 
     const trimmedEmail = email.trim();
 
     // Check length constraints
     if (trimmedEmail.length > 254) {
-        return { valid: false, error: 'Email is too long (max 254 characters)' };
+        return { valid: false, error: "Email is too long (max 254 characters)" };
     }
 
     // Validate format
     if (!emailRegex.test(trimmedEmail)) {
-        return { valid: false, error: 'Invalid email format' };
+        return { valid: false, error: "Invalid email format" };
     }
 
     // Additional checks
-    const [localPart, domain] = trimmedEmail.split('@');
+    const [localPart, domain] = trimmedEmail.split("@");
 
     if (localPart.length > 64) {
-        return { valid: false, error: 'Email local part is too long' };
+        return { valid: false, error: "Email local part is too long" };
     }
 
     if (!domain || domain.length === 0) {
-        return { valid: false, error: 'Invalid email domain' };
+        return { valid: false, error: "Invalid email domain" };
     }
 
     return { valid: true };
@@ -63,7 +64,7 @@ export function validatePassword(password: string): ValidationResult {
     const hasNumbers = /\d/.test(password);
 
     if (!password || password.length === 0) {
-        return { valid: false, error: 'Password is required' };
+        return { valid: false, error: "Password is required" };
     }
 
     if (password.length < minLength) {
@@ -76,21 +77,21 @@ export function validatePassword(password: string): ValidationResult {
     if (!hasUppercase) {
         return {
             valid: false,
-            error: 'Password must include at least one uppercase letter',
+            error: "Password must include at least one uppercase letter",
         };
     }
 
     if (!hasLowercase) {
         return {
             valid: false,
-            error: 'Password must include at least one lowercase letter',
+            error: "Password must include at least one lowercase letter",
         };
     }
 
     if (!hasNumbers) {
         return {
             valid: false,
-            error: 'Password must include at least one number',
+            error: "Password must include at least one number",
         };
     }
 
@@ -109,11 +110,11 @@ export function validatePasswordConfirmation(
     confirmPassword: string
 ): ValidationResult {
     if (!confirmPassword || confirmPassword.length === 0) {
-        return { valid: false, error: 'Password confirmation is required' };
+        return { valid: false, error: "Password confirmation is required" };
     }
 
     if (password !== confirmPassword) {
-        return { valid: false, error: 'Passwords do not match' };
+        return { valid: false, error: "Passwords do not match" };
     }
 
     return { valid: true };
@@ -127,14 +128,14 @@ export function validatePasswordConfirmation(
  * @returns Sanitized string safe for display
  */
 export function sanitizeInput(input: string): string {
-    if (!input) return '';
+    if (!input) return "";
 
     return input
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#x27;')
-        .replace(/\//g, '&#x2F;')
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#x27;")
+        .replace(/\//g, "&#x2F;")
         .trim();
 }
 
@@ -147,17 +148,17 @@ export function sanitizeInput(input: string): string {
  */
 export function validatePhoneNumber(phone: string): ValidationResult {
     if (!phone || phone.trim().length === 0) {
-        return { valid: false, error: 'Phone number is required' };
+        return { valid: false, error: "Phone number is required" };
     }
 
     // Remove all non-digit characters for validation
-    const digitsOnly = phone.replace(/\D/g, '');
+    const digitsOnly = phone.replace(/\D/g, "");
 
     // Check if it has 10-15 digits (international format)
     if (digitsOnly.length < 10 || digitsOnly.length > 15) {
         return {
             valid: false,
-            error: 'Phone number must be between 10-15 digits',
+            error: "Phone number must be between 10-15 digits",
         };
     }
 
@@ -173,7 +174,7 @@ export function validatePhoneNumber(phone: string): ValidationResult {
  */
 export function validateRequired(
     value: string,
-    fieldName: string = 'This field'
+    fieldName: string = "This field"
 ): ValidationResult {
     if (!value || value.trim().length === 0) {
         return { valid: false, error: `${fieldName} is required` };
@@ -195,7 +196,7 @@ export function validateLength(
     value: string,
     min: number,
     max: number,
-    fieldName: string = 'This field'
+    fieldName: string = "This field"
 ): ValidationResult {
     if (!value) {
         return { valid: false, error: `${fieldName} is required` };

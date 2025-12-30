@@ -15,8 +15,18 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
-import { useHighlights, useCurrentUser, useUnreadNotificationCount, useCourts } from "../../hooks/useApi";
-import { HighlightCard, HighlightCardSkeleton, AnimatedPressable, FadeInView } from "../../components/ui";
+import {
+    useHighlights,
+    useCurrentUser,
+    useUnreadNotificationCount,
+    useCourts,
+} from "../../hooks/useApi";
+import {
+    HighlightCard,
+    HighlightCardSkeleton,
+    AnimatedPressable,
+    FadeInView,
+} from "../../components/ui";
 import haptics from "../../lib/haptics";
 
 const { width } = Dimensions.get("window");
@@ -48,15 +58,22 @@ export default function HomeScreen() {
     };
 
     const formatCredits = (credits: number) => {
-        return credits.toLocaleString("vi-VN") + "đ";
+        return `${credits.toLocaleString("vi-VN")}đ`;
     };
 
     return (
         <View style={styles.container}>
             <ScrollView
-                contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + spacing.md }]}
+                contentContainerStyle={[
+                    styles.scrollContent,
+                    { paddingTop: insets.top + spacing.md },
+                ]}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={colors.accent}
+                    />
                 }
                 showsVerticalScrollIndicator={false}
             >
@@ -64,7 +81,10 @@ export default function HomeScreen() {
                 <View style={styles.header}>
                     <Text style={styles.greeting}>Chào {currentUser?.name || "bạn"},</Text>
                     <View style={styles.headerRight}>
-                        <TouchableOpacity style={styles.notificationBtn} onPress={() => router.push("/notifications")}>
+                        <TouchableOpacity
+                            style={styles.notificationBtn}
+                            onPress={() => router.push("/notifications")}
+                        >
                             <Ionicons name="notifications-outline" size={22} color={colors.text} />
                             {(unreadCount || 0) > 0 && (
                                 <View style={styles.notificationBadge}>
@@ -73,11 +93,19 @@ export default function HomeScreen() {
                             )}
                         </TouchableOpacity>
                         <View style={styles.balanceBadge}>
-                            <Text style={styles.balanceText}>{formatCredits(currentUser?.credits || 0)}</Text>
+                            <Text style={styles.balanceText}>
+                                {formatCredits(currentUser?.credits || 0)}
+                            </Text>
                         </View>
-                        <TouchableOpacity style={styles.avatarBtn} onPress={() => router.push("/(tabs)/profile")}>
+                        <TouchableOpacity
+                            style={styles.avatarBtn}
+                            onPress={() => router.push("/(tabs)/profile")}
+                        >
                             {currentUser?.avatar ? (
-                                <Image source={{ uri: currentUser.avatar }} style={styles.avatarImage} />
+                                <Image
+                                    source={{ uri: currentUser.avatar }}
+                                    style={styles.avatarImage}
+                                />
                             ) : (
                                 <View style={styles.avatar}>
                                     <Ionicons name="person" size={18} color={colors.textMuted} />
@@ -148,7 +176,10 @@ export default function HomeScreen() {
                             contentContainerStyle={styles.highlightsScroll}
                         >
                             {[1, 2, 3].map((i) => (
-                                <View key={i} style={{ width: CARD_WIDTH, marginRight: spacing.md }}>
+                                <View
+                                    key={i}
+                                    style={{ width: CARD_WIDTH, marginRight: spacing.md }}
+                                >
                                     <HighlightCardSkeleton />
                                 </View>
                             ))}
@@ -165,7 +196,11 @@ export default function HomeScreen() {
                             data={highlights}
                             keyExtractor={(item) => item.id}
                             renderItem={({ item, index }) => (
-                                <HighlightCard highlight={item} cardWidth={CARD_WIDTH} index={index} />
+                                <HighlightCard
+                                    highlight={item}
+                                    cardWidth={CARD_WIDTH}
+                                    index={index}
+                                />
                             )}
                             showsHorizontalScrollIndicator={false}
                             contentContainerStyle={styles.highlightsScroll}
@@ -215,36 +250,53 @@ export default function HomeScreen() {
                             <Text style={styles.emptyText}>Các sân mới sẽ hiển thị ở đây</Text>
                         </View>
                     ) : (
-                        courts.filter(c =>
-                            !searchQuery ||
-                            c.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            c.address?.toLowerCase().includes(searchQuery.toLowerCase())
-                        ).slice(0, 5).map((court: any) => (
-                            <TouchableOpacity
-                                key={court.id}
-                                style={styles.courtCard}
-                                onPress={() => router.push(`/court/${court.id}`)}
-                            >
-                                <View style={styles.courtInfo}>
-                                    <Text style={styles.courtName}>{court.name}</Text>
-                                    <Text style={styles.courtAddress} numberOfLines={1}>{court.address}</Text>
-                                    <View style={styles.courtMeta}>
-                                        <View style={styles.priceBadge}>
-                                            <Text style={styles.priceText}>
-                                                {(court.price_per_hour || 0).toLocaleString()}đ/giờ
-                                            </Text>
-                                        </View>
-                                        {court.rating > 0 && (
-                                            <View style={styles.ratingContainer}>
-                                                <Ionicons name="star" size={12} color="#f59e0b" />
-                                                <Text style={styles.ratingText}>{court.rating.toFixed(1)}</Text>
+                        courts
+                            .filter(
+                                (c) =>
+                                    !searchQuery ||
+                                    c.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                    c.address?.toLowerCase().includes(searchQuery.toLowerCase())
+                            )
+                            .slice(0, 5)
+                            .map((court: any) => (
+                                <TouchableOpacity
+                                    key={court.id}
+                                    style={styles.courtCard}
+                                    onPress={() => router.push(`/court/${court.id}`)}
+                                >
+                                    <View style={styles.courtInfo}>
+                                        <Text style={styles.courtName}>{court.name}</Text>
+                                        <Text style={styles.courtAddress} numberOfLines={1}>
+                                            {court.address}
+                                        </Text>
+                                        <View style={styles.courtMeta}>
+                                            <View style={styles.priceBadge}>
+                                                <Text style={styles.priceText}>
+                                                    {(court.price_per_hour || 0).toLocaleString()}
+                                                    đ/giờ
+                                                </Text>
                                             </View>
-                                        )}
+                                            {court.rating > 0 && (
+                                                <View style={styles.ratingContainer}>
+                                                    <Ionicons
+                                                        name="star"
+                                                        size={12}
+                                                        color="#f59e0b"
+                                                    />
+                                                    <Text style={styles.ratingText}>
+                                                        {court.rating.toFixed(1)}
+                                                    </Text>
+                                                </View>
+                                            )}
+                                        </View>
                                     </View>
-                                </View>
-                                <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
-                            </TouchableOpacity>
-                        ))
+                                    <Ionicons
+                                        name="chevron-forward"
+                                        size={20}
+                                        color={colors.textMuted}
+                                    />
+                                </TouchableOpacity>
+                            ))
                     )}
                 </View>
             </ScrollView>

@@ -18,7 +18,11 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
-import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "../../hooks/useApi";
+import {
+    useNotifications,
+    useMarkNotificationRead,
+    useMarkAllNotificationsRead,
+} from "../../hooks/useApi";
 import haptics from "../../lib/haptics";
 
 /**
@@ -94,7 +98,10 @@ export default function NotificationsScreen() {
                     <Ionicons name="chevron-back" size={24} color={colors.text} />
                 </TouchableOpacity>
                 <Text style={styles.title}>Thông báo</Text>
-                <TouchableOpacity onPress={handleMarkAllAsRead} disabled={markAllReadMutation.isPending}>
+                <TouchableOpacity
+                    onPress={handleMarkAllAsRead}
+                    disabled={markAllReadMutation.isPending}
+                >
                     <Text style={styles.markAllText}>Đọc tất cả</Text>
                 </TouchableOpacity>
             </View>
@@ -102,7 +109,11 @@ export default function NotificationsScreen() {
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={colors.accent}
+                    />
                 }
             >
                 {isLoading ? (
@@ -112,7 +123,11 @@ export default function NotificationsScreen() {
                     </View>
                 ) : !notifications || notifications.length === 0 ? (
                     <View style={styles.emptyState}>
-                        <Ionicons name="notifications-off-outline" size={64} color={colors.surfaceLight} />
+                        <Ionicons
+                            name="notifications-off-outline"
+                            size={64}
+                            color={colors.surfaceLight}
+                        />
                         <Text style={styles.emptyText}>Chưa có thông báo nào.</Text>
                     </View>
                 ) : (
@@ -126,7 +141,9 @@ export default function NotificationsScreen() {
                             onPress={() => handleMarkAsRead(notification.id)}
                             activeOpacity={0.8}
                         >
-                            <View style={styles.notificationIcon}>{getIcon(notification.type)}</View>
+                            <View style={styles.notificationIcon}>
+                                {getIcon(notification.type)}
+                            </View>
                             <View style={styles.notificationContent}>
                                 <View style={styles.notificationHeader}>
                                     <Text
@@ -141,7 +158,9 @@ export default function NotificationsScreen() {
                                         {formatTime(notification.createdAt)}
                                     </Text>
                                 </View>
-                                <Text style={styles.notificationMessage}>{notification.message}</Text>
+                                <Text style={styles.notificationMessage}>
+                                    {notification.message}
+                                </Text>
                             </View>
                             {!notification.isRead && <View style={styles.unreadDot} />}
                         </TouchableOpacity>

@@ -4,14 +4,7 @@
  */
 
 import React, { useCallback, useState } from "react";
-import {
-    View,
-    Text,
-    StyleSheet,
-    ScrollView,
-    RefreshControl,
-    TouchableOpacity,
-} from "react-native";
+import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -24,7 +17,11 @@ export default function AdminDashboardScreen() {
     const router = useRouter();
     const [refreshing, setRefreshing] = useState(false);
 
-    const { data: stats, refetch, isLoading } = useQuery({
+    const {
+        data: stats,
+        refetch,
+        isLoading,
+    } = useQuery({
         queryKey: ["admin", "dashboard"],
         queryFn: async () => {
             const result = await AdminService.getDashboardStats();

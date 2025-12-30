@@ -146,6 +146,7 @@ export default UserProfile;
 ```
 
 **Usage:**
+
 ```typescript
 <SuspenseLoader>
     <UserProfile userId='123' onUpdate={() => console.log('Updated')} />
@@ -184,8 +185,8 @@ features/
 ### API Service (userApi.ts)
 
 ```typescript
-import apiClient from '@/lib/apiClient';
-import type { User, CreateUserPayload, UpdateUserPayload } from '../types';
+import apiClient from "@/lib/apiClient";
+import type { User, CreateUserPayload, UpdateUserPayload } from "../types";
 
 export const userApi = {
     getUser: async (userId: string): Promise<User> => {
@@ -194,12 +195,12 @@ export const userApi = {
     },
 
     getUsers: async (): Promise<User[]> => {
-        const { data } = await apiClient.get('/users');
+        const { data } = await apiClient.get("/users");
         return data;
     },
 
     createUser: async (payload: CreateUserPayload): Promise<User> => {
-        const { data } = await apiClient.post('/users', payload);
+        const { data } = await apiClient.post("/users", payload);
         return data;
     },
 
@@ -217,13 +218,13 @@ export const userApi = {
 ### Suspense Hook (useSuspenseUser.ts)
 
 ```typescript
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { userApi } from '../api/userApi';
-import type { User } from '../types';
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { userApi } from "../api/userApi";
+import type { User } from "../types";
 
 export function useSuspenseUser(userId: string) {
     return useSuspenseQuery<User, Error>({
-        queryKey: ['user', userId],
+        queryKey: ["user", userId],
         queryFn: () => userApi.getUser(userId),
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
@@ -232,9 +233,9 @@ export function useSuspenseUser(userId: string) {
 
 export function useSuspenseUsers() {
     return useSuspenseQuery<User[], Error>({
-        queryKey: ['users'],
+        queryKey: ["users"],
         queryFn: () => userApi.getUsers(),
-        staleTime: 1 * 60 * 1000,  // Shorter for list
+        staleTime: 1 * 60 * 1000, // Shorter for list
     });
 }
 ```
@@ -261,25 +262,25 @@ export interface CreateUserPayload {
     password: string;
 }
 
-export type UpdateUserPayload = Partial<Omit<User, 'id' | 'createdAt' | 'updatedAt'>>;
+export type UpdateUserPayload = Partial<Omit<User, "id" | "createdAt" | "updatedAt">>;
 ```
 
 ### Public Exports (index.ts)
 
 ```typescript
 // Export components
-export { UserProfile } from './components/UserProfile';
-export { UserList } from './components/UserList';
+export { UserProfile } from "./components/UserProfile";
+export { UserList } from "./components/UserList";
 
 // Export hooks
-export { useSuspenseUser, useSuspenseUsers } from './hooks/useSuspenseUser';
-export { useUserMutations } from './hooks/useUserMutations';
+export { useSuspenseUser, useSuspenseUsers } from "./hooks/useSuspenseUser";
+export { useUserMutations } from "./hooks/useUserMutations";
 
 // Export API
-export { userApi } from './api/userApi';
+export { userApi } from "./api/userApi";
 
 // Export types
-export type { User, CreateUserPayload, UpdateUserPayload } from './types';
+export type { User, CreateUserPayload, UpdateUserPayload } from "./types";
 ```
 
 ---
@@ -533,6 +534,7 @@ export default UserDashboard;
 ```
 
 **Benefits:**
+
 - Each section loads independently
 - User sees partial content sooner
 - Better perceived perblogance
@@ -544,9 +546,9 @@ export default UserDashboard;
 Complete example based on useSuspensePost.ts:
 
 ```typescript
-import { useSuspenseQuery, useQueryClient } from '@tanstack/react-query';
-import { postApi } from '../api/postApi';
-import type { Post } from '../types';
+import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
+import { postApi } from "../api/postApi";
+import type { Post } from "../types";
 
 /**
  * Smart post hook with cache-first strategy
@@ -556,40 +558,33 @@ export function useSuspensePost(blogId: number, postId: number) {
     const queryClient = useQueryClient();
 
     return useSuspenseQuery<Post, Error>({
-        queryKey: ['post', blogId, postId],
+        queryKey: ["post", blogId, postId],
         queryFn: async () => {
             // Strategy 1: Check grid cache first (avoids API call)
-            const gridCache = queryClient.getQueryData<{ rows: Post[] }>([
-                'posts-v2',
-                blogId,
-                'summary'
-            ]) || queryClient.getQueryData<{ rows: Post[] }>([
-                'posts-v2',
-                blogId,
-                'flat'
-            ]);
+            const gridCache =
+                queryClient.getQueryData<{ rows: Post[] }>(["posts-v2", blogId, "summary"]) ||
+                queryClient.getQueryData<{ rows: Post[] }>(["posts-v2", blogId, "flat"]);
 
             if (gridCache?.rows) {
-                const cached = gridCache.rows.find(
-                    (row) => row.S_ID === postId
-                );
+                const cached = gridCache.rows.find((row) => row.S_ID === postId);
 
                 if (cached) {
-                    return cached;  // Return from cache - no API call!
+                    return cached; // Return from cache - no API call!
                 }
             }
 
             // Strategy 2: Not in cache, fetch from API
             return postApi.getPost(blogId, postId);
         },
-        staleTime: 5 * 60 * 1000,       // Fresh for 5 minutes
-        gcTime: 10 * 60 * 1000,          // Cache for 10 minutes
-        refetchOnWindowFocus: false,     // Don't refetch on focus
+        staleTime: 5 * 60 * 1000, // Fresh for 5 minutes
+        gcTime: 10 * 60 * 1000, // Cache for 10 minutes
+        refetchOnWindowFocus: false, // Don't refetch on focus
     });
 }
 ```
 
 **Why this pattern:**
+
 - Checks grid cache before API
 - Instant data if user came from grid
 - Falls back to API if not cached
@@ -812,8 +807,8 @@ export const Dashboard: React.FC = () => {
 ## Example 7: Optimistic Update
 
 ```typescript
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { User } from '../types';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { User } from "../types";
 
 export const useToggleUserStatus = () => {
     const queryClient = useQueryClient();
@@ -824,18 +819,18 @@ export const useToggleUserStatus = () => {
         // Optimistic update
         onMutate: async (userId) => {
             // Cancel outgoing refetches
-            await queryClient.cancelQueries({ queryKey: ['users'] });
+            await queryClient.cancelQueries({ queryKey: ["users"] });
 
             // Snapshot previous value
-            const previousUsers = queryClient.getQueryData<User[]>(['users']);
+            const previousUsers = queryClient.getQueryData<User[]>(["users"]);
 
             // Optimistically update UI
-            queryClient.setQueryData<User[]>(['users'], (old) => {
-                return old?.map(user =>
-                    user.id === userId
-                        ? { ...user, active: !user.active }
-                        : user
-                ) || [];
+            queryClient.setQueryData<User[]>(["users"], (old) => {
+                return (
+                    old?.map((user) =>
+                        user.id === userId ? { ...user, active: !user.active } : user
+                    ) || []
+                );
             });
 
             return { previousUsers };
@@ -843,12 +838,12 @@ export const useToggleUserStatus = () => {
 
         // Rollback on error
         onError: (err, userId, context) => {
-            queryClient.setQueryData(['users'], context?.previousUsers);
+            queryClient.setQueryData(["users"], context?.previousUsers);
         },
 
         // Refetch after mutation
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ['users'] });
+            queryClient.invalidateQueries({ queryKey: ["users"] });
         },
     });
 };

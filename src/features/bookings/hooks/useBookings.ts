@@ -1,10 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
-import { BookingService } from '../booking.service';
+import { useQuery } from "@tanstack/react-query";
+import { BookingService } from "../booking.service";
 
 export const bookingQueryKeys = {
-    all: ['bookings'] as const,
-    history: () => [...bookingQueryKeys.all, 'history'] as const,
-    active: () => [...bookingQueryKeys.all, 'active'] as const,
+    all: ["bookings"] as const,
+    history: () => [...bookingQueryKeys.all, "history"] as const,
+    active: () => [...bookingQueryKeys.all, "active"] as const,
 };
 
 export function useBookingHistory() {

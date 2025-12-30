@@ -2,7 +2,7 @@
 (global as any).__DEV__ = true;
 
 // Mock Supabase
-jest.mock('../lib/supabase', () => ({
+jest.mock("../lib/supabase", () => ({
     supabase: {
         auth: {
             getSession: jest.fn(),
@@ -10,7 +10,9 @@ jest.mock('../lib/supabase', () => ({
             signInWithPassword: jest.fn(),
             signUp: jest.fn(),
             signOut: jest.fn(),
-            onAuthStateChange: jest.fn(() => ({ data: { subscription: { unsubscribe: jest.fn() } } })),
+            onAuthStateChange: jest.fn(() => ({
+                data: { subscription: { unsubscribe: jest.fn() } },
+            })),
         },
         from: jest.fn(() => ({
             select: jest.fn().mockReturnThis(),
@@ -32,7 +34,7 @@ jest.mock('../lib/supabase', () => ({
             from: jest.fn(() => ({
                 upload: jest.fn(),
                 remove: jest.fn(),
-                getPublicUrl: jest.fn(() => ({ data: { publicUrl: 'https://example.com/file' } })),
+                getPublicUrl: jest.fn(() => ({ data: { publicUrl: "https://example.com/file" } })),
             })),
         },
     },

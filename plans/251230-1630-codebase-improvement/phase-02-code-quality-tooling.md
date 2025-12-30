@@ -13,6 +13,7 @@ Project currently lacks ESLint and Prettier configuration, leading to inconsiste
 **Source:** [Scout Analysis](../../reports/scout-251230-1314-codebase-analysis.md), [Best Practices Research](../../reports/researcher-251230-1321-mobile-quality-security-architecture.md)
 
 **Current State:**
+
 - ✗ No ESLint configuration
 - ✗ No Prettier configuration
 - ✓ TypeScript strict mode enabled
@@ -24,6 +25,7 @@ Project currently lacks ESLint and Prettier configuration, leading to inconsiste
 ## Key Insights
 
 ### Why This Matters
+
 1. **Bug Prevention** - ESLint catches common React/TypeScript errors
 2. **Code Consistency** - Prettier eliminates style debates
 3. **Developer Experience** - Auto-format on save
@@ -31,6 +33,7 @@ Project currently lacks ESLint and Prettier configuration, leading to inconsiste
 5. **Team Scalability** - Onboarding easier with enforced standards
 
 ### Research Findings
+
 - ESLint 9+ with flat config is 2025 standard
 - Prettier as final ESLint config prevents conflicts
 - Husky + lint-staged provides instant feedback
@@ -41,6 +44,7 @@ Project currently lacks ESLint and Prettier configuration, leading to inconsiste
 ## Requirements
 
 ### Must Have
+
 - [ ] ESLint 9+ with flat config
 - [ ] Prettier integration
 - [ ] Pre-commit hooks (Husky + lint-staged)
@@ -48,12 +52,14 @@ Project currently lacks ESLint and Prettier configuration, leading to inconsiste
 - [ ] CI lint check
 
 ### Should Have
+
 - [ ] VS Code settings for auto-format
 - [ ] ESLint React Native plugin
 - [ ] Import sorting
 - [ ] Unused imports removal
 
 ### Nice to Have
+
 - [ ] Commitlint for conventional commits
 - [ ] Editor config file
 - [ ] Code spell checker
@@ -63,6 +69,7 @@ Project currently lacks ESLint and Prettier configuration, leading to inconsiste
 ## Architecture Considerations
 
 ### ESLint 9 Flat Config Structure
+
 ```javascript
 // eslint.config.js (new flat config format)
 export default [
@@ -75,7 +82,9 @@ export default [
 ```
 
 ### Prettier + ESLint Integration
+
 **Key:** Prettier runs AFTER ESLint to avoid conflicts
+
 ```json
 {
     "extends": [
@@ -88,6 +97,7 @@ export default [
 ```
 
 ### Pre-commit Hook Flow
+
 ```
 git commit
   ↓
@@ -107,6 +117,7 @@ Commit succeeds/fails
 ## Related Code Files
 
 ### Files to Create
+
 - `/eslint.config.js` - ESLint 9 flat config
 - `/.prettierrc` - Prettier configuration
 - `/.prettierignore` - Files to skip
@@ -115,11 +126,13 @@ Commit succeeds/fails
 - `/.editorconfig` - Cross-editor config
 
 ### Files to Modify
+
 - `/package.json` - Add scripts and dependencies
 - `/tsconfig.json` - Verify strict mode
-- `/.gitignore` - Add .husky/_
+- `/.gitignore` - Add .husky/\_
 
 ### Dependencies to Install
+
 ```json
 {
     "devDependencies": {
@@ -143,6 +156,7 @@ Commit succeeds/fails
 ### Step 1: Install Dependencies (0.5h)
 
 **1.1 Install ESLint + TypeScript plugins**
+
 ```bash
 npm install --save-dev \
     eslint@^9.0.0 \
@@ -154,11 +168,13 @@ npm install --save-dev \
 ```
 
 **1.2 Install Prettier**
+
 ```bash
 npm install --save-dev prettier@^3.2.0
 ```
 
 **1.3 Install Git hooks**
+
 ```bash
 npm install --save-dev husky@^9.0.0 lint-staged@^15.2.0
 npx husky init
@@ -169,27 +185,28 @@ npx husky init
 ### Step 2: Configure ESLint (1h)
 
 **2.1 Create eslint.config.js**
+
 ```javascript
 // eslint.config.js
-import js from '@eslint/js';
-import tseslint from 'typescript-eslint';
-import reactPlugin from 'eslint-plugin-react';
-import reactNativePlugin from 'eslint-plugin-react-native';
-import prettierConfig from 'eslint-config-prettier';
+import js from "@eslint/js";
+import tseslint from "typescript-eslint";
+import reactPlugin from "eslint-plugin-react";
+import reactNativePlugin from "eslint-plugin-react-native";
+import prettierConfig from "eslint-config-prettier";
 
 export default [
     js.configs.recommended,
     ...tseslint.configs.recommended,
     {
-        files: ['**/*.{ts,tsx}'],
+        files: ["**/*.{ts,tsx}"],
         plugins: {
             react: reactPlugin,
-            'react-native': reactNativePlugin,
+            "react-native": reactNativePlugin,
         },
         languageOptions: {
             parserOptions: {
-                ecmaVersion: 'latest',
-                sourceType: 'module',
+                ecmaVersion: "latest",
+                sourceType: "module",
                 ecmaFeatures: {
                     jsx: true,
                 },
@@ -197,40 +214,43 @@ export default [
         },
         settings: {
             react: {
-                version: 'detect',
+                version: "detect",
             },
         },
         rules: {
             // React
-            'react/react-in-jsx-scope': 'off', // Not needed in React 17+
-            'react/prop-types': 'off', // Using TypeScript
-            'react/display-name': 'off',
+            "react/react-in-jsx-scope": "off", // Not needed in React 17+
+            "react/prop-types": "off", // Using TypeScript
+            "react/display-name": "off",
 
             // React Native
-            'react-native/no-unused-styles': 'warn',
-            'react-native/no-inline-styles': 'warn',
-            'react-native/no-color-literals': 'off',
+            "react-native/no-unused-styles": "warn",
+            "react-native/no-inline-styles": "warn",
+            "react-native/no-color-literals": "off",
 
             // TypeScript
-            '@typescript-eslint/no-explicit-any': 'warn',
-            '@typescript-eslint/no-unused-vars': ['warn', {
-                argsIgnorePattern: '^_',
-                varsIgnorePattern: '^_',
-            }],
-            '@typescript-eslint/explicit-module-boundary-types': 'off',
+            "@typescript-eslint/no-explicit-any": "warn",
+            "@typescript-eslint/no-unused-vars": [
+                "warn",
+                {
+                    argsIgnorePattern: "^_",
+                    varsIgnorePattern: "^_",
+                },
+            ],
+            "@typescript-eslint/explicit-module-boundary-types": "off",
 
             // General
-            'no-console': ['warn', { allow: ['warn', 'error'] }],
+            "no-console": ["warn", { allow: ["warn", "error"] }],
         },
     },
     {
         ignores: [
-            'node_modules/**',
-            '.expo/**',
-            'dist/**',
-            'build/**',
-            'coverage/**',
-            '*.config.js',
+            "node_modules/**",
+            ".expo/**",
+            "dist/**",
+            "build/**",
+            "coverage/**",
+            "*.config.js",
         ],
     },
     prettierConfig, // Must be last
@@ -238,6 +258,7 @@ export default [
 ```
 
 **2.2 Add scripts to package.json**
+
 ```json
 {
     "scripts": {
@@ -249,6 +270,7 @@ export default [
 ```
 
 **2.3 Test ESLint**
+
 ```bash
 npm run lint
 # Should report errors/warnings
@@ -262,6 +284,7 @@ npm run lint:fix
 ### Step 3: Configure Prettier (0.5h)
 
 **3.1 Create .prettierrc**
+
 ```json
 {
     "semi": true,
@@ -275,6 +298,7 @@ npm run lint:fix
 ```
 
 **3.2 Create .prettierignore**
+
 ```
 # Dependencies
 node_modules/
@@ -296,6 +320,7 @@ yarn.lock
 ```
 
 **3.3 Add Prettier scripts**
+
 ```json
 {
     "scripts": {
@@ -306,6 +331,7 @@ yarn.lock
 ```
 
 **3.4 Test Prettier**
+
 ```bash
 npm run format:check
 # Shows files needing formatting
@@ -319,6 +345,7 @@ npm run format
 ### Step 4: Setup Pre-commit Hooks (1h)
 
 **4.1 Create .husky/pre-commit**
+
 ```bash
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
@@ -327,21 +354,18 @@ npx lint-staged
 ```
 
 **4.2 Configure lint-staged in package.json**
+
 ```json
 {
     "lint-staged": {
-        "*.{ts,tsx}": [
-            "eslint --fix",
-            "prettier --write"
-        ],
-        "*.{json,md}": [
-            "prettier --write"
-        ]
+        "*.{ts,tsx}": ["eslint --fix", "prettier --write"],
+        "*.{json,md}": ["prettier --write"]
     }
 }
 ```
 
 **4.3 Test pre-commit hook**
+
 ```bash
 # Make a change
 echo "test" >> test.ts
@@ -354,6 +378,7 @@ git commit -m "test"
 ```
 
 **4.4 Optional: Add pre-push hook**
+
 ```bash
 # .husky/pre-push
 #!/usr/bin/env sh
@@ -369,6 +394,7 @@ npm run type-check
 ### Step 5: VS Code Integration (0.5h)
 
 **5.1 Create .vscode/settings.json**
+
 ```json
 {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -376,12 +402,7 @@ npm run type-check
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": "explicit"
     },
-    "eslint.validate": [
-        "javascript",
-        "javascriptreact",
-        "typescript",
-        "typescriptreact"
-    ],
+    "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
     "typescript.tsdk": "node_modules/typescript/lib",
     "typescript.enablePromptUseWorkspaceTsdk": true,
     "[typescript]": {
@@ -394,6 +415,7 @@ npm run type-check
 ```
 
 **5.2 Create .vscode/extensions.json**
+
 ```json
 {
     "recommendations": [
@@ -405,6 +427,7 @@ npm run type-check
 ```
 
 **5.3 Create .editorconfig**
+
 ```ini
 root = true
 
@@ -428,6 +451,7 @@ trim_trailing_whitespace = false
 ### Step 6: TypeScript Strict Mode Verification (0.5h)
 
 **6.1 Review tsconfig.json**
+
 ```json
 {
     "compilerOptions": {
@@ -443,6 +467,7 @@ trim_trailing_whitespace = false
 ```
 
 **6.2 Add type-check script**
+
 ```json
 {
     "scripts": {
@@ -452,6 +477,7 @@ trim_trailing_whitespace = false
 ```
 
 **6.3 Test TypeScript**
+
 ```bash
 npm run type-check
 # Should report any type errors
@@ -462,6 +488,7 @@ npm run type-check
 ### Step 7: CI Integration (0.5h)
 
 **7.1 Create .github/workflows/lint.yml** (if using GitHub Actions)
+
 ```yaml
 name: Lint
 
@@ -481,8 +508,8 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: '18'
-                  cache: 'npm'
+                  node-version: "18"
+                  cache: "npm"
 
             - name: Install dependencies
               run: npm ci --legacy-peer-deps
@@ -498,6 +525,7 @@ jobs:
 ```
 
 **7.2 Test CI locally**
+
 ```bash
 # Simulate CI environment
 npm ci --legacy-peer-deps
@@ -511,12 +539,14 @@ npm run type-check
 ## Todo Checklist
 
 ### Dependencies
+
 - [ ] Install ESLint 9 + plugins
 - [ ] Install Prettier
 - [ ] Install Husky + lint-staged
 - [ ] Verify all peer dependencies
 
 ### ESLint Configuration
+
 - [ ] Create eslint.config.js
 - [ ] Add lint scripts to package.json
 - [ ] Test ESLint on codebase
@@ -524,6 +554,7 @@ npm run type-check
 - [ ] Review and fix remaining warnings
 
 ### Prettier Configuration
+
 - [ ] Create .prettierrc
 - [ ] Create .prettierignore
 - [ ] Add format scripts
@@ -531,6 +562,7 @@ npm run type-check
 - [ ] Commit formatted code
 
 ### Git Hooks
+
 - [ ] Initialize Husky
 - [ ] Create pre-commit hook
 - [ ] Configure lint-staged
@@ -538,6 +570,7 @@ npm run type-check
 - [ ] Optional: Add pre-push hook
 
 ### Editor Integration
+
 - [ ] Create .vscode/settings.json
 - [ ] Create .vscode/extensions.json
 - [ ] Create .editorconfig
@@ -545,6 +578,7 @@ npm run type-check
 - [ ] Document editor setup in README
 
 ### TypeScript
+
 - [ ] Verify strict mode enabled
 - [ ] Add type-check script
 - [ ] Run type-check
@@ -552,6 +586,7 @@ npm run type-check
 - [ ] Document type standards
 
 ### CI/CD
+
 - [ ] Create lint workflow
 - [ ] Test workflow locally
 - [ ] Add status badge to README
@@ -573,18 +608,19 @@ npm run type-check
 
 ## Risk Assessment
 
-| Risk | Mitigation |
-|------|------------|
-| Breaking existing code | Commit before applying auto-fixes |
-| Team resistance to formatting | Demo benefits, enforce via hooks |
-| CI build time increase | Cache node_modules, run lint in parallel |
-| Editor conflicts | Provide .vscode config, document setup |
+| Risk                          | Mitigation                               |
+| ----------------------------- | ---------------------------------------- |
+| Breaking existing code        | Commit before applying auto-fixes        |
+| Team resistance to formatting | Demo benefits, enforce via hooks         |
+| CI build time increase        | Cache node_modules, run lint in parallel |
+| Editor conflicts              | Provide .vscode config, document setup   |
 
 ---
 
 ## Security Considerations
 
 ### Linting Rules for Security
+
 ```javascript
 rules: {
     'no-eval': 'error',
@@ -595,6 +631,7 @@ rules: {
 ```
 
 ### Pre-commit Security Checks
+
 - Block commits with console.log in production files
 - Warn on hardcoded secrets (future: use secret scanning tool)
 - Enforce import order (prevents circular dependencies)
@@ -604,6 +641,7 @@ rules: {
 ## Next Steps
 
 After Phase 2 completion:
+
 1. Run full lint + format on codebase
 2. Commit changes with "chore: setup ESLint, Prettier, Husky"
 3. Document code style guide

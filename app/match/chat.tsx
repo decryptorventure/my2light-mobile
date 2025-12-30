@@ -4,7 +4,7 @@
  * Privacy: No contact info sharing until users decide
  */
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
     View,
     Text,
@@ -17,14 +17,14 @@ import {
     Platform,
     Alert,
     ActivityIndicator,
-} from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
-import { MatchService, MatchMessage } from '../../services/match.service';
-import haptics from '../../lib/haptics';
+} from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
+import { MatchService, MatchMessage } from "../../services/match.service";
+import haptics from "../../lib/haptics";
 
 export default function MatchChatScreen() {
     const router = useRouter();
@@ -33,22 +33,26 @@ export default function MatchChatScreen() {
     const queryClient = useQueryClient();
     const flatListRef = useRef<FlatList>(null);
 
-    const [messageText, setMessageText] = useState('');
+    const [messageText, setMessageText] = useState("");
 
     // Fetch conversation info
     const { data: conversations = [] } = useQuery({
-        queryKey: ['conversations'],
+        queryKey: ["conversations"],
         queryFn: async () => {
             const result = await MatchService.getConversations();
             return result.data;
         },
     });
 
-    const conversation = conversations.find(c => c.id === id);
+    const conversation = conversations.find((c) => c.id === id);
 
     // Fetch messages
-    const { data: messages = [], isLoading, refetch } = useQuery({
-        queryKey: ['messages', id],
+    const {
+        data: messages = [],
+        isLoading,
+        refetch,
+    } = useQuery({
+        queryKey: ["messages", id],
         queryFn: async () => {
             if (!id) return [];
             const result = await MatchService.getMessages(id);
@@ -61,16 +65,16 @@ export default function MatchChatScreen() {
     // Send message mutation
     const sendMutation = useMutation({
         mutationFn: async (content: string) => {
-            if (!id) throw new Error('No conversation ID');
+            if (!id) throw new Error("No conversation ID");
             return MatchService.sendMessage(id, content);
         },
         onSuccess: (result) => {
             if (result.success && result.data) {
-                queryClient.setQueryData(['messages', id], (old: MatchMessage[] = []) => [
+                queryClient.setQueryData(["messages", id], (old: MatchMessage[] = []) => [
                     ...old,
-                    result.data!
+                    result.data!,
                 ]);
-                setMessageText('');
+                setMessageText("");
                 haptics.light();
                 // Scroll to bottom
                 setTimeout(() => {
@@ -92,23 +96,19 @@ export default function MatchChatScreen() {
     // Report user
     const handleReport = () => {
         if (!conversation) return;
-        Alert.alert(
-            'Báo cáo người dùng',
-            'Chọn lý do báo cáo',
-            [
-                { text: 'Spam', onPress: () => reportUser('spam') },
-                { text: 'Quấy rối', onPress: () => reportUser('harassment') },
-                { text: 'Nội dung không phù hợp', onPress: () => reportUser('inappropriate') },
-                { text: 'Hủy', style: 'cancel' },
-            ]
-        );
+        Alert.alert("Báo cáo người dùng", "Chọn lý do báo cáo", [
+            { text: "Spam", onPress: () => reportUser("spam") },
+            { text: "Quấy rối", onPress: () => reportUser("harassment") },
+            { text: "Nội dung không phù hợp", onPress: () => reportUser("inappropriate") },
+            { text: "Hủy", style: "cancel" },
+        ]);
     };
 
     const reportUser = async (reason: string) => {
         if (!conversation) return;
         const result = await MatchService.reportUser(conversation.otherUserId, reason);
         if (result.success) {
-            Alert.alert('Đã báo cáo', 'Cảm ơn bạn đã giúp cộng đồng an toàn hơn');
+            Alert.alert("Đã báo cáo", "Cảm ơn bạn đã giúp cộng đồng an toàn hơn");
         }
     };
 
@@ -116,19 +116,19 @@ export default function MatchChatScreen() {
     const handleBlock = () => {
         if (!conversation) return;
         Alert.alert(
-            'Chặn người dùng',
+            "Chặn người dùng",
             `Bạn có chắc muốn chặn ${conversation.otherUserName}? Cuộc trò chuyện này sẽ bị ẩn.`,
             [
-                { text: 'Hủy', style: 'cancel' },
+                { text: "Hủy", style: "cancel" },
                 {
-                    text: 'Chặn',
-                    style: 'destructive',
+                    text: "Chặn",
+                    style: "destructive",
                     onPress: async () => {
                         await MatchService.blockUser(conversation.otherUserId);
                         haptics.medium();
-                        queryClient.invalidateQueries({ queryKey: ['conversations'] });
+                        queryClient.invalidateQueries({ queryKey: ["conversations"] });
                         router.back();
-                    }
+                    },
                 },
             ]
         );
@@ -136,15 +136,11 @@ export default function MatchChatScreen() {
 
     // Show options menu
     const showOptions = () => {
-        Alert.alert(
-            'Tùy chọn',
-            undefined,
-            [
-                { text: 'Báo cáo', onPress: handleReport },
-                { text: 'Chặn người dùng', onPress: handleBlock, style: 'destructive' },
-                { text: 'Hủy', style: 'cancel' },
-            ]
-        );
+        Alert.alert("Tùy chọn", undefined, [
+            { text: "Báo cáo", onPress: handleReport },
+            { text: "Chặn người dùng", onPress: handleBlock, style: "destructive" },
+            { text: "Hủy", style: "cancel" },
+        ]);
     };
 
     const handleSend = () => {
@@ -159,29 +155,29 @@ export default function MatchChatScreen() {
         const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
 
         if (diffDays === 0) {
-            return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            return date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
         } else if (diffDays === 1) {
-            return 'Hôm qua ' + date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            return `Hôm qua ${date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}`;
         } else {
-            return date.toLocaleDateString('vi-VN', { day: 'numeric', month: 'short' });
+            return date.toLocaleDateString("vi-VN", { day: "numeric", month: "short" });
         }
     };
 
-    const renderMessage = useCallback(({ item }: { item: MatchMessage }) => (
-        <View
-            style={[
-                styles.messageBubble,
-                item.isMine ? styles.myMessage : styles.theirMessage,
-            ]}
-        >
-            <Text style={[styles.messageText, item.isMine && styles.myMessageText]}>
-                {item.content}
-            </Text>
-            <Text style={[styles.messageTime, item.isMine && styles.myMessageTime]}>
-                {formatTime(item.createdAt)}
-            </Text>
-        </View>
-    ), []);
+    const renderMessage = useCallback(
+        ({ item }: { item: MatchMessage }) => (
+            <View
+                style={[styles.messageBubble, item.isMine ? styles.myMessage : styles.theirMessage]}
+            >
+                <Text style={[styles.messageText, item.isMine && styles.myMessageText]}>
+                    {item.content}
+                </Text>
+                <Text style={[styles.messageTime, item.isMine && styles.myMessageTime]}>
+                    {formatTime(item.createdAt)}
+                </Text>
+            </View>
+        ),
+        []
+    );
 
     if (!conversation && !isLoading) {
         return (
@@ -197,7 +193,7 @@ export default function MatchChatScreen() {
     return (
         <KeyboardAvoidingView
             style={styles.container}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
             keyboardVerticalOffset={0}
         >
             {/* Header */}
@@ -208,11 +204,13 @@ export default function MatchChatScreen() {
 
                 <View style={styles.headerInfo}>
                     <Image
-                        source={{ uri: conversation?.otherUserAvatar || 'https://via.placeholder.com/40' }}
+                        source={{
+                            uri: conversation?.otherUserAvatar || "https://via.placeholder.com/40",
+                        }}
                         style={styles.headerAvatar}
                     />
                     <Text style={styles.headerName} numberOfLines={1}>
-                        {conversation?.otherUserName || 'Đang tải...'}
+                        {conversation?.otherUserName || "Đang tải..."}
                     </Text>
                 </View>
 
@@ -294,12 +292,12 @@ const styles = StyleSheet.create({
     },
     centered: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
     },
     header: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         paddingHorizontal: spacing.md,
         paddingBottom: spacing.sm,
         backgroundColor: colors.surface,
@@ -311,8 +309,8 @@ const styles = StyleSheet.create({
     },
     headerInfo: {
         flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         marginLeft: spacing.sm,
     },
     headerAvatar: {
@@ -332,9 +330,9 @@ const styles = StyleSheet.create({
         padding: spacing.xs,
     },
     privacyBanner: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
         gap: spacing.xs,
         paddingVertical: spacing.xs,
         backgroundColor: `${colors.accent}10`,
@@ -360,8 +358,8 @@ const styles = StyleSheet.create({
     },
     emptyContainer: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
         padding: spacing.xl,
     },
     emptyTitle: {
@@ -373,7 +371,7 @@ const styles = StyleSheet.create({
     emptySubtitle: {
         fontSize: fontSize.sm,
         color: colors.textMuted,
-        textAlign: 'center',
+        textAlign: "center",
         marginTop: spacing.sm,
     },
     messagesList: {
@@ -381,18 +379,18 @@ const styles = StyleSheet.create({
         paddingBottom: spacing.lg,
     },
     messageBubble: {
-        maxWidth: '80%',
+        maxWidth: "80%",
         borderRadius: borderRadius.lg,
         padding: spacing.md,
         marginBottom: spacing.sm,
     },
     myMessage: {
-        alignSelf: 'flex-end',
+        alignSelf: "flex-end",
         backgroundColor: colors.accent,
         borderBottomRightRadius: 4,
     },
     theirMessage: {
-        alignSelf: 'flex-start',
+        alignSelf: "flex-start",
         backgroundColor: colors.surface,
         borderBottomLeftRadius: 4,
     },
@@ -413,8 +411,8 @@ const styles = StyleSheet.create({
         color: `${colors.background}99`,
     },
     inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'flex-end',
+        flexDirection: "row",
+        alignItems: "flex-end",
         paddingHorizontal: spacing.md,
         paddingTop: spacing.sm,
         backgroundColor: colors.surface,
@@ -437,8 +435,8 @@ const styles = StyleSheet.create({
         height: 44,
         borderRadius: 22,
         backgroundColor: colors.accent,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
     },
     sendBtnDisabled: {
         backgroundColor: colors.border,

@@ -27,29 +27,31 @@ Comprehensive debugging techniques, tools, and best practices for backend system
 ### Structured Logging
 
 **Node.js (Pino - Fastest)**
+
 ```typescript
-import pino from 'pino';
+import pino from "pino";
 
 const logger = pino({
-  level: process.env.LOG_LEVEL || 'info',
-  transport: {
-    target: 'pino-pretty',
-    options: { colorize: true }
-  }
+    level: process.env.LOG_LEVEL || "info",
+    transport: {
+        target: "pino-pretty",
+        options: { colorize: true },
+    },
 });
 
 // Structured logging with context
-logger.info({ userId: '123', action: 'login' }, 'User logged in');
+logger.info({ userId: "123", action: "login" }, "User logged in");
 
 // Error logging with stack trace
 try {
-  await riskyOperation();
+    await riskyOperation();
 } catch (error) {
-  logger.error({ err: error, userId: '123' }, 'Operation failed');
+    logger.error({ err: error, userId: "123" }, "Operation failed");
 }
 ```
 
 **Python (Structlog)**
+
 ```python
 import structlog
 
@@ -66,6 +68,7 @@ except Exception as e:
 ```
 
 **Go (Zap - High Performance)**
+
 ```go
 import "go.uber.org/zap"
 
@@ -89,18 +92,19 @@ if err := riskyOperation(); err != nil {
 
 ### Log Levels
 
-| Level | Purpose | Example |
-|-------|---------|---------|
-| **TRACE** | Very detailed, dev only | Request/response bodies |
-| **DEBUG** | Detailed info for debugging | SQL queries, cache hits |
-| **INFO** | General informational | User login, API calls |
-| **WARN** | Potential issues | Deprecated API usage |
-| **ERROR** | Error conditions | Failed API calls, exceptions |
-| **FATAL** | Critical failures | Database connection lost |
+| Level     | Purpose                     | Example                      |
+| --------- | --------------------------- | ---------------------------- |
+| **TRACE** | Very detailed, dev only     | Request/response bodies      |
+| **DEBUG** | Detailed info for debugging | SQL queries, cache hits      |
+| **INFO**  | General informational       | User login, API calls        |
+| **WARN**  | Potential issues            | Deprecated API usage         |
+| **ERROR** | Error conditions            | Failed API calls, exceptions |
+| **FATAL** | Critical failures           | Database connection lost     |
 
 ### What to Log
 
 **✅ DO LOG:**
+
 - Request/response metadata (not bodies in prod)
 - Error messages with context
 - Performance metrics (duration, size)
@@ -108,6 +112,7 @@ if err := riskyOperation(); err != nil {
 - Business events (orders, payments)
 
 **❌ DON'T LOG:**
+
 - Passwords or secrets
 - Credit card numbers
 - Personal identifiable information (PII)
@@ -119,6 +124,7 @@ if err := riskyOperation(); err != nil {
 ### Node.js / TypeScript
 
 **1. Chrome DevTools (Built-in)**
+
 ```bash
 # Run with inspect flag
 node --inspect-brk app.js
@@ -128,33 +134,35 @@ node --inspect-brk app.js
 ```
 
 **2. VS Code Debugger**
+
 ```json
 // .vscode/launch.json
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug Server",
-      "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/src/index.ts",
-      "preLaunchTask": "npm: build",
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
-    }
-  ]
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug Server",
+            "skipFiles": ["<node_internals>/**"],
+            "program": "${workspaceFolder}/src/index.ts",
+            "preLaunchTask": "npm: build",
+            "outFiles": ["${workspaceFolder}/dist/**/*.js"]
+        }
+    ]
 }
 ```
 
 **3. Debug Module**
+
 ```typescript
-import debug from 'debug';
+import debug from "debug";
 
-const log = debug('app:server');
-const error = debug('app:error');
+const log = debug("app:server");
+const error = debug("app:error");
 
-log('Starting server on port %d', 3000);
-error('Failed to connect to database');
+log("Starting server on port %d", 3000);
+error("Failed to connect to database");
 
 // Run with: DEBUG=app:* node app.js
 ```
@@ -162,6 +170,7 @@ error('Failed to connect to database');
 ### Python
 
 **1. PDB (Built-in Debugger)**
+
 ```python
 import pdb
 
@@ -181,6 +190,7 @@ def problematic_function(data):
 ```
 
 **2. IPython Debugger (Better)**
+
 ```python
 from IPython import embed
 
@@ -193,26 +203,28 @@ def problematic_function(data):
 ```
 
 **3. VS Code Debugger**
+
 ```json
 // .vscode/launch.json
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Python: FastAPI",
-      "type": "python",
-      "request": "launch",
-      "module": "uvicorn",
-      "args": ["main:app", "--reload"],
-      "jinja": true
-    }
-  ]
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: FastAPI",
+            "type": "python",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": ["main:app", "--reload"],
+            "jinja": true
+        }
+    ]
 }
 ```
 
 ### Go
 
 **1. Delve (Standard Debugger)**
+
 ```bash
 # Install
 go install github.com/go-delve/delve/cmd/dlv@latest
@@ -230,25 +242,27 @@ dlv debug main.go
 ```
 
 **2. VS Code Debugger**
+
 ```json
 // .vscode/launch.json
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Launch Package",
-      "type": "go",
-      "request": "launch",
-      "mode": "debug",
-      "program": "${workspaceFolder}"
-    }
-  ]
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Package",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}"
+        }
+    ]
 }
 ```
 
 ### Rust
 
 **1. LLDB/GDB (Native Debuggers)**
+
 ```bash
 # Build with debug info
 cargo build
@@ -261,20 +275,21 @@ rust-gdb ./target/debug/myapp
 ```
 
 **2. VS Code Debugger (CodeLLDB)**
+
 ```json
 // .vscode/launch.json
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "type": "lldb",
-      "request": "launch",
-      "name": "Debug",
-      "program": "${workspaceFolder}/target/debug/myapp",
-      "args": [],
-      "cwd": "${workspaceFolder}"
-    }
-  ]
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug",
+            "program": "${workspaceFolder}/target/debug/myapp",
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
 }
 ```
 
@@ -283,6 +298,7 @@ rust-gdb ./target/debug/myapp
 ### SQL Query Debugging (PostgreSQL)
 
 **1. EXPLAIN ANALYZE**
+
 ```sql
 -- Show query execution plan and actual timings
 EXPLAIN ANALYZE
@@ -301,6 +317,7 @@ LIMIT 10;
 ```
 
 **2. Enable Slow Query Logging**
+
 ```sql
 -- PostgreSQL configuration
 ALTER DATABASE mydb SET log_min_duration_statement = 1000; -- Log queries >1s
@@ -313,6 +330,7 @@ LIMIT 10;
 ```
 
 **3. Active Query Monitoring**
+
 ```sql
 -- See currently running queries
 SELECT pid, now() - query_start as duration, query, state
@@ -327,8 +345,9 @@ SELECT pg_terminate_backend(pid);
 ### MongoDB Debugging
 
 **1. Explain Query Performance**
+
 ```javascript
-db.users.find({ email: 'test@example.com' }).explain('executionStats')
+db.users.find({ email: "test@example.com" }).explain("executionStats");
 
 // Look for:
 // - totalDocsExamined vs nReturned (should be close)
@@ -337,20 +356,22 @@ db.users.find({ email: 'test@example.com' }).explain('executionStats')
 ```
 
 **2. Profile Slow Queries**
+
 ```javascript
 // Enable profiling for queries >100ms
-db.setProfilingLevel(1, { slowms: 100 })
+db.setProfilingLevel(1, { slowms: 100 });
 
 // View slow queries
-db.system.profile.find().limit(5).sort({ ts: -1 }).pretty()
+db.system.profile.find().limit(5).sort({ ts: -1 }).pretty();
 
 // Disable profiling
-db.setProfilingLevel(0)
+db.setProfilingLevel(0);
 ```
 
 ### Redis Debugging
 
 **1. Monitor Commands**
+
 ```bash
 # See all commands in real-time
 redis-cli MONITOR
@@ -363,6 +384,7 @@ redis-cli CONFIG SET slowlog-log-slower-than 10000
 ```
 
 **2. Memory Analysis**
+
 ```bash
 # Memory usage by key pattern
 redis-cli --bigkeys
@@ -379,6 +401,7 @@ redis-cli MEMORY USAGE mykey
 ### HTTP Request Debugging
 
 **1. cURL Testing**
+
 ```bash
 # Verbose output with headers
 curl -v https://api.example.com/users
@@ -397,6 +420,7 @@ curl https://api.example.com/users -o response.json
 ```
 
 **2. HTTPie (User-Friendly)**
+
 ```bash
 # Install
 pip install httpie
@@ -414,20 +438,22 @@ http GET https://api.example.com/users Authorization:"Bearer token123"
 **3. Request Logging Middleware**
 
 **Express/Node.js:**
+
 ```typescript
-import morgan from 'morgan';
+import morgan from "morgan";
 
 // Development
-app.use(morgan('dev'));
+app.use(morgan("dev"));
 
 // Production (JSON format)
-app.use(morgan('combined'));
+app.use(morgan("combined"));
 
 // Custom format
-app.use(morgan(':method :url :status :response-time ms - :res[content-length]'));
+app.use(morgan(":method :url :status :response-time ms - :res[content-length]"));
 ```
 
 **FastAPI/Python:**
+
 ```python
 from fastapi import Request
 import time
@@ -453,6 +479,7 @@ async def log_requests(request: Request, call_next):
 ### CPU Profiling
 
 **Node.js (0x)**
+
 ```bash
 # Install
 npm install -g 0x
@@ -465,6 +492,7 @@ npm install -g 0x
 ```
 
 **Node.js (Clinic.js)**
+
 ```bash
 # Install
 npm install -g clinic
@@ -480,6 +508,7 @@ clinic bubbleprof -- node app.js
 ```
 
 **Python (cProfile)**
+
 ```python
 import cProfile
 import pstats
@@ -498,6 +527,7 @@ stats.print_stats(10)  # Top 10 functions
 ```
 
 **Go (pprof)**
+
 ```go
 import (
     "net/http"
@@ -524,11 +554,12 @@ func main() {
 ### Memory Debugging
 
 **Node.js (Heap Snapshots)**
+
 ```typescript
 // Take heap snapshot programmatically
-import { writeHeapSnapshot } from 'v8';
+import { writeHeapSnapshot } from "v8";
 
-app.get('/debug/heap', (req, res) => {
+app.get("/debug/heap", (req, res) => {
     const filename = writeHeapSnapshot();
     res.send(`Heap snapshot written to ${filename}`);
 });
@@ -540,6 +571,7 @@ app.get('/debug/heap', (req, res) => {
 ```
 
 **Python (Memory Profiler)**
+
 ```python
 from memory_profiler import profile
 
@@ -557,65 +589,69 @@ def memory_intensive_function():
 ### Application Performance Monitoring (APM)
 
 **New Relic**
+
 ```typescript
 // newrelic.js
 export const config = {
-  app_name: ['My Backend API'],
-  license_key: process.env.NEW_RELIC_LICENSE_KEY,
-  logging: { level: 'info' },
-  distributed_tracing: { enabled: true },
+    app_name: ["My Backend API"],
+    license_key: process.env.NEW_RELIC_LICENSE_KEY,
+    logging: { level: "info" },
+    distributed_tracing: { enabled: true },
 };
 
 // Import at app entry
-import 'newrelic';
+import "newrelic";
 ```
 
 **DataDog**
+
 ```typescript
-import tracer from 'dd-trace';
+import tracer from "dd-trace";
 
 tracer.init({
-  service: 'backend-api',
-  env: process.env.NODE_ENV,
-  version: '1.0.0',
-  logInjection: true
+    service: "backend-api",
+    env: process.env.NODE_ENV,
+    version: "1.0.0",
+    logInjection: true,
 });
 ```
 
 **Sentry (Error Tracking)**
+
 ```typescript
-import * as Sentry from '@sentry/node';
+import * as Sentry from "@sentry/node";
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  environment: process.env.NODE_ENV,
-  tracesSampleRate: 1.0,
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV,
+    tracesSampleRate: 1.0,
 });
 
 // Capture errors
 try {
-  await riskyOperation();
+    await riskyOperation();
 } catch (error) {
-  Sentry.captureException(error, {
-    user: { id: userId },
-    tags: { operation: 'payment' },
-  });
+    Sentry.captureException(error, {
+        user: { id: userId },
+        tags: { operation: "payment" },
+    });
 }
 ```
 
 ### Distributed Tracing
 
 **OpenTelemetry (Vendor-Agnostic)**
+
 ```typescript
-import { NodeSDK } from '@opentelemetry/sdk-node';
-import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
-import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
+import { NodeSDK } from "@opentelemetry/sdk-node";
+import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
+import { JaegerExporter } from "@opentelemetry/exporter-jaeger";
 
 const sdk = new NodeSDK({
-  traceExporter: new JaegerExporter({
-    endpoint: 'http://localhost:14268/api/traces',
-  }),
-  instrumentations: [getNodeAutoInstrumentations()],
+    traceExporter: new JaegerExporter({
+        endpoint: "http://localhost:14268/api/traces",
+    }),
+    instrumentations: [getNodeAutoInstrumentations()],
 });
 
 sdk.start();
@@ -626,48 +662,50 @@ sdk.start();
 ### Log Aggregation
 
 **ELK Stack (Elasticsearch, Logstash, Kibana)**
+
 ```yaml
 # docker-compose.yml
-version: '3'
+version: "3"
 services:
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
-    environment:
-      - discovery.type=single-node
-    ports:
-      - 9200:9200
+    elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+        environment:
+            - discovery.type=single-node
+        ports:
+            - 9200:9200
 
-  logstash:
-    image: docker.elastic.co/logstash/logstash:8.11.0
-    volumes:
-      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    logstash:
+        image: docker.elastic.co/logstash/logstash:8.11.0
+        volumes:
+            - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
 
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.11.0
-    ports:
-      - 5601:5601
+    kibana:
+        image: docker.elastic.co/kibana/kibana:8.11.0
+        ports:
+            - 5601:5601
 ```
 
 **Loki + Grafana (Lightweight)**
+
 ```yaml
 # promtail config for log shipping
 server:
-  http_listen_port: 9080
+    http_listen_port: 9080
 
 positions:
-  filename: /tmp/positions.yaml
+    filename: /tmp/positions.yaml
 
 clients:
-  - url: http://loki:3100/loki/api/v1/push
+    - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
-  - job_name: system
-    static_configs:
-      - targets:
-          - localhost
-        labels:
-          job: backend-api
-          __path__: /var/log/app/*.log
+    - job_name: system
+      static_configs:
+          - targets:
+                - localhost
+            labels:
+                job: backend-api
+                __path__: /var/log/app/*.log
 ```
 
 ## Common Debugging Scenarios
@@ -675,78 +713,83 @@ scrape_configs:
 ### 1. High CPU Usage
 
 **Steps:**
+
 1. Profile CPU (flamegraph)
 2. Identify hot functions
 3. Check for:
-   - Infinite loops
-   - Heavy regex operations
-   - Inefficient algorithms (O(n²))
-   - Blocking operations in event loop (Node.js)
+    - Infinite loops
+    - Heavy regex operations
+    - Inefficient algorithms (O(n²))
+    - Blocking operations in event loop (Node.js)
 
 **Node.js Example:**
+
 ```typescript
 // ❌ Bad: Blocking event loop
 function fibonacci(n) {
-  if (n <= 1) return n;
-  return fibonacci(n - 1) + fibonacci(n - 2); // Exponential time
+    if (n <= 1) return n;
+    return fibonacci(n - 1) + fibonacci(n - 2); // Exponential time
 }
 
 // ✅ Good: Memoized or iterative
 const memo = new Map();
 function fibonacciMemo(n) {
-  if (n <= 1) return n;
-  if (memo.has(n)) return memo.get(n);
-  const result = fibonacciMemo(n - 1) + fibonacciMemo(n - 2);
-  memo.set(n, result);
-  return result;
+    if (n <= 1) return n;
+    if (memo.has(n)) return memo.get(n);
+    const result = fibonacciMemo(n - 1) + fibonacciMemo(n - 2);
+    memo.set(n, result);
+    return result;
 }
 ```
 
 ### 2. Memory Leaks
 
 **Symptoms:**
+
 - Memory usage grows over time
 - Eventually crashes (OOM)
 - Performance degradation
 
 **Common Causes:**
+
 ```typescript
 // ❌ Memory leak: Event listeners not removed
 class DataService {
-  constructor(eventBus) {
-    eventBus.on('data', (data) => this.processData(data));
-    // Listener never removed, holds reference to DataService
-  }
+    constructor(eventBus) {
+        eventBus.on("data", (data) => this.processData(data));
+        // Listener never removed, holds reference to DataService
+    }
 }
 
 // ✅ Fix: Remove listeners
 class DataService {
-  constructor(eventBus) {
-    this.eventBus = eventBus;
-    this.handler = (data) => this.processData(data);
-    eventBus.on('data', this.handler);
-  }
+    constructor(eventBus) {
+        this.eventBus = eventBus;
+        this.handler = (data) => this.processData(data);
+        eventBus.on("data", this.handler);
+    }
 
-  destroy() {
-    this.eventBus.off('data', this.handler);
-  }
+    destroy() {
+        this.eventBus.off("data", this.handler);
+    }
 }
 
 // ❌ Memory leak: Global cache without limits
 const cache = new Map();
 function getCachedData(key) {
-  if (!cache.has(key)) {
-    cache.set(key, expensiveOperation(key)); // Grows forever
-  }
-  return cache.get(key);
+    if (!cache.has(key)) {
+        cache.set(key, expensiveOperation(key)); // Grows forever
+    }
+    return cache.get(key);
 }
 
 // ✅ Fix: LRU cache with size limit
-import LRU from 'lru-cache';
+import LRU from "lru-cache";
 const cache = new LRU({ max: 1000, ttl: 1000 * 60 * 60 });
 ```
 
 **Detection:**
+
 ```bash
 # Node.js: Check heap size over time
 node --expose-gc --max-old-space-size=4096 app.js
@@ -758,12 +801,14 @@ node --expose-gc --max-old-space-size=4096 app.js
 ### 3. Slow Database Queries
 
 **Steps:**
+
 1. Enable slow query log
 2. Analyze with EXPLAIN
 3. Add indexes
 4. Optimize query
 
 **PostgreSQL Example:**
+
 ```sql
 -- Before: Slow full table scan
 SELECT * FROM orders
@@ -784,77 +829,81 @@ ON orders(user_id, created_at DESC);
 ### 4. Connection Pool Exhaustion
 
 **Symptoms:**
+
 - "Connection pool exhausted" errors
 - Requests hang indefinitely
 - Database connections at max
 
 **Causes & Fixes:**
+
 ```typescript
 // ❌ Bad: Connection leak
 async function getUser(id) {
-  const client = await pool.connect();
-  const result = await client.query('SELECT * FROM users WHERE id = $1', [id]);
-  return result.rows[0];
-  // Connection never released!
+    const client = await pool.connect();
+    const result = await client.query("SELECT * FROM users WHERE id = $1", [id]);
+    return result.rows[0];
+    // Connection never released!
 }
 
 // ✅ Good: Always release
 async function getUser(id) {
-  const client = await pool.connect();
-  try {
-    const result = await client.query('SELECT * FROM users WHERE id = $1', [id]);
-    return result.rows[0];
-  } finally {
-    client.release(); // Always release
-  }
+    const client = await pool.connect();
+    try {
+        const result = await client.query("SELECT * FROM users WHERE id = $1", [id]);
+        return result.rows[0];
+    } finally {
+        client.release(); // Always release
+    }
 }
 
 // ✅ Better: Use pool directly
 async function getUser(id) {
-  const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
-  return result.rows[0];
-  // Automatically releases
+    const result = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
+    return result.rows[0];
+    // Automatically releases
 }
 ```
 
 ### 5. Race Conditions
 
 **Example:**
+
 ```typescript
 // ❌ Bad: Race condition
 let counter = 0;
 
 async function incrementCounter() {
-  const current = counter; // Thread 1 reads 0
-  await doSomethingAsync(); // Thread 2 reads 0
-  counter = current + 1; // Thread 1 writes 1, Thread 2 writes 1
-  // Expected: 2, Actual: 1
+    const current = counter; // Thread 1 reads 0
+    await doSomethingAsync(); // Thread 2 reads 0
+    counter = current + 1; // Thread 1 writes 1, Thread 2 writes 1
+    // Expected: 2, Actual: 1
 }
 
 // ✅ Fix: Atomic operations (Redis)
 async function incrementCounter() {
-  return await redis.incr('counter');
-  // Atomic, thread-safe
+    return await redis.incr("counter");
+    // Atomic, thread-safe
 }
 
 // ✅ Fix: Database transactions
 async function incrementCounter(userId) {
-  await db.transaction(async (trx) => {
-    const user = await trx('users')
-      .where({ id: userId })
-      .forUpdate() // Row-level lock
-      .first();
+    await db.transaction(async (trx) => {
+        const user = await trx("users")
+            .where({ id: userId })
+            .forUpdate() // Row-level lock
+            .first();
 
-    await trx('users')
-      .where({ id: userId })
-      .update({ counter: user.counter + 1 });
-  });
+        await trx("users")
+            .where({ id: userId })
+            .update({ counter: user.counter + 1 });
+    });
 }
 ```
 
 ## Debugging Checklist
 
 **Before Diving Into Code:**
+
 - [ ] Read error message completely
 - [ ] Check logs for context
 - [ ] Reproduce the issue reliably
@@ -862,6 +911,7 @@ async function incrementCounter(userId) {
 - [ ] Verify assumptions
 
 **Investigation:**
+
 - [ ] Enable debug logging
 - [ ] Add strategic log points
 - [ ] Use debugger breakpoints
@@ -870,6 +920,7 @@ async function incrementCounter(userId) {
 - [ ] Monitor system resources
 
 **Production Issues:**
+
 - [ ] Check APM dashboards
 - [ ] Review distributed traces
 - [ ] Analyze error rates
@@ -878,6 +929,7 @@ async function incrementCounter(userId) {
 - [ ] Review infrastructure changes
 
 **After Fix:**
+
 - [ ] Verify fix in development
 - [ ] Add regression test
 - [ ] Document the issue
@@ -887,6 +939,7 @@ async function incrementCounter(userId) {
 ## Debugging Resources
 
 **Tools:**
+
 - Node.js: https://nodejs.org/en/docs/guides/debugging-getting-started/
 - Chrome DevTools: https://developer.chrome.com/docs/devtools/
 - Clinic.js: https://clinicjs.org/
@@ -895,10 +948,12 @@ async function incrementCounter(userId) {
 - New Relic: https://docs.newrelic.com/
 
 **Best Practices:**
+
 - 12 Factor App Logs: https://12factor.net/logs
 - Google SRE Book: https://sre.google/sre-book/table-of-contents/
 - OpenTelemetry: https://opentelemetry.io/docs/
 
 **Database:**
+
 - PostgreSQL EXPLAIN: https://www.postgresql.org/docs/current/using-explain.html
 - MongoDB Performance: https://www.mongodb.com/docs/manual/administration/analyzing-mongodb-performance/

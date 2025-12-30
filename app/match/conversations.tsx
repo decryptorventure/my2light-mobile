@@ -3,7 +3,7 @@
  * Shows all matched conversations
  */
 
-import React from 'react';
+import React from "react";
 import {
     View,
     Text,
@@ -12,20 +12,24 @@ import {
     TouchableOpacity,
     Image,
     RefreshControl,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { useQuery } from '@tanstack/react-query';
-import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
-import { MatchService, MatchConversation } from '../../services/match.service';
+} from "react-native";
+import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
+import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
+import { MatchService, MatchConversation } from "../../services/match.service";
 
 export default function ConversationsScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
 
-    const { data: conversations = [], isLoading, refetch } = useQuery({
-        queryKey: ['conversations'],
+    const {
+        data: conversations = [],
+        isLoading,
+        refetch,
+    } = useQuery({
+        queryKey: ["conversations"],
         queryFn: async () => {
             const result = await MatchService.getConversations();
             return result.data;
@@ -33,19 +37,19 @@ export default function ConversationsScreen() {
     });
 
     const formatTime = (dateString?: string) => {
-        if (!dateString) return '';
+        if (!dateString) return "";
         const date = new Date(dateString);
         const now = new Date();
         const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
 
         if (diffDays === 0) {
-            return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            return date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
         } else if (diffDays === 1) {
-            return 'Hôm qua';
+            return "Hôm qua";
         } else if (diffDays < 7) {
-            return date.toLocaleDateString('vi-VN', { weekday: 'short' });
+            return date.toLocaleDateString("vi-VN", { weekday: "short" });
         } else {
-            return date.toLocaleDateString('vi-VN', { day: 'numeric', month: 'short' });
+            return date.toLocaleDateString("vi-VN", { day: "numeric", month: "short" });
         }
     };
 
@@ -56,13 +60,13 @@ export default function ConversationsScreen() {
         >
             <View style={styles.avatarContainer}>
                 <Image
-                    source={{ uri: item.otherUserAvatar || 'https://via.placeholder.com/56' }}
+                    source={{ uri: item.otherUserAvatar || "https://via.placeholder.com/56" }}
                     style={styles.avatar}
                 />
                 {item.unreadCount > 0 && (
                     <View style={styles.unreadBadge}>
                         <Text style={styles.unreadCount}>
-                            {item.unreadCount > 9 ? '9+' : item.unreadCount}
+                            {item.unreadCount > 9 ? "9+" : item.unreadCount}
                         </Text>
                     </View>
                 )}
@@ -70,7 +74,10 @@ export default function ConversationsScreen() {
 
             <View style={styles.conversationInfo}>
                 <View style={styles.topRow}>
-                    <Text style={[styles.userName, item.unreadCount > 0 && styles.unreadName]} numberOfLines={1}>
+                    <Text
+                        style={[styles.userName, item.unreadCount > 0 && styles.unreadName]}
+                        numberOfLines={1}
+                    >
                         {item.otherUserName}
                     </Text>
                     <Text style={styles.timeText}>{formatTime(item.lastMessageAt)}</Text>
@@ -79,7 +86,7 @@ export default function ConversationsScreen() {
                     style={[styles.lastMessage, item.unreadCount > 0 && styles.unreadMessage]}
                     numberOfLines={1}
                 >
-                    {item.lastMessage || 'Bắt đầu trò chuyện...'}
+                    {item.lastMessage || "Bắt đầu trò chuyện..."}
                 </Text>
             </View>
 
@@ -91,12 +98,10 @@ export default function ConversationsScreen() {
         <View style={styles.emptyContainer}>
             <Ionicons name="chatbubbles-outline" size={64} color={colors.textMuted} />
             <Text style={styles.emptyTitle}>Chưa có cuộc trò chuyện</Text>
-            <Text style={styles.emptySubtitle}>
-                Tìm bạn chơi và kết nối để bắt đầu trò chuyện
-            </Text>
+            <Text style={styles.emptySubtitle}>Tìm bạn chơi và kết nối để bắt đầu trò chuyện</Text>
             <TouchableOpacity
                 style={styles.findMatchBtn}
-                onPress={() => router.push('/(tabs)/match')}
+                onPress={() => router.push("/(tabs)/match")}
             >
                 <Text style={styles.findMatchBtnText}>Tìm bạn chơi</Text>
             </TouchableOpacity>
@@ -120,7 +125,9 @@ export default function ConversationsScreen() {
                 keyExtractor={(item) => item.id}
                 renderItem={renderConversation}
                 ListEmptyComponent={renderEmpty}
-                contentContainerStyle={conversations.length === 0 ? styles.emptyList : styles.listContent}
+                contentContainerStyle={
+                    conversations.length === 0 ? styles.emptyList : styles.listContent
+                }
                 refreshControl={
                     <RefreshControl
                         refreshing={isLoading}
@@ -139,9 +146,9 @@ const styles = StyleSheet.create({
         backgroundColor: colors.background,
     },
     header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
         paddingHorizontal: spacing.md,
         paddingBottom: spacing.sm,
         borderBottomWidth: 1,
@@ -162,15 +169,15 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     conversationItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         paddingHorizontal: spacing.lg,
         paddingVertical: spacing.md,
         borderBottomWidth: 1,
         borderBottomColor: colors.border,
     },
     avatarContainer: {
-        position: 'relative',
+        position: "relative",
     },
     avatar: {
         width: 56,
@@ -179,30 +186,30 @@ const styles = StyleSheet.create({
         backgroundColor: colors.surface,
     },
     unreadBadge: {
-        position: 'absolute',
+        position: "absolute",
         top: -2,
         right: -2,
         minWidth: 20,
         height: 20,
         borderRadius: 10,
         backgroundColor: colors.error,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
         paddingHorizontal: 4,
     },
     unreadCount: {
         fontSize: 11,
         fontWeight: fontWeight.bold,
-        color: '#fff',
+        color: "#fff",
     },
     conversationInfo: {
         flex: 1,
         marginLeft: spacing.md,
     },
     topRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
         marginBottom: 4,
     },
     userName: {
@@ -229,8 +236,8 @@ const styles = StyleSheet.create({
     },
     emptyContainer: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
         padding: spacing.xl,
     },
     emptyTitle: {
@@ -242,7 +249,7 @@ const styles = StyleSheet.create({
     emptySubtitle: {
         fontSize: fontSize.sm,
         color: colors.textMuted,
-        textAlign: 'center',
+        textAlign: "center",
         marginTop: spacing.sm,
         marginBottom: spacing.lg,
     },

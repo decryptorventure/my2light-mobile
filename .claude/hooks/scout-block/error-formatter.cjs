@@ -6,17 +6,17 @@
  * Supports ANSI colors with NO_COLOR env var respect.
  */
 
-const path = require('path');
+const path = require("path");
 
 // ANSI color codes
 const COLORS = {
-  red: '\x1b[31m',
-  yellow: '\x1b[33m',
-  blue: '\x1b[34m',
-  cyan: '\x1b[36m',
-  bold: '\x1b[1m',
-  dim: '\x1b[2m',
-  reset: '\x1b[0m'
+    red: "\x1b[31m",
+    yellow: "\x1b[33m",
+    blue: "\x1b[34m",
+    cyan: "\x1b[36m",
+    bold: "\x1b[1m",
+    dim: "\x1b[2m",
+    reset: "\x1b[0m",
 };
 
 /**
@@ -26,14 +26,14 @@ const COLORS = {
  * @returns {boolean}
  */
 function supportsColor() {
-  // Respect NO_COLOR standard (https://no-color.org/)
-  if (process.env.NO_COLOR !== undefined) return false;
+    // Respect NO_COLOR standard (https://no-color.org/)
+    if (process.env.NO_COLOR !== undefined) return false;
 
-  // Respect FORCE_COLOR
-  if (process.env.FORCE_COLOR !== undefined) return true;
+    // Respect FORCE_COLOR
+    if (process.env.FORCE_COLOR !== undefined) return true;
 
-  // Check if stderr is TTY (we output errors to stderr)
-  return process.stderr.isTTY || false;
+    // Check if stderr is TTY (we output errors to stderr)
+    return process.stderr.isTTY || false;
 }
 
 /**
@@ -44,9 +44,9 @@ function supportsColor() {
  * @returns {string}
  */
 function colorize(text, color) {
-  if (!supportsColor()) return text;
-  const colorCode = COLORS[color] || '';
-  return `${colorCode}${text}${COLORS.reset}`;
+    if (!supportsColor()) return text;
+    const colorCode = COLORS[color] || "";
+    return `${colorCode}${text}${COLORS.reset}`;
 }
 
 /**
@@ -56,10 +56,10 @@ function colorize(text, color) {
  * @returns {string}
  */
 function formatConfigPath(claudeDir) {
-  if (claudeDir) {
-    return path.join(claudeDir, '.ckignore');
-  }
-  return '.claude/.ckignore';
+    if (claudeDir) {
+        return path.join(claudeDir, ".ckignore");
+    }
+    return ".claude/.ckignore";
 }
 
 /**
@@ -75,31 +75,30 @@ function formatConfigPath(claudeDir) {
  * @returns {string}
  */
 function formatBlockedError(details) {
-  const { path: blockedPath, pattern, tool, claudeDir } = details;
-  const configPath = formatConfigPath(claudeDir);
+    const { path: blockedPath, pattern, tool, claudeDir } = details;
+    const configPath = formatConfigPath(claudeDir);
 
-  // Truncate path if too long
-  const displayPath = blockedPath.length > 60
-    ? '...' + blockedPath.slice(-57)
-    : blockedPath;
+    // Truncate path if too long
+    const displayPath = blockedPath.length > 60 ? "..." + blockedPath.slice(-57) : blockedPath;
 
-  const lines = [
-    '',
-    colorize('NOTE:', 'cyan') + ' This is not an error - this block is intentional to optimize context.',
-    '',
-    colorize('BLOCKED', 'red') + `: Access to '${displayPath}' denied`,
-    '',
-    `  ${colorize('Pattern:', 'yellow')}  ${pattern}`,
-    `  ${colorize('Tool:', 'yellow')}     ${tool || 'unknown'}`,
-    '',
-    `  ${colorize('To allow, add to', 'blue')} ${configPath}:`,
-    `    !${pattern}`,
-    '',
-    `  ${colorize('Config:', 'dim')} ${configPath}`,
-    ''
-  ];
+    const lines = [
+        "",
+        colorize("NOTE:", "cyan") +
+            " This is not an error - this block is intentional to optimize context.",
+        "",
+        colorize("BLOCKED", "red") + `: Access to '${displayPath}' denied`,
+        "",
+        `  ${colorize("Pattern:", "yellow")}  ${pattern}`,
+        `  ${colorize("Tool:", "yellow")}     ${tool || "unknown"}`,
+        "",
+        `  ${colorize("To allow, add to", "blue")} ${configPath}:`,
+        `    !${pattern}`,
+        "",
+        `  ${colorize("Config:", "dim")} ${configPath}`,
+        "",
+    ];
 
-  return lines.join('\n');
+    return lines.join("\n");
 }
 
 /**
@@ -110,7 +109,7 @@ function formatBlockedError(details) {
  * @returns {string}
  */
 function formatSimpleError(pattern, blockedPath) {
-  return `ERROR: Blocked pattern '${pattern}' matched path: ${blockedPath}`;
+    return `ERROR: Blocked pattern '${pattern}' matched path: ${blockedPath}`;
 }
 
 /**
@@ -121,17 +120,17 @@ function formatSimpleError(pattern, blockedPath) {
  * @returns {string}
  */
 function formatMachineError(details) {
-  const { path: blockedPath, pattern, tool, claudeDir } = details;
-  const configPath = formatConfigPath(claudeDir);
+    const { path: blockedPath, pattern, tool, claudeDir } = details;
+    const configPath = formatConfigPath(claudeDir);
 
-  return JSON.stringify({
-    error: 'BLOCKED',
-    path: blockedPath,
-    pattern: pattern,
-    tool: tool,
-    config: configPath,
-    fix: `Add '!${pattern}' to ${configPath} to allow this path`
-  });
+    return JSON.stringify({
+        error: "BLOCKED",
+        path: blockedPath,
+        pattern: pattern,
+        tool: tool,
+        config: configPath,
+        fix: `Add '!${pattern}' to ${configPath} to allow this path`,
+    });
 }
 
 /**
@@ -141,16 +140,16 @@ function formatMachineError(details) {
  * @returns {string}
  */
 function formatWarning(message) {
-  return colorize('WARN:', 'yellow') + ' ' + message;
+    return colorize("WARN:", "yellow") + " " + message;
 }
 
 module.exports = {
-  formatBlockedError,
-  formatSimpleError,
-  formatMachineError,
-  formatWarning,
-  formatConfigPath,
-  supportsColor,
-  colorize,
-  COLORS
+    formatBlockedError,
+    formatSimpleError,
+    formatMachineError,
+    formatWarning,
+    formatConfigPath,
+    supportsColor,
+    colorize,
+    COLORS,
 };

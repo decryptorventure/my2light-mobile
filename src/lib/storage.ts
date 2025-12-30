@@ -3,7 +3,7 @@
  * @module lib/storage
  */
 
-import { MMKV } from 'react-native-mmkv';
+import { MMKV } from "react-native-mmkv";
 
 // Singleton storage instance
 let storage: MMKV | null = null;
@@ -17,8 +17,8 @@ const getEncryptionKey = (): string => {
 
     if (!key) {
         throw new Error(
-            'MMKV encryption key not configured. ' +
-            'Set EXPO_PUBLIC_ENCRYPTION_KEY in your .env file.'
+            "MMKV encryption key not configured. " +
+                "Set EXPO_PUBLIC_ENCRYPTION_KEY in your .env file."
         );
     }
 
@@ -32,7 +32,7 @@ const getEncryptionKey = (): string => {
 export const getStorage = (): MMKV => {
     if (!storage) {
         storage = new MMKV({
-            id: 'my2light-storage',
+            id: "my2light-storage",
             encryptionKey: getEncryptionKey(),
         });
     }

@@ -1,8 +1,8 @@
-import { supabase } from '../lib/supabase';
-import { Highlight, ApiResponse } from '../types';
-import { logger } from '../lib/logger';
+import { supabase } from "../lib/supabase";
+import { Highlight, ApiResponse } from "../types";
+import { logger } from "../lib/logger";
 
-const highlightLogger = logger.create('Highlight');
+const highlightLogger = logger.create("Highlight");
 
 /**
  * Helper to fetch related data (profiles, courts) for highlights
@@ -11,16 +11,16 @@ async function enrichHighlights(highlights: any[]): Promise<Highlight[]> {
     if (!highlights.length) return [];
 
     // Get unique user IDs and court IDs
-    const userIds = [...new Set(highlights.map(h => h.user_id).filter(Boolean))];
-    const courtIds = [...new Set(highlights.map(h => h.court_id).filter(Boolean))];
+    const userIds = [...new Set(highlights.map((h) => h.user_id).filter(Boolean))];
+    const courtIds = [...new Set(highlights.map((h) => h.court_id).filter(Boolean))];
 
     // Fetch profiles
     let profileMap = new Map();
     if (userIds.length > 0) {
         const { data: profiles } = await supabase
-            .from('profiles')
-            .select('id, name, avatar')
-            .in('id', userIds);
+            .from("profiles")
+            .select("id, name, avatar")
+            .in("id", userIds);
         profileMap = new Map((profiles || []).map((p: any) => [p.id, p]));
     }
 
@@ -28,9 +28,9 @@ async function enrichHighlights(highlights: any[]): Promise<Highlight[]> {
     let courtMap = new Map();
     if (courtIds.length > 0) {
         const { data: courts } = await supabase
-            .from('courts')
-            .select('id, name')
-            .in('id', courtIds);
+            .from("courts")
+            .select("id, name")
+            .in("id", courtIds);
         courtMap = new Map((courts || []).map((c: any) => [c.id, c]));
     }
 
@@ -43,21 +43,22 @@ async function enrichHighlights(highlights: any[]): Promise<Highlight[]> {
             id: h.id,
             userId: h.user_id,
             courtId: h.court_id,
-            title: h.title || 'Highlight',
-            description: h.description || '',
-            thumbnailUrl: h.thumbnail_url || '',
-            videoUrl: h.video_url || '',
+            title: h.title || "Highlight",
+            description: h.description || "",
+            thumbnailUrl: h.thumbnail_url || "",
+            videoUrl: h.video_url || "",
             durationSec: h.duration_sec || 0,
             createdAt: h.created_at,
             likes: h.likes || 0,
             views: h.views || 0,
-            courtName: court?.name || 'Sân không xác định',
-            userAvatar: profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${h.user_id}`,
-            userName: profile?.name || 'Người chơi',
+            courtName: court?.name || "Sân không xác định",
+            userAvatar:
+                profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${h.user_id}`,
+            userName: profile?.name || "Người chơi",
             isLiked: false,
             isPublic: h.is_public !== false,
             comments: 0,
-            highlightEvents: h.highlight_events || []
+            highlightEvents: h.highlight_events || [],
         };
     });
 }
@@ -71,10 +72,10 @@ export const HighlightService = {
             highlightLogger.debug("getHighlights: Fetching public highlights", { limit });
 
             const { data, error } = await supabase
-                .from('highlights')
-                .select('*')
-                .eq('is_public', true)
-                .order('created_at', { ascending: false })
+                .from("highlights")
+                .select("*")
+                .eq("is_public", true)
+                .order("created_at", { ascending: false })
                 .limit(limit);
 
             if (error) {
@@ -104,10 +105,10 @@ export const HighlightService = {
             }
 
             const { data, error } = await supabase
-                .from('highlights')
-                .select('*')
-                .eq('user_id', userId)
-                .order('created_at', { ascending: false })
+                .from("highlights")
+                .select("*")
+                .eq("user_id", userId)
+                .order("created_at", { ascending: false })
                 .limit(limit);
 
             if (error) {
@@ -141,32 +142,34 @@ export const HighlightService = {
             highlightLogger.debug("createHighlight", {
                 hasVideo: !!videoUrl,
                 hasThumbnail: !!thumbnailUrl,
-                title
+                title,
             });
 
-            const { data: { user } } = await supabase.auth.getUser();
+            const {
+                data: { user },
+            } = await supabase.auth.getUser();
             if (!user) {
-                return { success: false, data: null as any, error: 'Not authenticated' };
+                return { success: false, data: null as any, error: "Not authenticated" };
             }
 
             const insertData = {
                 user_id: user.id,
                 court_id: courtId || null,
-                thumbnail_url: thumbnailUrl || '',
-                video_url: videoUrl || '',
+                thumbnail_url: thumbnailUrl || "",
+                video_url: videoUrl || "",
                 duration_sec: duration || 30,
-                title: title || 'Highlight mới',
-                description: description || '',
+                title: title || "Highlight mới",
+                description: description || "",
                 likes: 0,
                 views: 0,
                 is_public: true,
-                highlight_events: highlightEvents || null
+                highlight_events: highlightEvents || null,
             };
 
             highlightLogger.debug("Inserting highlight");
 
             const { data, error } = await supabase
-                .from('highlights')
+                .from("highlights")
                 .insert(insertData)
                 .select()
                 .single();
@@ -190,14 +193,18 @@ export const HighlightService = {
     /**
      * Toggle like on a highlight
      */
-    toggleLike: async (highlightId: string, currentLikes: number, isLiked: boolean): Promise<ApiResponse<boolean>> => {
+    toggleLike: async (
+        highlightId: string,
+        currentLikes: number,
+        isLiked: boolean
+    ): Promise<ApiResponse<boolean>> => {
         try {
             const newCount = isLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1;
 
             const { error } = await supabase
-                .from('highlights')
+                .from("highlights")
                 .update({ likes: newCount })
-                .eq('id', highlightId);
+                .eq("id", highlightId);
 
             if (error) {
                 highlightLogger.error("toggleLike error", { message: error.message });
@@ -209,5 +216,5 @@ export const HighlightService = {
             highlightLogger.error("toggleLike exception", e);
             return { success: false, data: false, error: e.message };
         }
-    }
+    },
 };

@@ -16,6 +16,7 @@ Interview the user with critical questions to validate assumptions, confirm deci
 ## Configuration (from injected context)
 
 Check `## Plan Context` section for validation settings:
+
 - `mode` - Controls auto/prompt/off behavior
 - `questions` - Range like `3-8` (min-max)
 
@@ -26,6 +27,7 @@ These values are automatically injected from user config. Use them as constraint
 ### Step 1: Read Plan Files
 
 Read the plan directory:
+
 - `plan.md` - Overview and phases list
 - `phase-*.md` - All phase files
 - Look for decision points, assumptions, risks, tradeoffs
@@ -34,19 +36,20 @@ Read the plan directory:
 
 Scan plan content for:
 
-| Category | Keywords to detect |
-|----------|-------------------|
-| **Architecture** | "approach", "pattern", "design", "structure", "database", "API" |
-| **Assumptions** | "assume", "expect", "should", "will", "must", "default" |
-| **Tradeoffs** | "tradeoff", "vs", "alternative", "option", "choice", "either/or" |
-| **Risks** | "risk", "might", "could fail", "dependency", "blocker", "concern" |
-| **Scope** | "phase", "MVP", "future", "out of scope", "nice to have" |
+| Category         | Keywords to detect                                                |
+| ---------------- | ----------------------------------------------------------------- |
+| **Architecture** | "approach", "pattern", "design", "structure", "database", "API"   |
+| **Assumptions**  | "assume", "expect", "should", "will", "must", "default"           |
+| **Tradeoffs**    | "tradeoff", "vs", "alternative", "option", "choice", "either/or"  |
+| **Risks**        | "risk", "might", "could fail", "dependency", "blocker", "concern" |
+| **Scope**        | "phase", "MVP", "future", "out of scope", "nice to have"          |
 
 ### Step 3: Generate Questions
 
 For each detected topic, formulate a concrete question:
 
 **Question format rules:**
+
 - Each question must have 2-4 concrete options
 - Mark recommended option with "(Recommended)" suffix
 - Include "Other" option is automatic - don't add it
@@ -77,6 +80,7 @@ Options:
 Use `AskUserQuestion` tool to present questions.
 
 **Rules:**
+
 - Use question count from `## Plan Context` → `Validation: mode=X, questions=MIN-MAX`
 - Group related questions when possible (max 4 questions per tool call)
 - Focus on: assumptions, risks, tradeoffs, architecture
@@ -86,6 +90,7 @@ Use `AskUserQuestion` tool to present questions.
 After collecting answers, update the plan:
 
 1. Add `## Validation Summary` section to `plan.md`:
+
 ```markdown
 ## Validation Summary
 
@@ -93,10 +98,12 @@ After collecting answers, update the plan:
 **Questions asked:** {count}
 
 ### Confirmed Decisions
+
 - {decision 1}: {user choice}
 - {decision 2}: {user choice}
 
 ### Action Items
+
 - [ ] {any changes needed based on answers}
 ```
 
@@ -105,6 +112,7 @@ After collecting answers, update the plan:
 ## Output
 
 After validation completes, provide summary:
+
 - Number of questions asked
 - Key decisions confirmed
 - Any items flagged for plan revision

@@ -3,17 +3,11 @@
  * Displays reviews for a court with stats
  */
 
-import React from 'react';
-import {
-    View,
-    Text,
-    StyleSheet,
-    FlatList,
-    Image,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
-import { Review, ReviewStats } from '../../services/review.service';
+import React from "react";
+import { View, Text, StyleSheet, FlatList, Image } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
+import { Review, ReviewStats } from "../../services/review.service";
 
 interface ReviewListProps {
     reviews: Review[];
@@ -24,10 +18,10 @@ interface ReviewListProps {
 const ReviewItem = ({ review }: { review: Review }) => {
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
-        return date.toLocaleDateString('vi-VN', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
+        return date.toLocaleDateString("vi-VN", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
         });
     };
 
@@ -36,7 +30,7 @@ const ReviewItem = ({ review }: { review: Review }) => {
             <View style={styles.reviewHeader}>
                 <Image
                     source={{
-                        uri: review.userAvatar || 'https://via.placeholder.com/40'
+                        uri: review.userAvatar || "https://via.placeholder.com/40",
                     }}
                     style={styles.avatar}
                 />
@@ -46,33 +40,21 @@ const ReviewItem = ({ review }: { review: Review }) => {
                         {[1, 2, 3, 4, 5].map((star) => (
                             <Ionicons
                                 key={star}
-                                name={star <= review.rating ? 'star' : 'star-outline'}
+                                name={star <= review.rating ? "star" : "star-outline"}
                                 size={14}
                                 color={star <= review.rating ? colors.warning : colors.textMuted}
                             />
                         ))}
-                        <Text style={styles.reviewDate}>
-                            • {formatDate(review.createdAt)}
-                        </Text>
+                        <Text style={styles.reviewDate}>• {formatDate(review.createdAt)}</Text>
                     </View>
                 </View>
             </View>
-            {review.comment && (
-                <Text style={styles.comment}>{review.comment}</Text>
-            )}
+            {review.comment && <Text style={styles.comment}>{review.comment}</Text>}
         </View>
     );
 };
 
-const RatingBar = ({
-    stars,
-    count,
-    total
-}: {
-    stars: number;
-    count: number;
-    total: number;
-}) => {
+const RatingBar = ({ stars, count, total }: { stars: number; count: number; total: number }) => {
     const percentage = total > 0 ? (count / total) * 100 : 0;
 
     return (
@@ -102,22 +84,22 @@ export default function ReviewList({ reviews, stats, isLoading }: ReviewListProp
                 <>
                     {/* Overall Rating */}
                     <View style={styles.overallRating}>
-                        <Text style={styles.ratingNumber}>
-                            {stats.averageRating.toFixed(1)}
-                        </Text>
+                        <Text style={styles.ratingNumber}>{stats.averageRating.toFixed(1)}</Text>
                         <View style={styles.starsRow}>
                             {[1, 2, 3, 4, 5].map((star) => (
                                 <Ionicons
                                     key={star}
-                                    name={star <= Math.round(stats.averageRating) ? 'star' : 'star-outline'}
+                                    name={
+                                        star <= Math.round(stats.averageRating)
+                                            ? "star"
+                                            : "star-outline"
+                                    }
                                     size={16}
                                     color={colors.warning}
                                 />
                             ))}
                         </View>
-                        <Text style={styles.totalReviews}>
-                            {stats.totalReviews} đánh giá
-                        </Text>
+                        <Text style={styles.totalReviews}>{stats.totalReviews} đánh giá</Text>
                     </View>
 
                     {/* Rating Distribution */}
@@ -126,7 +108,11 @@ export default function ReviewList({ reviews, stats, isLoading }: ReviewListProp
                             <RatingBar
                                 key={star}
                                 stars={star}
-                                count={stats.ratingDistribution[star as keyof typeof stats.ratingDistribution]}
+                                count={
+                                    stats.ratingDistribution[
+                                        star as keyof typeof stats.ratingDistribution
+                                    ]
+                                }
                                 total={stats.totalReviews}
                             />
                         ))}
@@ -177,14 +163,14 @@ const styles = StyleSheet.create({
     },
     loadingContainer: {
         padding: spacing.xl,
-        alignItems: 'center',
+        alignItems: "center",
     },
     loadingText: {
         color: colors.textMuted,
         fontSize: fontSize.sm,
     },
     statsContainer: {
-        flexDirection: 'row',
+        flexDirection: "row",
         backgroundColor: colors.surface,
         borderRadius: borderRadius.lg,
         padding: spacing.lg,
@@ -192,8 +178,8 @@ const styles = StyleSheet.create({
         gap: spacing.lg,
     },
     overallRating: {
-        alignItems: 'center',
-        justifyContent: 'center',
+        alignItems: "center",
+        justifyContent: "center",
         paddingRight: spacing.lg,
         borderRightWidth: 1,
         borderRightColor: colors.border,
@@ -204,7 +190,7 @@ const styles = StyleSheet.create({
         color: colors.text,
     },
     starsRow: {
-        flexDirection: 'row',
+        flexDirection: "row",
         marginVertical: spacing.xs,
     },
     totalReviews: {
@@ -213,29 +199,29 @@ const styles = StyleSheet.create({
     },
     distribution: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: "center",
         gap: 4,
     },
     ratingBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         gap: 4,
     },
     ratingBarLabel: {
         width: 12,
         fontSize: fontSize.xs,
         color: colors.textMuted,
-        textAlign: 'right',
+        textAlign: "right",
     },
     barContainer: {
         flex: 1,
         height: 6,
         backgroundColor: colors.background,
         borderRadius: 3,
-        overflow: 'hidden',
+        overflow: "hidden",
     },
     barFill: {
-        height: '100%',
+        height: "100%",
         backgroundColor: colors.warning,
         borderRadius: 3,
     },
@@ -243,7 +229,7 @@ const styles = StyleSheet.create({
         width: 24,
         fontSize: fontSize.xs,
         color: colors.textMuted,
-        textAlign: 'right',
+        textAlign: "right",
     },
     listContent: {
         gap: spacing.md,
@@ -254,8 +240,8 @@ const styles = StyleSheet.create({
         padding: spacing.md,
     },
     reviewHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         gap: spacing.sm,
     },
     avatar: {
@@ -273,8 +259,8 @@ const styles = StyleSheet.create({
         color: colors.text,
     },
     ratingRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         gap: 2,
         marginTop: 2,
     },
@@ -290,7 +276,7 @@ const styles = StyleSheet.create({
         lineHeight: 20,
     },
     emptyContainer: {
-        alignItems: 'center',
+        alignItems: "center",
         padding: spacing.xl,
     },
     emptyText: {

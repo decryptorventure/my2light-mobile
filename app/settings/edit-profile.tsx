@@ -104,7 +104,7 @@ export default function EditProfileScreen() {
             if (result.success) {
                 haptics.success();
                 Alert.alert("Thành công", "Đã cập nhật thông tin!", [
-                    { text: "OK", onPress: () => router.back() }
+                    { text: "OK", onPress: () => router.back() },
                 ]);
             } else {
                 throw new Error(result.error || "Update failed");
@@ -135,11 +135,7 @@ export default function EditProfileScreen() {
                     <Ionicons name="close" size={24} color={colors.text} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Chỉnh sửa hồ sơ</Text>
-                <TouchableOpacity
-                    onPress={handleSave}
-                    style={styles.headerBtn}
-                    disabled={saving}
-                >
+                <TouchableOpacity onPress={handleSave} style={styles.headerBtn} disabled={saving}>
                     {saving ? (
                         <ActivityIndicator size="small" color={colors.accent} />
                     ) : (

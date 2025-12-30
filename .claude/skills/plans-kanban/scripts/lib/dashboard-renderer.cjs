@@ -5,12 +5,9 @@
  * @module dashboard-renderer
  */
 
-const fs = require('fs');
-const path = require('path');
-const {
-  generateTimelineStats,
-  generateActivityHeatmap
-} = require('./plan-metadata-extractor.cjs');
+const fs = require("fs");
+const path = require("path");
+const { generateTimelineStats, generateActivityHeatmap } = require("./plan-metadata-extractor.cjs");
 
 /**
  * Escape HTML special characters to prevent XSS
@@ -18,13 +15,13 @@ const {
  * @returns {string} - Escaped string
  */
 function escapeHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+    if (!str) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 /**
@@ -34,9 +31,9 @@ function escapeHtml(str) {
  * @returns {string} - Truncated text
  */
 function truncate(text, maxLen = 100) {
-  if (!text) return '';
-  if (text.length <= maxLen) return text;
-  return text.slice(0, maxLen - 3).trim() + '...';
+    if (!text) return "";
+    if (text.length <= maxLen) return text;
+    return text.slice(0, maxLen - 3).trim() + "...";
 }
 
 /**
@@ -45,12 +42,12 @@ function truncate(text, maxLen = 100) {
  * @returns {string} - CSS class name
  */
 function getPriorityColorClass(priority) {
-  if (!priority) return '';
-  const p = String(priority).toUpperCase();
-  if (p === 'P1' || p === 'HIGH' || p === 'CRITICAL') return 'priority-high';
-  if (p === 'P2' || p === 'MEDIUM' || p === 'NORMAL') return 'priority-medium';
-  if (p === 'P3' || p === 'LOW') return 'priority-low';
-  return '';
+    if (!priority) return "";
+    const p = String(priority).toUpperCase();
+    if (p === "P1" || p === "HIGH" || p === "CRITICAL") return "priority-high";
+    if (p === "P2" || p === "MEDIUM" || p === "NORMAL") return "priority-medium";
+    if (p === "P3" || p === "LOW") return "priority-low";
+    return "";
 }
 
 /**
@@ -59,13 +56,13 @@ function getPriorityColorClass(priority) {
  * @returns {string} - Formatted date
  */
 function formatDate(isoDate) {
-  if (!isoDate) return '';
-  const date = new Date(isoDate);
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  });
+    if (!isoDate) return "";
+    const date = new Date(isoDate);
+    return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+    });
 }
 
 /**
@@ -74,18 +71,18 @@ function formatDate(isoDate) {
  * @returns {string} - Relative time string
  */
 function formatRelativeTime(isoDate) {
-  if (!isoDate) return '';
-  const date = new Date(isoDate);
-  const now = new Date();
-  const diffMs = now - date;
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (!isoDate) return "";
+    const date = new Date(isoDate);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDays === 0) return 'Today';
-  if (diffDays === 1) return 'Yesterday';
-  if (diffDays < 7) return `${diffDays} days ago`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-  if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
-  return `${Math.floor(diffDays / 365)} years ago`;
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+    return `${Math.floor(diffDays / 365)} years ago`;
 }
 
 /**
@@ -94,15 +91,15 @@ function formatRelativeTime(isoDate) {
  * @returns {string} - Human-readable label
  */
 function getStatusLabel(status) {
-  const labels = {
-    'completed': 'Completed',
-    'complete': 'Completed',
-    'in-progress': 'In Progress',
-    'in-review': 'In Review',
-    'cancelled': 'Cancelled',
-    'pending': 'Pending'
-  };
-  return labels[status] || 'Pending';
+    const labels = {
+        completed: "Completed",
+        complete: "Completed",
+        "in-progress": "In Progress",
+        "in-review": "In Review",
+        cancelled: "Cancelled",
+        pending: "Pending",
+    };
+    return labels[status] || "Pending";
 }
 
 /**
@@ -111,8 +108,8 @@ function getStatusLabel(status) {
  * @returns {string} - SVG HTML
  */
 function generateProgressRing(progress) {
-  // Hidden in new minimal design - kept for compatibility
-  return '';
+    // Hidden in new minimal design - kept for compatibility
+    return "";
 }
 
 /**
@@ -121,11 +118,11 @@ function generateProgressRing(progress) {
  * @returns {string} - Progress bar HTML
  */
 function generateProgressBar(phases) {
-  const total = phases.total || 1;
-  const completedPct = ((phases.completed / total) * 100).toFixed(1);
-  const inProgressPct = ((phases.inProgress / total) * 100).toFixed(1);
+    const total = phases.total || 1;
+    const completedPct = ((phases.completed / total) * 100).toFixed(1);
+    const inProgressPct = ((phases.inProgress / total) * 100).toFixed(1);
 
-  return `
+    return `
     <div class="progress-bar" role="progressbar"
          aria-valuenow="${phases.completed}" aria-valuemin="0" aria-valuemax="${total}"
          aria-label="Progress: ${phases.completed} of ${total} phases completed">
@@ -142,8 +139,8 @@ function generateProgressBar(phases) {
  * @returns {string} - Status counts HTML
  */
 function generateStatusCounts(phases) {
-  // Hidden in minimal design
-  return '';
+    // Hidden in minimal design
+    return "";
 }
 
 /**
@@ -152,16 +149,16 @@ function generateStatusCounts(phases) {
  * @returns {string} - Status badge HTML
  */
 function generateStatusBadge(status) {
-  const statusClass = (status || 'pending').replace(/\s+/g, '-');
-  // Simplified labels for minimal design
-  const labels = {
-    'completed': 'Done',
-    'complete': 'Done',
-    'in-progress': 'Active',
-    'pending': 'Pending'
-  };
-  const label = labels[statusClass] || 'Pending';
-  return `<span class="status-badge ${statusClass}">${label}</span>`;
+    const statusClass = (status || "pending").replace(/\s+/g, "-");
+    // Simplified labels for minimal design
+    const labels = {
+        completed: "Done",
+        complete: "Done",
+        "in-progress": "Active",
+        pending: "Pending",
+    };
+    const label = labels[statusClass] || "Pending";
+    return `<span class="status-badge ${statusClass}">${label}</span>`;
 }
 
 /**
@@ -170,34 +167,43 @@ function generateStatusBadge(status) {
  * @returns {string} - Meta tags HTML
  */
 function generateCardMeta(plan) {
-  const metaTags = [];
+    const metaTags = [];
 
-  // Duration tag
-  if (plan.durationFormatted) {
-    const icon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
-    metaTags.push(`<span class="meta-tag duration" title="Duration">${icon} ${escapeHtml(plan.durationFormatted)}</span>`);
-  }
+    // Duration tag
+    if (plan.durationFormatted) {
+        const icon =
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+        metaTags.push(
+            `<span class="meta-tag duration" title="Duration">${icon} ${escapeHtml(plan.durationFormatted)}</span>`
+        );
+    }
 
-  // Effort tag
-  if (plan.totalEffortFormatted) {
-    metaTags.push(`<span class="meta-tag effort" title="Estimated effort"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${escapeHtml(plan.totalEffortFormatted)}</span>`);
-  }
+    // Effort tag
+    if (plan.totalEffortFormatted) {
+        metaTags.push(
+            `<span class="meta-tag effort" title="Estimated effort"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${escapeHtml(plan.totalEffortFormatted)}</span>`
+        );
+    }
 
-  // Priority tag with color class
-  if (plan.priority) {
-    const priorityColorClass = getPriorityColorClass(plan.priority);
-    metaTags.push(`<span class="meta-tag priority ${priorityColorClass}" title="Priority">${escapeHtml(plan.priority)}</span>`);
-  }
+    // Priority tag with color class
+    if (plan.priority) {
+        const priorityColorClass = getPriorityColorClass(plan.priority);
+        metaTags.push(
+            `<span class="meta-tag priority ${priorityColorClass}" title="Priority">${escapeHtml(plan.priority)}</span>`
+        );
+    }
 
-  // Issue tag - clickable link to GitHub (uses branch to derive repo, falls back to claudekit)
-  if (plan.issue) {
-    // TODO: Make repo configurable via project settings
-    const issueUrl = `https://github.com/claudekit/claudekit/issues/${plan.issue}`;
-    metaTags.push(`<a href="${issueUrl}" target="_blank" rel="noopener" class="meta-tag issue" title="Issue #${plan.issue}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> #${plan.issue}</a>`);
-  }
+    // Issue tag - clickable link to GitHub (uses branch to derive repo, falls back to claudekit)
+    if (plan.issue) {
+        // TODO: Make repo configurable via project settings
+        const issueUrl = `https://github.com/claudekit/claudekit/issues/${plan.issue}`;
+        metaTags.push(
+            `<a href="${issueUrl}" target="_blank" rel="noopener" class="meta-tag issue" title="Issue #${plan.issue}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> #${plan.issue}</a>`
+        );
+    }
 
-  if (metaTags.length === 0) return '';
-  return `<div class="card-meta">${metaTags.join('')}</div>`;
+    if (metaTags.length === 0) return "";
+    return `<div class="card-meta">${metaTags.join("")}</div>`;
 }
 
 /**
@@ -207,22 +213,20 @@ function generateCardMeta(plan) {
  * @returns {string} - Tags HTML
  */
 function generateTagsPills(tags, maxVisible = 3) {
-  if (!tags || !Array.isArray(tags) || tags.length === 0) return '';
+    if (!tags || !Array.isArray(tags) || tags.length === 0) return "";
 
-  const visibleTags = tags.slice(0, maxVisible);
-  const hiddenCount = tags.length - maxVisible;
+    const visibleTags = tags.slice(0, maxVisible);
+    const hiddenCount = tags.length - maxVisible;
 
-  let html = '<div class="card-tags">';
-  html += visibleTags.map(tag =>
-    `<span class="tag-pill">${escapeHtml(tag)}</span>`
-  ).join('');
+    let html = '<div class="card-tags">';
+    html += visibleTags.map((tag) => `<span class="tag-pill">${escapeHtml(tag)}</span>`).join("");
 
-  if (hiddenCount > 0) {
-    html += `<span class="tag-pill tag-more">+${hiddenCount}</span>`;
-  }
-  html += '</div>';
+    if (hiddenCount > 0) {
+        html += `<span class="tag-pill tag-more">+${hiddenCount}</span>`;
+    }
+    html += "</div>";
 
-  return html;
+    return html;
 }
 
 /**
@@ -231,23 +235,23 @@ function generateTagsPills(tags, maxVisible = 3) {
  * @returns {string} - Card HTML
  */
 function generatePlanCard(plan) {
-  const statusClass = (plan.status || 'pending').replace(/\s+/g, '-');
-  const name = escapeHtml(plan.name);
-  const relativeTime = formatRelativeTime(plan.lastModified);
-  const cardMeta = generateCardMeta(plan);
+    const statusClass = (plan.status || "pending").replace(/\s+/g, "-");
+    const name = escapeHtml(plan.name);
+    const relativeTime = formatRelativeTime(plan.lastModified);
+    const cardMeta = generateCardMeta(plan);
 
-  // Description section (truncated)
-  const descriptionHtml = plan.description
-    ? `<p class="card-description">${escapeHtml(truncate(plan.description, 100))}</p>`
-    : '';
+    // Description section (truncated)
+    const descriptionHtml = plan.description
+        ? `<p class="card-description">${escapeHtml(truncate(plan.description, 100))}</p>`
+        : "";
 
-  // Tags pills
-  const tagsHtml = generateTagsPills(plan.tags);
+    // Tags pills
+    const tagsHtml = generateTagsPills(plan.tags);
 
-  return `
+    return `
     <article class="plan-card" data-status="${statusClass}" data-id="${escapeHtml(plan.id)}" tabindex="0"
-             data-created="${plan.createdDate || ''}" data-duration="${plan.durationDays || 0}"
-             data-effort="${plan.totalEffortHours || 0}" data-priority="${plan.priority || ''}">
+             data-created="${plan.createdDate || ""}" data-duration="${plan.durationDays || 0}"
+             data-effort="${plan.totalEffortHours || 0}" data-priority="${plan.priority || ""}">
       <header class="card-header">
         <div class="card-header-content">
           <h2 class="plan-name">${name}</h2>
@@ -285,74 +289,82 @@ function generatePlanCard(plan) {
  * @returns {Array} - Plans with layer assignments
  */
 function assignLayers(plans, rangeStart, rangeEnd) {
-  const rangeDays = Math.ceil((rangeEnd - rangeStart) / (1000 * 60 * 60 * 24));
-  const now = new Date();
-  const layers = []; // Each layer tracks occupied day ranges
+    const rangeDays = Math.ceil((rangeEnd - rangeStart) / (1000 * 60 * 60 * 24));
+    const now = new Date();
+    const layers = []; // Each layer tracks occupied day ranges
 
-  // Filter to plans with dates, then sort by start date
-  const sorted = [...plans]
-    .filter(p => p.createdDate)
-    .sort((a, b) => new Date(a.createdDate) - new Date(b.createdDate));
+    // Filter to plans with dates, then sort by start date
+    const sorted = [...plans]
+        .filter((p) => p.createdDate)
+        .sort((a, b) => new Date(a.createdDate) - new Date(b.createdDate));
 
-  // Filter to plans within visible range
-  const visible = sorted.filter(plan => {
-    const startDate = new Date(plan.createdDate);
-    const endDate = plan.completedDate
-      ? new Date(plan.completedDate)
-      : new Date(startDate.getTime() + (plan.durationDays || 1) * 24 * 60 * 60 * 1000);
-    return endDate >= rangeStart && startDate <= rangeEnd;
-  });
+    // Filter to plans within visible range
+    const visible = sorted.filter((plan) => {
+        const startDate = new Date(plan.createdDate);
+        const endDate = plan.completedDate
+            ? new Date(plan.completedDate)
+            : new Date(startDate.getTime() + (plan.durationDays || 1) * 24 * 60 * 60 * 1000);
+        return endDate >= rangeStart && startDate <= rangeEnd;
+    });
 
-  return visible.map(plan => {
-    const startDate = new Date(plan.createdDate);
-    // Determine end date based on status
-    let endDate;
-    if (plan.completedDate) {
-      endDate = new Date(plan.completedDate);
-    } else if (plan.status === 'completed') {
-      // Completed without explicit date: use lastModified or cap at today
-      endDate = plan.lastModified ? new Date(plan.lastModified) : now;
-    } else {
-      // In-progress/pending: use duration from start
-      endDate = new Date(startDate.getTime() + Math.max(1, plan.durationDays || 1) * 24 * 60 * 60 * 1000);
-    }
-    // Completed plans can't extend past today
-    if (plan.status === 'completed' && endDate > now) {
-      endDate = now;
-    }
+    return visible.map((plan) => {
+        const startDate = new Date(plan.createdDate);
+        // Determine end date based on status
+        let endDate;
+        if (plan.completedDate) {
+            endDate = new Date(plan.completedDate);
+        } else if (plan.status === "completed") {
+            // Completed without explicit date: use lastModified or cap at today
+            endDate = plan.lastModified ? new Date(plan.lastModified) : now;
+        } else {
+            // In-progress/pending: use duration from start
+            endDate = new Date(
+                startDate.getTime() + Math.max(1, plan.durationDays || 1) * 24 * 60 * 60 * 1000
+            );
+        }
+        // Completed plans can't extend past today
+        if (plan.status === "completed" && endDate > now) {
+            endDate = now;
+        }
 
-    // Calculate position as percentage (clamp to range)
-    const startDay = Math.max(0, Math.ceil((startDate - rangeStart) / (1000 * 60 * 60 * 24)));
-    const endDay = Math.min(rangeDays, Math.ceil((endDate - rangeStart) / (1000 * 60 * 60 * 24)));
+        // Calculate position as percentage (clamp to range)
+        const startDay = Math.max(0, Math.ceil((startDate - rangeStart) / (1000 * 60 * 60 * 24)));
+        const endDay = Math.min(
+            rangeDays,
+            Math.ceil((endDate - rangeStart) / (1000 * 60 * 60 * 24))
+        );
 
-    // Ensure minimum visible width (2 days)
-    const adjustedEndDay = Math.max(startDay + 2, endDay);
-    const leftPct = (startDay / rangeDays) * 100;
-    const widthPct = Math.min(100 - leftPct, Math.max(4, ((adjustedEndDay - startDay) / rangeDays) * 100));
+        // Ensure minimum visible width (2 days)
+        const adjustedEndDay = Math.max(startDay + 2, endDay);
+        const leftPct = (startDay / rangeDays) * 100;
+        const widthPct = Math.min(
+            100 - leftPct,
+            Math.max(4, ((adjustedEndDay - startDay) / rangeDays) * 100)
+        );
 
-    // Find first layer without overlap (greedy algorithm)
-    let layer = 0;
-    let foundSlot = false;
-    for (let i = 0; i < layers.length; i++) {
-      const hasOverlap = layers[i].some(range =>
-        !(adjustedEndDay <= range.start || startDay >= range.end)
-      );
-      if (!hasOverlap) {
-        layer = i;
-        foundSlot = true;
-        break;
-      }
-    }
-    if (!foundSlot) {
-      layer = layers.length;
-    }
+        // Find first layer without overlap (greedy algorithm)
+        let layer = 0;
+        let foundSlot = false;
+        for (let i = 0; i < layers.length; i++) {
+            const hasOverlap = layers[i].some(
+                (range) => !(adjustedEndDay <= range.start || startDay >= range.end)
+            );
+            if (!hasOverlap) {
+                layer = i;
+                foundSlot = true;
+                break;
+            }
+        }
+        if (!foundSlot) {
+            layer = layers.length;
+        }
 
-    // Add to layer
-    if (!layers[layer]) layers[layer] = [];
-    layers[layer].push({ start: startDay, end: adjustedEndDay });
+        // Add to layer
+        if (!layers[layer]) layers[layer] = [];
+        layers[layer].push({ start: startDay, end: adjustedEndDay });
 
-    return { ...plan, layer, leftPct, widthPct, startDay, endDay: adjustedEndDay };
-  });
+        return { ...plan, layer, leftPct, widthPct, startDay, endDay: adjustedEndDay };
+    });
 }
 
 /**
@@ -361,48 +373,54 @@ function assignLayers(plans, rangeStart, rangeEnd) {
  * @returns {string} - Timeline section HTML
  */
 function generateTimelineSection(plans) {
-  if (!plans || plans.length === 0) return '';
+    if (!plans || plans.length === 0) return "";
 
-  const stats = generateTimelineStats(plans);
+    const stats = generateTimelineStats(plans);
 
-  // Calculate date range (last 3 weeks to now + 1 week)
-  const now = new Date();
-  const rangeStart = new Date(now.getTime() - 21 * 24 * 60 * 60 * 1000);
-  const rangeEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-  const rangeDays = Math.ceil((rangeEnd - rangeStart) / (1000 * 60 * 60 * 24));
+    // Calculate date range (last 3 weeks to now + 1 week)
+    const now = new Date();
+    const rangeStart = new Date(now.getTime() - 21 * 24 * 60 * 60 * 1000);
+    const rangeEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const rangeDays = Math.ceil((rangeEnd - rangeStart) / (1000 * 60 * 60 * 24));
 
-  // Generate date axis labels (7 markers)
-  const axisLabels = [];
-  for (let i = 0; i < 7; i++) {
-    const date = new Date(rangeStart.getTime() + (i * rangeDays / 6) * 24 * 60 * 60 * 1000);
-    const isToday = date.toDateString() === now.toDateString();
-    axisLabels.push({
-      label: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      isToday
-    });
-  }
+    // Generate date axis labels (7 markers)
+    const axisLabels = [];
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(rangeStart.getTime() + ((i * rangeDays) / 6) * 24 * 60 * 60 * 1000);
+        const isToday = date.toDateString() === now.toDateString();
+        axisLabels.push({
+            label: date.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+            isToday,
+        });
+    }
 
-  const axisHtml = axisLabels.map(a =>
-    `<span class="gantt-axis-label${a.isToday ? ' today' : ''}">${a.label}</span>`
-  ).join('');
+    const axisHtml = axisLabels
+        .map((a) => `<span class="gantt-axis-label${a.isToday ? " today" : ""}">${a.label}</span>`)
+        .join("");
 
-  // Calculate today marker position
-  const todayPct = ((now - rangeStart) / (rangeEnd - rangeStart)) * 100;
+    // Calculate today marker position
+    const todayPct = ((now - rangeStart) / (rangeEnd - rangeStart)) * 100;
 
-  // Auto-stack plans into layers
-  const layeredPlans = assignLayers(plans, rangeStart, rangeEnd);
-  const maxLayer = layeredPlans.length > 0 ? Math.max(...layeredPlans.map(p => p.layer), 0) : 0;
-  // Compact layout: 22px per layer (bar 18px + 4px gap), no max cap
-  const trackHeight = Math.max(60, (maxLayer + 1) * 22 + 12);
+    // Auto-stack plans into layers
+    const layeredPlans = assignLayers(plans, rangeStart, rangeEnd);
+    const maxLayer = layeredPlans.length > 0 ? Math.max(...layeredPlans.map((p) => p.layer), 0) : 0;
+    // Compact layout: 22px per layer (bar 18px + 4px gap), no max cap
+    const trackHeight = Math.max(60, (maxLayer + 1) * 22 + 12);
 
-  // Generate gantt bars
-  const barsHtml = layeredPlans.map(plan => {
-    const statusClass = plan.status === 'completed' ? 'completed'
-      : plan.status === 'in-progress' ? 'in-progress' : 'pending';
-    const top = plan.layer * 22 + 6;
-    const statusIcon = plan.status === 'completed' ? '✓' : plan.status === 'in-progress' ? '◐' : '○';
+    // Generate gantt bars
+    const barsHtml = layeredPlans
+        .map((plan) => {
+            const statusClass =
+                plan.status === "completed"
+                    ? "completed"
+                    : plan.status === "in-progress"
+                      ? "in-progress"
+                      : "pending";
+            const top = plan.layer * 22 + 6;
+            const statusIcon =
+                plan.status === "completed" ? "✓" : plan.status === "in-progress" ? "◐" : "○";
 
-    return `
+            return `
       <a href="/view?file=${encodeURIComponent(plan.path)}" class="gantt-bar ${statusClass}"
            style="left: ${plan.leftPct.toFixed(1)}%; width: ${plan.widthPct.toFixed(1)}%; top: ${top}px;"
            data-id="${escapeHtml(plan.id)}">
@@ -411,21 +429,22 @@ function generateTimelineSection(plans) {
         <div class="gantt-tooltip">
           <div class="gantt-tooltip-title">${escapeHtml(plan.name)}</div>
           <div class="gantt-tooltip-meta">
-            <span>${plan.durationFormatted || 'Today'}</span>
+            <span>${plan.durationFormatted || "Today"}</span>
             <span>${plan.phases.completed}/${plan.phases.total} phases</span>
-            ${plan.totalEffortFormatted ? `<span>${plan.totalEffortFormatted}</span>` : ''}
+            ${plan.totalEffortFormatted ? `<span>${plan.totalEffortFormatted}</span>` : ""}
           </div>
         </div>
       </a>
     `;
-  }).join('');
+        })
+        .join("");
 
-  // Summary counts
-  const completedCount = plans.filter(p => p.status === 'completed').length;
-  const activeCount = plans.filter(p => p.status === 'in-progress').length;
-  const pendingCount = plans.filter(p => p.status === 'pending').length;
+    // Summary counts
+    const completedCount = plans.filter((p) => p.status === "completed").length;
+    const activeCount = plans.filter((p) => p.status === "in-progress").length;
+    const pendingCount = plans.filter((p) => p.status === "pending").length;
 
-  return `
+    return `
     <section class="timeline-section" aria-label="Project timeline">
       <div class="timeline-header">
         <h2 class="timeline-title">Timeline</h2>
@@ -470,7 +489,7 @@ function generateTimelineSection(plans) {
  * @returns {string} - Empty state HTML
  */
 function generateEmptyState() {
-  return `
+    return `
     <div class="empty-state" hidden>
       <div class="empty-icon" aria-hidden="true">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -493,22 +512,22 @@ function generateEmptyState() {
  * @returns {string} - Grid HTML
  */
 function generatePlansGrid(plans) {
-  if (!plans || plans.length === 0) {
-    return '';
-  }
+    if (!plans || plans.length === 0) {
+        return "";
+    }
 
-  return plans.map(generatePlanCard).join('\n');
+    return plans.map(generatePlanCard).join("\n");
 }
 
 /**
  * Status column configuration for kanban board
  */
 const STATUS_COLUMNS = [
-  { id: 'pending', label: 'Pending', color: 'pending' },
-  { id: 'in-progress', label: 'In Progress', color: 'in-progress' },
-  { id: 'in-review', label: 'In Review', color: 'in-review' },
-  { id: 'completed', label: 'Done', color: 'completed' },
-  { id: 'cancelled', label: 'Cancelled', color: 'cancelled' }
+    { id: "pending", label: "Pending", color: "pending" },
+    { id: "in-progress", label: "In Progress", color: "in-progress" },
+    { id: "in-review", label: "In Review", color: "in-review" },
+    { id: "completed", label: "Done", color: "completed" },
+    { id: "cancelled", label: "Cancelled", color: "cancelled" },
 ];
 
 /**
@@ -517,50 +536,53 @@ const STATUS_COLUMNS = [
  * @returns {string} - Card HTML
  */
 function generateKanbanCard(plan) {
-  const progressPct = Math.round(plan.progress || 0);
-  const dateStr = formatRelativeTime(plan.lastModified);
+    const progressPct = Math.round(plan.progress || 0);
+    const dateStr = formatRelativeTime(plan.lastModified);
 
-  // Priority badge
-  let priorityHtml = '';
-  if (plan.priority) {
-    const priorityColorClass = getPriorityColorClass(plan.priority);
-    if (priorityColorClass) {
-      priorityHtml = `<span class="kanban-card-priority ${priorityColorClass}">${escapeHtml(plan.priority)}</span>`;
+    // Priority badge
+    let priorityHtml = "";
+    if (plan.priority) {
+        const priorityColorClass = getPriorityColorClass(plan.priority);
+        if (priorityColorClass) {
+            priorityHtml = `<span class="kanban-card-priority ${priorityColorClass}">${escapeHtml(plan.priority)}</span>`;
+        }
     }
-  }
 
-  // Description (truncated)
-  let descriptionHtml = '';
-  if (plan.description) {
-    descriptionHtml = `<p class="kanban-card-description">${escapeHtml(truncate(plan.description, 80))}</p>`;
-  }
-
-  // Tags (max 3 visible)
-  let tagsHtml = '';
-  if (plan.tags && Array.isArray(plan.tags) && plan.tags.length > 0) {
-    const visibleTags = plan.tags.slice(0, 3);
-    const hiddenCount = plan.tags.length - 3;
-    tagsHtml = '<div class="kanban-card-tags">';
-    tagsHtml += visibleTags.map(tag => `<span class="kanban-card-tag">${escapeHtml(tag)}</span>`).join('');
-    if (hiddenCount > 0) {
-      tagsHtml += `<span class="kanban-card-tag tag-more">+${hiddenCount}</span>`;
+    // Description (truncated)
+    let descriptionHtml = "";
+    if (plan.description) {
+        descriptionHtml = `<p class="kanban-card-description">${escapeHtml(truncate(plan.description, 80))}</p>`;
     }
-    tagsHtml += '</div>';
-  }
 
-  // Footer with effort and phases
-  let footerHtml = '';
-  const effortHtml = plan.totalEffortFormatted
-    ? `<span class="kanban-card-effort"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${escapeHtml(plan.totalEffortFormatted)}</span>`
-    : '';
-  const phasesHtml = plan.phases && plan.phases.total
-    ? `<span class="kanban-card-phases">${plan.phases.total} phases</span>`
-    : '';
-  if (effortHtml || phasesHtml) {
-    footerHtml = `<div class="kanban-card-footer">${effortHtml}${phasesHtml}</div>`;
-  }
+    // Tags (max 3 visible)
+    let tagsHtml = "";
+    if (plan.tags && Array.isArray(plan.tags) && plan.tags.length > 0) {
+        const visibleTags = plan.tags.slice(0, 3);
+        const hiddenCount = plan.tags.length - 3;
+        tagsHtml = '<div class="kanban-card-tags">';
+        tagsHtml += visibleTags
+            .map((tag) => `<span class="kanban-card-tag">${escapeHtml(tag)}</span>`)
+            .join("");
+        if (hiddenCount > 0) {
+            tagsHtml += `<span class="kanban-card-tag tag-more">+${hiddenCount}</span>`;
+        }
+        tagsHtml += "</div>";
+    }
 
-  return `
+    // Footer with effort and phases
+    let footerHtml = "";
+    const effortHtml = plan.totalEffortFormatted
+        ? `<span class="kanban-card-effort"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${escapeHtml(plan.totalEffortFormatted)}</span>`
+        : "";
+    const phasesHtml =
+        plan.phases && plan.phases.total
+            ? `<span class="kanban-card-phases">${plan.phases.total} phases</span>`
+            : "";
+    if (effortHtml || phasesHtml) {
+        footerHtml = `<div class="kanban-card-footer">${effortHtml}${phasesHtml}</div>`;
+    }
+
+    return `
     <a href="/view?file=${encodeURIComponent(plan.path)}" class="kanban-card" data-id="${escapeHtml(plan.id)}">
       <div class="kanban-card-header">
         <h4 class="kanban-card-title">${escapeHtml(plan.name)}</h4>
@@ -588,9 +610,10 @@ function generateKanbanCard(plan) {
  * @returns {string} - Kanban columns HTML
  */
 function generateKanbanColumns(plans) {
-  if (!plans || plans.length === 0) {
-    // Return empty columns structure
-    return STATUS_COLUMNS.map(col => `
+    if (!plans || plans.length === 0) {
+        // Return empty columns structure
+        return STATUS_COLUMNS.map(
+            (col) => `
       <div class="kanban-column" data-status="${col.id}">
         <div class="kanban-column-header">
           <div class="kanban-column-title">
@@ -609,30 +632,32 @@ function generateKanbanColumns(plans) {
           </div>
         </div>
       </div>
-    `).join('');
-  }
-
-  // Group plans by status
-  const grouped = {};
-  STATUS_COLUMNS.forEach(col => {
-    grouped[col.id] = [];
-  });
-
-  plans.forEach(plan => {
-    const status = plan.status || 'pending';
-    if (grouped[status]) {
-      grouped[status].push(plan);
-    } else {
-      grouped['pending'].push(plan);
+    `
+        ).join("");
     }
-  });
 
-  // Generate column HTML
-  return STATUS_COLUMNS.map(col => {
-    const columnPlans = grouped[col.id];
-    const cardsHtml = columnPlans.length > 0
-      ? columnPlans.map(generateKanbanCard).join('')
-      : `<div class="kanban-empty">
+    // Group plans by status
+    const grouped = {};
+    STATUS_COLUMNS.forEach((col) => {
+        grouped[col.id] = [];
+    });
+
+    plans.forEach((plan) => {
+        const status = plan.status || "pending";
+        if (grouped[status]) {
+            grouped[status].push(plan);
+        } else {
+            grouped["pending"].push(plan);
+        }
+    });
+
+    // Generate column HTML
+    return STATUS_COLUMNS.map((col) => {
+        const columnPlans = grouped[col.id];
+        const cardsHtml =
+            columnPlans.length > 0
+                ? columnPlans.map(generateKanbanCard).join("")
+                : `<div class="kanban-empty">
           <svg class="kanban-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <rect x="3" y="3" width="18" height="18" rx="2"/>
             <path d="M9 9h6M9 13h6M9 17h4"/>
@@ -640,7 +665,7 @@ function generateKanbanColumns(plans) {
           <span>No plans</span>
         </div>`;
 
-    return `
+        return `
       <div class="kanban-column" data-status="${col.id}">
         <div class="kanban-column-header">
           <div class="kanban-column-title">
@@ -654,7 +679,7 @@ function generateKanbanColumns(plans) {
         </div>
       </div>
     `;
-  }).join('');
+    }).join("");
 }
 
 /**
@@ -663,25 +688,25 @@ function generateKanbanColumns(plans) {
  * @returns {Object} - Statistics object
  */
 function calculateStats(plans) {
-  const stats = {
-    total: plans.length,
-    completed: 0,
-    inProgress: 0,
-    pending: 0
-  };
+    const stats = {
+        total: plans.length,
+        completed: 0,
+        inProgress: 0,
+        pending: 0,
+    };
 
-  plans.forEach(plan => {
-    const status = (plan.status || 'pending').replace(/\s+/g, '-');
-    if (status === 'completed' || status === 'complete') {
-      stats.completed++;
-    } else if (status === 'in-progress') {
-      stats.inProgress++;
-    } else {
-      stats.pending++;
-    }
-  });
+    plans.forEach((plan) => {
+        const status = (plan.status || "pending").replace(/\s+/g, "-");
+        if (status === "completed" || status === "complete") {
+            stats.completed++;
+        } else if (status === "in-progress") {
+            stats.inProgress++;
+        } else {
+            stats.pending++;
+        }
+    });
 
-  return stats;
+    return stats;
 }
 
 /**
@@ -693,72 +718,74 @@ function calculateStats(plans) {
  * @returns {string} - Complete HTML page
  */
 function renderDashboard(plans, options = {}) {
-  const { assetsDir } = options;
+    const { assetsDir } = options;
 
-  // Load template
-  const templatePath = path.join(assetsDir, 'dashboard-template.html');
-  let template;
+    // Load template
+    const templatePath = path.join(assetsDir, "dashboard-template.html");
+    let template;
 
-  try {
-    template = fs.readFileSync(templatePath, 'utf8');
-  } catch (err) {
-    // Fallback inline template if file not found
-    template = getInlineTemplate();
-  }
+    try {
+        template = fs.readFileSync(templatePath, "utf8");
+    } catch (err) {
+        // Fallback inline template if file not found
+        template = getInlineTemplate();
+    }
 
-  // Calculate statistics
-  const stats = calculateStats(plans);
+    // Calculate statistics
+    const stats = calculateStats(plans);
 
-  // Generate cards
-  const plansGrid = generatePlansGrid(plans);
-  const planCount = plans.length;
+    // Generate cards
+    const plansGrid = generatePlansGrid(plans);
+    const planCount = plans.length;
 
-  // Generate timeline section
-  const timelineSection = generateTimelineSection(plans);
+    // Generate timeline section
+    const timelineSection = generateTimelineSection(plans);
 
-  // Generate kanban columns
-  const kanbanColumns = generateKanbanColumns(plans);
+    // Generate kanban columns
+    const kanbanColumns = generateKanbanColumns(plans);
 
-  // Generate JSON for client-side filtering (include rich metadata)
-  const plansJson = JSON.stringify(plans.map(p => ({
-    id: p.id,
-    name: p.name,
-    status: p.status,
-    progress: p.progress,
-    lastModified: p.lastModified,
-    phasesTotal: p.phases.total,
-    path: p.path, // Required for kanban card links
-    // Rich metadata
-    createdDate: p.createdDate,
-    completedDate: p.completedDate,
-    durationDays: p.durationDays,
-    durationFormatted: p.durationFormatted,
-    totalEffortHours: p.totalEffortHours,
-    totalEffortFormatted: p.totalEffortFormatted,
-    priority: p.priority,
-    issue: p.issue,
-    branch: p.branch,
-    // New frontmatter fields
-    description: p.description,
-    tags: p.tags || [],
-    assignee: p.assignee
-  })));
+    // Generate JSON for client-side filtering (include rich metadata)
+    const plansJson = JSON.stringify(
+        plans.map((p) => ({
+            id: p.id,
+            name: p.name,
+            status: p.status,
+            progress: p.progress,
+            lastModified: p.lastModified,
+            phasesTotal: p.phases.total,
+            path: p.path, // Required for kanban card links
+            // Rich metadata
+            createdDate: p.createdDate,
+            completedDate: p.completedDate,
+            durationDays: p.durationDays,
+            durationFormatted: p.durationFormatted,
+            totalEffortHours: p.totalEffortHours,
+            totalEffortFormatted: p.totalEffortFormatted,
+            priority: p.priority,
+            issue: p.issue,
+            branch: p.branch,
+            // New frontmatter fields
+            description: p.description,
+            tags: p.tags || [],
+            assignee: p.assignee,
+        }))
+    );
 
-  // Replace placeholders
-  template = template
-    .replace(/\{\{plans-grid\}\}/g, plansGrid)
-    .replace(/\{\{kanban-columns\}\}/g, kanbanColumns)
-    .replace(/\{\{plan-count\}\}/g, String(planCount))
-    .replace(/\{\{plans-json\}\}/g, plansJson)
-    .replace(/\{\{empty-state\}\}/g, generateEmptyState())
-    .replace(/\{\{timeline-section\}\}/g, timelineSection)
-    .replace(/\{\{has-plans\}\}/g, plans.length > 0 ? 'plans-loaded' : '')
-    .replace(/\{\{stat-total\}\}/g, String(stats.total))
-    .replace(/\{\{stat-completed\}\}/g, String(stats.completed))
-    .replace(/\{\{stat-in-progress\}\}/g, String(stats.inProgress))
-    .replace(/\{\{stat-pending\}\}/g, String(stats.pending));
+    // Replace placeholders
+    template = template
+        .replace(/\{\{plans-grid\}\}/g, plansGrid)
+        .replace(/\{\{kanban-columns\}\}/g, kanbanColumns)
+        .replace(/\{\{plan-count\}\}/g, String(planCount))
+        .replace(/\{\{plans-json\}\}/g, plansJson)
+        .replace(/\{\{empty-state\}\}/g, generateEmptyState())
+        .replace(/\{\{timeline-section\}\}/g, timelineSection)
+        .replace(/\{\{has-plans\}\}/g, plans.length > 0 ? "plans-loaded" : "")
+        .replace(/\{\{stat-total\}\}/g, String(stats.total))
+        .replace(/\{\{stat-completed\}\}/g, String(stats.completed))
+        .replace(/\{\{stat-in-progress\}\}/g, String(stats.inProgress))
+        .replace(/\{\{stat-pending\}\}/g, String(stats.pending));
 
-  return template;
+    return template;
 }
 
 /**
@@ -766,7 +793,7 @@ function renderDashboard(plans, options = {}) {
  * @returns {string} - Inline HTML template
  */
 function getInlineTemplate() {
-  return `<!DOCTYPE html>
+    return `<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
@@ -860,25 +887,25 @@ function getInlineTemplate() {
 }
 
 module.exports = {
-  renderDashboard,
-  generatePlanCard,
-  generateCardMeta,
-  generateTagsPills,
-  generateProgressRing,
-  generateProgressBar,
-  generateStatusCounts,
-  generateStatusBadge,
-  generateTimelineSection,
-  generateEmptyState,
-  generatePlansGrid,
-  generateKanbanColumns,
-  generateKanbanCard,
-  calculateStats,
-  escapeHtml,
-  truncate,
-  formatDate,
-  formatRelativeTime,
-  getStatusLabel,
-  getPriorityColorClass,
-  STATUS_COLUMNS
+    renderDashboard,
+    generatePlanCard,
+    generateCardMeta,
+    generateTagsPills,
+    generateProgressRing,
+    generateProgressBar,
+    generateStatusCounts,
+    generateStatusBadge,
+    generateTimelineSection,
+    generateEmptyState,
+    generatePlansGrid,
+    generateKanbanColumns,
+    generateKanbanCard,
+    calculateStats,
+    escapeHtml,
+    truncate,
+    formatDate,
+    formatRelativeTime,
+    getStatusLabel,
+    getPriorityColorClass,
+    STATUS_COLUMNS,
 };

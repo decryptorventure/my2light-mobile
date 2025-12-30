@@ -4,14 +4,7 @@
  */
 
 import React, { useState, useCallback } from "react";
-import {
-    View,
-    Text,
-    StyleSheet,
-    ScrollView,
-    TouchableOpacity,
-    RefreshControl,
-} from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -33,7 +26,11 @@ export default function AgendaScreen() {
         return date;
     });
 
-    const { data: bookings, refetch, isLoading } = useQuery({
+    const {
+        data: bookings,
+        refetch,
+        isLoading,
+    } = useQuery({
         queryKey: ["admin", "agenda", selectedDate.toDateString()],
         queryFn: async () => {
             const result = await AdminService.getCourtBookings();
@@ -43,10 +40,12 @@ export default function AgendaScreen() {
             const dayEnd = new Date(selectedDate);
             dayEnd.setHours(23, 59, 59, 999);
 
-            return result.data?.filter((b) => {
-                const bookingDate = new Date(b.startTime);
-                return bookingDate >= dayStart && bookingDate <= dayEnd;
-            }) || [];
+            return (
+                result.data?.filter((b) => {
+                    const bookingDate = new Date(b.startTime);
+                    return bookingDate >= dayStart && bookingDate <= dayEnd;
+                }) || []
+            );
         },
         staleTime: 30000,
     });
@@ -113,7 +112,7 @@ export default function AgendaScreen() {
                             style={[
                                 styles.dateItem,
                                 selectedDate.toDateString() === date.toDateString() &&
-                                styles.dateItemActive,
+                                    styles.dateItemActive,
                             ]}
                             onPress={() => {
                                 setSelectedDate(date);
@@ -124,7 +123,7 @@ export default function AgendaScreen() {
                                 style={[
                                     styles.dayName,
                                     selectedDate.toDateString() === date.toDateString() &&
-                                    styles.dayNameActive,
+                                        styles.dayNameActive,
                                     isToday(date) && styles.dayNameToday,
                                 ]}
                             >
@@ -134,7 +133,7 @@ export default function AgendaScreen() {
                                 style={[
                                     styles.dayNumber,
                                     selectedDate.toDateString() === date.toDateString() &&
-                                    styles.dayNumberActive,
+                                        styles.dayNumberActive,
                                 ]}
                             >
                                 {date.getDate()}
@@ -168,7 +167,8 @@ export default function AgendaScreen() {
                                         style={[
                                             styles.bookingBlock,
                                             booking.status === "pending" && styles.bookingPending,
-                                            booking.status === "cancelled" && styles.bookingCancelled,
+                                            booking.status === "cancelled" &&
+                                                styles.bookingCancelled,
                                         ]}
                                     >
                                         <Text style={styles.bookingCourt}>{booking.courtName}</Text>

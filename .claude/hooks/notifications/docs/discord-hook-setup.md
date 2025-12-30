@@ -53,34 +53,39 @@ The Discord hook (`send-discord.sh`) sends rich embedded messages to a Discord c
 2. Navigate to **Server Settings** → **Integrations** → **Webhooks**
 3. Click **"New Webhook"**
 4. Configure webhook:
-   - **Name:** `Claude Code Bot` (or your preference)
-   - **Channel:** Select your target notification channel
+    - **Name:** `Claude Code Bot` (or your preference)
+    - **Channel:** Select your target notification channel
 5. Click **"Copy Webhook URL"**
-   - Format: `https://discord.com/api/webhooks/WEBHOOK_ID/WEBHOOK_TOKEN`
+    - Format: `https://discord.com/api/webhooks/WEBHOOK_ID/WEBHOOK_TOKEN`
 
 ### 2. Configure Environment Variables
 
 Environment variables are loaded with this priority (highest to lowest):
+
 1. **process.env** - System/shell environment variables
 2. **.claude/.env** - Project-level Claude configuration
 3. **.claude/hooks/.env** - Hook-specific configuration
 
 **Option A: Project Root `.env`** (recommended):
+
 ```bash
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN
 ```
 
 **Option B: `.claude/.env`** (project-level override):
+
 ```bash
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN
 ```
 
 **Option C: `.claude/hooks/.env`** (hook-specific):
+
 ```bash
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN
 ```
 
 **Example:**
+
 ```bash
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/1234567890/AbCdEfGhIjKlMnOpQrStUvWxYz
 ```
@@ -112,6 +117,7 @@ Test the hook with a simple message:
 ```
 
 **Expected output:**
+
 ```
 Loading .env file...
 ✅ Environment loaded, DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/12...
@@ -131,6 +137,7 @@ Send a notification with a custom message:
 ```
 
 **With multi-line messages:**
+
 ```bash
 ./.claude/hooks/send-discord.sh 'Implementation Complete
 
@@ -141,6 +148,7 @@ Send a notification with a custom message:
 ```
 
 **Important:** Escape special characters:
+
 ```bash
 ./.claude/hooks/send-discord.sh 'Fixed bug in user'\''s profile page'
 ```
@@ -155,6 +163,7 @@ Claude automatically calls this script when completing implementations. This is 
 ```
 
 Claude will automatically:
+
 1. Complete the implementation task
 2. Generate a summary report
 3. Send it to Discord using this hook
@@ -162,6 +171,7 @@ Claude will automatically:
 ### Integration Examples
 
 **From bash scripts:**
+
 ```bash
 #!/bin/bash
 # deploy.sh
@@ -174,12 +184,13 @@ fi
 ```
 
 **From npm scripts (package.json):**
+
 ```json
 {
-  "scripts": {
-    "deploy": "npm run build && npm run test && ./.claude/hooks/send-discord.sh '✅ Deployment successful'",
-    "notify": "./.claude/hooks/send-discord.sh"
-  }
+    "scripts": {
+        "deploy": "npm run build && npm run test && ./.claude/hooks/send-discord.sh '✅ Deployment successful'",
+        "notify": "./.claude/hooks/send-discord.sh"
+    }
 }
 ```
 
@@ -188,6 +199,7 @@ fi
 Discord messages are sent as rich embeds with the following structure:
 
 **Embed Components:**
+
 - **Title:** 🤖 Claude Code Session Complete
 - **Description:** Your custom message content
 - **Color:** Purple (#57F287)
@@ -195,10 +207,12 @@ Discord messages are sent as rich embeds with the following structure:
 - **Footer:** Project name and directory
 
 **Embedded Fields:**
+
 - ⏰ **Session Time:** Local time when notification sent
 - 📂 **Project:** Current project directory name
 
 **Example Discord Message:**
+
 ```
 ╔═══════════════════════════════╗
 ║ 🤖 Claude Code Session Complete
@@ -225,6 +239,7 @@ Discord messages are sent as rich embeds with the following structure:
 **Cause:** Environment variable not loaded or `.env` file missing
 
 **Solutions:**
+
 1. Verify `.env` file exists in project root
 2. Check `.env` contains `DISCORD_WEBHOOK_URL=...` line
 3. Ensure no extra spaces around `=` sign
@@ -245,31 +260,34 @@ cat .env | grep DISCORD_WEBHOOK_URL
 **Solutions:**
 
 1. **Verify webhook URL is active:**
-   - Open Discord → Server Settings → Integrations → Webhooks
-   - Confirm webhook still exists
-   - If deleted, create new webhook and update `.env`
+    - Open Discord → Server Settings → Integrations → Webhooks
+    - Confirm webhook still exists
+    - If deleted, create new webhook and update `.env`
 
 2. **Test webhook directly:**
-   ```bash
-   curl -X POST "YOUR_WEBHOOK_URL" \
-     -H "Content-Type: application/json" \
-     -d '{"content": "Test message"}'
-   ```
+
+    ```bash
+    curl -X POST "YOUR_WEBHOOK_URL" \
+      -H "Content-Type: application/json" \
+      -d '{"content": "Test message"}'
+    ```
 
 3. **Check network connectivity:**
-   ```bash
-   ping discord.com
-   ```
+
+    ```bash
+    ping discord.com
+    ```
 
 4. **Verify webhook permissions:**
-   - Webhook must have permission to post in target channel
-   - Check channel permissions in Discord
+    - Webhook must have permission to post in target channel
+    - Check channel permissions in Discord
 
 ### Messages Not Appearing
 
 **Cause:** Channel visibility or webhook configuration issues
 
 **Solutions:**
+
 1. Verify you have access to the target channel
 2. Check channel is not muted or hidden
 3. Confirm webhook is assigned to correct channel
@@ -282,21 +300,25 @@ cat .env | grep DISCORD_WEBHOOK_URL
 **Solutions:**
 
 **Use single quotes for outer string:**
+
 ```bash
 ./.claude/hooks/send-discord.sh 'Message with "double quotes" works fine'
 ```
 
 **Escape single quotes inside single-quoted strings:**
+
 ```bash
 ./.claude/hooks/send-discord.sh 'User'\''s profile updated'
 ```
 
 **Use double quotes and escape:**
+
 ```bash
 ./.claude/hooks/send-discord.sh "Message with \"escaped quotes\""
 ```
 
 **For complex messages, use heredoc:**
+
 ```bash
 ./.claude/hooks/send-discord.sh "$(cat <<'EOF'
 Multi-line message
@@ -311,6 +333,7 @@ EOF
 **Cause:** Script not executable
 
 **Solution:**
+
 ```bash
 chmod +x ./.claude/hooks/send-discord.sh
 ```
@@ -322,6 +345,7 @@ chmod +x ./.claude/hooks/send-discord.sh
 Send different notification types to different channels:
 
 **.env file:**
+
 ```bash
 DISCORD_WEBHOOK_SUCCESS=https://discord.com/api/webhooks/.../success-channel
 DISCORD_WEBHOOK_ERROR=https://discord.com/api/webhooks/.../error-channel
@@ -329,6 +353,7 @@ DISCORD_WEBHOOK_INFO=https://discord.com/api/webhooks/.../info-channel
 ```
 
 **Create wrapper scripts:**
+
 ```bash
 # send-discord-success.sh
 export DISCORD_WEBHOOK_URL="$DISCORD_WEBHOOK_SUCCESS"
@@ -391,36 +416,38 @@ fi
 ## Security Best Practices
 
 1. **Never commit webhook URLs:**
-   ```bash
-   # .gitignore
-   .env
-   .env.*
-   .env.local
-   ```
+
+    ```bash
+    # .gitignore
+    .env
+    .env.*
+    .env.local
+    ```
 
 2. **Use environment variables:** Never hardcode webhooks in scripts
 
 3. **Rotate webhooks regularly:**
-   - Delete old webhook in Discord
-   - Create new webhook
-   - Update `.env` file
+    - Delete old webhook in Discord
+    - Create new webhook
+    - Update `.env` file
 
 4. **Limit webhook permissions:**
-   - Only grant webhook access to necessary channels
-   - Use read-only channels for notifications
+    - Only grant webhook access to necessary channels
+    - Use read-only channels for notifications
 
 5. **Monitor webhook usage:**
-   - Check Discord audit log regularly
-   - Look for unexpected webhook activity
+    - Check Discord audit log regularly
+    - Look for unexpected webhook activity
 
 6. **Use separate webhooks per environment:**
-   ```bash
-   # .env.development
-   DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/.../dev-channel
 
-   # .env.production
-   DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/.../prod-channel
-   ```
+    ```bash
+    # .env.development
+    DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/.../dev-channel
+
+    # .env.production
+    DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/.../prod-channel
+    ```
 
 ## Reference
 
@@ -433,6 +460,7 @@ fi
 **Supported Shell:** Bash
 
 **Dependencies:**
+
 - `curl` (pre-installed on macOS/Linux)
 - `jq` (optional, for testing)
 

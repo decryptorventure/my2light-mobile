@@ -44,24 +44,33 @@ export function AnimatedPressable({
         opacity: opacity.value,
     }));
 
-    const handlePressIn = useCallback((event: any) => {
-        scale.value = withSpring(scaleValue, { damping: 15, stiffness: 400 });
-        opacity.value = withTiming(0.9, { duration: 100 });
-        onPressIn?.(event);
-    }, [scaleValue, onPressIn]);
+    const handlePressIn = useCallback(
+        (event: any) => {
+            scale.value = withSpring(scaleValue, { damping: 15, stiffness: 400 });
+            opacity.value = withTiming(0.9, { duration: 100 });
+            onPressIn?.(event);
+        },
+        [scaleValue, onPressIn]
+    );
 
-    const handlePressOut = useCallback((event: any) => {
-        scale.value = withSpring(1, { damping: 15, stiffness: 400 });
-        opacity.value = withTiming(1, { duration: 100 });
-        onPressOut?.(event);
-    }, [onPressOut]);
+    const handlePressOut = useCallback(
+        (event: any) => {
+            scale.value = withSpring(1, { damping: 15, stiffness: 400 });
+            opacity.value = withTiming(1, { duration: 100 });
+            onPressOut?.(event);
+        },
+        [onPressOut]
+    );
 
-    const handlePress = useCallback((event: any) => {
-        if (hapticEnabled) {
-            haptics[hapticStyle]();
-        }
-        onPress?.(event);
-    }, [onPress, hapticStyle, hapticEnabled]);
+    const handlePress = useCallback(
+        (event: any) => {
+            if (hapticEnabled) {
+                haptics[hapticStyle]();
+            }
+            onPress?.(event);
+        },
+        [onPress, hapticStyle, hapticEnabled]
+    );
 
     return (
         <AnimatedPressableComponent

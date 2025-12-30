@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+.expo/
+.expo-shared/
+
+# Build
+dist/
+build/
+coverage/
+android/
+ios/
+
+# Generated
+*.generated.ts
+*.d.ts
+
+# Config
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Editor
+.vscode/
+.idea/
+
+# Git
+.git/
+.husky/

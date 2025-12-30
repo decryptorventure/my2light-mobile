@@ -3,7 +3,7 @@
  * View match request details and respond
  */
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
     View,
     Text,
@@ -14,34 +14,34 @@ import {
     Image,
     Alert,
     ActivityIndicator,
-} from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
-import { MatchService } from '../../services/match.service';
-import { useAuthStore } from '../../stores/authStore';
-import haptics from '../../lib/haptics';
+} from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
+import { MatchService } from "../../services/match.service";
+import { useAuthStore } from "../../stores/authStore";
+import haptics from "../../lib/haptics";
 
 const skillLevelLabels = {
-    beginner: 'Mới chơi',
-    intermediate: 'Trung bình',
-    advanced: 'Nâng cao',
-    pro: 'Chuyên nghiệp',
+    beginner: "Mới chơi",
+    intermediate: "Trung bình",
+    advanced: "Nâng cao",
+    pro: "Chuyên nghiệp",
 };
 
 const matchTypeLabels = {
-    singles: 'Đơn (1v1)',
-    doubles: 'Đôi (2v2)',
-    any: 'Không giới hạn',
+    singles: "Đơn (1v1)",
+    doubles: "Đôi (2v2)",
+    any: "Không giới hạn",
 };
 
 const genderLabels = {
-    male: 'Nam',
-    female: 'Nữ',
-    mixed: 'Hỗn hợp',
-    any: 'Không giới hạn',
+    male: "Nam",
+    female: "Nữ",
+    mixed: "Hỗn hợp",
+    any: "Không giới hạn",
 };
 
 export default function MatchDetailScreen() {
@@ -52,23 +52,23 @@ export default function MatchDetailScreen() {
     const { user } = useAuthStore();
 
     const [showResponseForm, setShowResponseForm] = useState(false);
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState("");
 
     // Fetch match request
     const { data: matchRequests } = useQuery({
-        queryKey: ['matchRequests'],
+        queryKey: ["matchRequests"],
         queryFn: async () => {
             const result = await MatchService.getMatchRequests();
             return result.data;
         },
     });
 
-    const matchRequest = matchRequests?.find(m => m.id === id);
+    const matchRequest = matchRequests?.find((m) => m.id === id);
     const isOwner = matchRequest?.userId === user?.id;
 
     // Fetch responses if owner
     const { data: responses = [], isLoading: loadingResponses } = useQuery({
-        queryKey: ['matchResponses', id],
+        queryKey: ["matchResponses", id],
         queryFn: async () => {
             if (!id) return [];
             const result = await MatchService.getMatchResponses(id);
@@ -80,17 +80,17 @@ export default function MatchDetailScreen() {
     // Respond mutation
     const respondMutation = useMutation({
         mutationFn: async () => {
-            if (!id) throw new Error('No match ID');
+            if (!id) throw new Error("No match ID");
             return MatchService.respondToMatch(id, message || undefined);
         },
         onSuccess: (result) => {
             if (result.success) {
                 haptics.success();
-                Alert.alert('Thành công', 'Đã gửi yêu cầu tham gia!', [
-                    { text: 'OK', onPress: () => router.back() }
+                Alert.alert("Thành công", "Đã gửi yêu cầu tham gia!", [
+                    { text: "OK", onPress: () => router.back() },
                 ]);
             } else {
-                Alert.alert('Lỗi', result.error || 'Không thể gửi yêu cầu');
+                Alert.alert("Lỗi", result.error || "Không thể gửi yêu cầu");
             }
         },
     });
@@ -101,14 +101,14 @@ export default function MatchDetailScreen() {
         onSuccess: (result) => {
             if (result.success && result.data) {
                 haptics.success();
-                Alert.alert('Đã kết nối!', 'Bạn có thể bắt đầu trò chuyện ngay', [
+                Alert.alert("Đã kết nối!", "Bạn có thể bắt đầu trò chuyện ngay", [
                     {
-                        text: 'Nhắn tin',
-                        onPress: () => router.push(`/match/chat?id=${result.data?.conversationId}`)
+                        text: "Nhắn tin",
+                        onPress: () => router.push(`/match/chat?id=${result.data?.conversationId}`),
                     },
-                    { text: 'Để sau' }
+                    { text: "Để sau" },
                 ]);
-                queryClient.invalidateQueries({ queryKey: ['matchResponses', id] });
+                queryClient.invalidateQueries({ queryKey: ["matchResponses", id] });
             }
         },
     });
@@ -117,46 +117,42 @@ export default function MatchDetailScreen() {
     const declineMutation = useMutation({
         mutationFn: (responseId: string) => MatchService.declineResponse(responseId),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['matchResponses', id] });
+            queryClient.invalidateQueries({ queryKey: ["matchResponses", id] });
         },
     });
 
     // Report user
     const handleReport = (userId: string) => {
-        Alert.alert(
-            'Báo cáo người dùng',
-            'Chọn lý do báo cáo',
-            [
-                { text: 'Spam', onPress: () => reportUser(userId, 'spam') },
-                { text: 'Quấy rối', onPress: () => reportUser(userId, 'harassment') },
-                { text: 'Nội dung không phù hợp', onPress: () => reportUser(userId, 'inappropriate') },
-                { text: 'Hủy', style: 'cancel' },
-            ]
-        );
+        Alert.alert("Báo cáo người dùng", "Chọn lý do báo cáo", [
+            { text: "Spam", onPress: () => reportUser(userId, "spam") },
+            { text: "Quấy rối", onPress: () => reportUser(userId, "harassment") },
+            { text: "Nội dung không phù hợp", onPress: () => reportUser(userId, "inappropriate") },
+            { text: "Hủy", style: "cancel" },
+        ]);
     };
 
     const reportUser = async (userId: string, reason: string) => {
         const result = await MatchService.reportUser(userId, reason);
         if (result.success) {
-            Alert.alert('Đã báo cáo', 'Cảm ơn bạn đã giúp cộng đồng an toàn hơn');
+            Alert.alert("Đã báo cáo", "Cảm ơn bạn đã giúp cộng đồng an toàn hơn");
         }
     };
 
     // Block user
     const handleBlock = (userId: string, userName: string) => {
         Alert.alert(
-            'Chặn người dùng',
+            "Chặn người dùng",
             `Bạn có chắc muốn chặn ${userName}? Họ sẽ không thể liên hệ với bạn.`,
             [
-                { text: 'Hủy', style: 'cancel' },
+                { text: "Hủy", style: "cancel" },
                 {
-                    text: 'Chặn',
-                    style: 'destructive',
+                    text: "Chặn",
+                    style: "destructive",
                     onPress: async () => {
                         await MatchService.blockUser(userId);
                         haptics.medium();
                         router.back();
-                    }
+                    },
                 },
             ]
         );
@@ -164,12 +160,12 @@ export default function MatchDetailScreen() {
 
     const formatTime = (dateString: string) => {
         const date = new Date(dateString);
-        return date.toLocaleDateString('vi-VN', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            hour: '2-digit',
-            minute: '2-digit',
+        return date.toLocaleDateString("vi-VN", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            hour: "2-digit",
+            minute: "2-digit",
         });
     };
 
@@ -203,12 +199,14 @@ export default function MatchDetailScreen() {
                 {/* User Info */}
                 <View style={styles.userCard}>
                     <Image
-                        source={{ uri: matchRequest.profile?.avatar || 'https://via.placeholder.com/80' }}
+                        source={{
+                            uri: matchRequest.profile?.avatar || "https://via.placeholder.com/80",
+                        }}
                         style={styles.avatar}
                     />
                     <View style={styles.userInfo}>
                         <Text style={styles.userName}>
-                            {matchRequest.profile?.name || 'Người chơi'}
+                            {matchRequest.profile?.name || "Người chơi"}
                         </Text>
                         <Text style={styles.postedTime}>
                             Đăng {formatTime(matchRequest.createdAt)}
@@ -217,7 +215,12 @@ export default function MatchDetailScreen() {
                     {!isOwner && (
                         <TouchableOpacity
                             style={styles.blockBtn}
-                            onPress={() => handleBlock(matchRequest.userId, matchRequest.profile?.name || 'người này')}
+                            onPress={() =>
+                                handleBlock(
+                                    matchRequest.userId,
+                                    matchRequest.profile?.name || "người này"
+                                )
+                            }
                         >
                             <Ionicons name="ban-outline" size={20} color={colors.error} />
                         </TouchableOpacity>
@@ -276,9 +279,7 @@ export default function MatchDetailScreen() {
                 {/* Owner View: Show Responses */}
                 {isOwner && (
                     <View style={styles.responsesSection}>
-                        <Text style={styles.sectionTitle}>
-                            Người quan tâm ({responses.length})
-                        </Text>
+                        <Text style={styles.sectionTitle}>Người quan tâm ({responses.length})</Text>
 
                         {loadingResponses ? (
                             <ActivityIndicator color={colors.accent} />
@@ -288,21 +289,29 @@ export default function MatchDetailScreen() {
                             responses.map((response) => (
                                 <View key={response.id} style={styles.responseCard}>
                                     <Image
-                                        source={{ uri: response.responderAvatar || 'https://via.placeholder.com/48' }}
+                                        source={{
+                                            uri:
+                                                response.responderAvatar ||
+                                                "https://via.placeholder.com/48",
+                                        }}
                                         style={styles.responseAvatar}
                                     />
                                     <View style={styles.responseInfo}>
-                                        <Text style={styles.responseName}>{response.responderName}</Text>
+                                        <Text style={styles.responseName}>
+                                            {response.responderName}
+                                        </Text>
                                         {response.message && (
-                                            <Text style={styles.responseMessage}>"{response.message}"</Text>
+                                            <Text style={styles.responseMessage}>
+                                                "{response.message}"
+                                            </Text>
                                         )}
                                         <Text style={styles.responseStatus}>
-                                            {response.status === 'pending' && '⏳ Đang chờ'}
-                                            {response.status === 'accepted' && '✅ Đã chấp nhận'}
-                                            {response.status === 'declined' && '❌ Đã từ chối'}
+                                            {response.status === "pending" && "⏳ Đang chờ"}
+                                            {response.status === "accepted" && "✅ Đã chấp nhận"}
+                                            {response.status === "declined" && "❌ Đã từ chối"}
                                         </Text>
                                     </View>
-                                    {response.status === 'pending' && (
+                                    {response.status === "pending" && (
                                         <View style={styles.responseActions}>
                                             <TouchableOpacity
                                                 style={styles.acceptBtn}
@@ -374,7 +383,11 @@ export default function MatchDetailScreen() {
                                 setShowResponseForm(true);
                             }}
                         >
-                            <Ionicons name="hand-right-outline" size={20} color={colors.background} />
+                            <Ionicons
+                                name="hand-right-outline"
+                                size={20}
+                                color={colors.background}
+                            />
                             <Text style={styles.respondBtnText}>Tôi muốn tham gia</Text>
                         </TouchableOpacity>
                     )}
@@ -390,12 +403,12 @@ const styles = StyleSheet.create({
         backgroundColor: colors.background,
     },
     centered: {
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
     },
     header: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         paddingHorizontal: spacing.md,
         paddingBottom: spacing.sm,
         borderBottomWidth: 1,
@@ -422,8 +435,8 @@ const styles = StyleSheet.create({
         paddingBottom: 100,
     },
     userCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         backgroundColor: colors.surface,
         borderRadius: borderRadius.lg,
         padding: spacing.lg,
@@ -460,8 +473,8 @@ const styles = StyleSheet.create({
         gap: spacing.md,
     },
     detailRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         gap: spacing.sm,
     },
     detailLabel: {
@@ -493,8 +506,8 @@ const styles = StyleSheet.create({
         lineHeight: 22,
     },
     privacyNotice: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         gap: spacing.sm,
         backgroundColor: `${colors.accent}15`,
         padding: spacing.md,
@@ -517,12 +530,12 @@ const styles = StyleSheet.create({
     },
     noResponses: {
         color: colors.textMuted,
-        textAlign: 'center',
+        textAlign: "center",
         paddingVertical: spacing.xl,
     },
     responseCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         backgroundColor: colors.surface,
         borderRadius: borderRadius.md,
         padding: spacing.md,
@@ -545,7 +558,7 @@ const styles = StyleSheet.create({
     responseMessage: {
         fontSize: fontSize.sm,
         color: colors.textSecondary,
-        fontStyle: 'italic',
+        fontStyle: "italic",
         marginTop: 2,
     },
     responseStatus: {
@@ -554,7 +567,7 @@ const styles = StyleSheet.create({
         marginTop: 4,
     },
     responseActions: {
-        flexDirection: 'row',
+        flexDirection: "row",
         gap: spacing.sm,
     },
     acceptBtn: {
@@ -562,16 +575,16 @@ const styles = StyleSheet.create({
         height: 36,
         borderRadius: 18,
         backgroundColor: colors.success,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
     },
     declineBtn: {
         width: 36,
         height: 36,
         borderRadius: 18,
         backgroundColor: colors.error,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
     },
     responseForm: {
         backgroundColor: colors.surface,
@@ -592,12 +605,12 @@ const styles = StyleSheet.create({
         fontSize: fontSize.md,
         color: colors.text,
         minHeight: 80,
-        textAlignVertical: 'top',
+        textAlignVertical: "top",
     },
     charCount: {
         fontSize: fontSize.xs,
         color: colors.textMuted,
-        textAlign: 'right',
+        textAlign: "right",
         marginTop: spacing.xs,
     },
     footer: {
@@ -608,7 +621,7 @@ const styles = StyleSheet.create({
         backgroundColor: colors.background,
     },
     footerButtons: {
-        flexDirection: 'row',
+        flexDirection: "row",
         gap: spacing.md,
     },
     cancelBtn: {
@@ -617,7 +630,7 @@ const styles = StyleSheet.create({
         borderRadius: borderRadius.lg,
         borderWidth: 1,
         borderColor: colors.border,
-        alignItems: 'center',
+        alignItems: "center",
     },
     cancelBtnText: {
         fontSize: fontSize.md,
@@ -628,7 +641,7 @@ const styles = StyleSheet.create({
         backgroundColor: colors.accent,
         paddingVertical: spacing.md,
         borderRadius: borderRadius.lg,
-        alignItems: 'center',
+        alignItems: "center",
     },
     submitBtnText: {
         fontSize: fontSize.md,
@@ -636,9 +649,9 @@ const styles = StyleSheet.create({
         color: colors.background,
     },
     respondBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
         gap: spacing.sm,
         backgroundColor: colors.accent,
         paddingVertical: spacing.md,
