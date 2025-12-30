@@ -248,6 +248,11 @@ export default function MatchChatScreen() {
                     renderItem={renderMessage}
                     contentContainerStyle={styles.messagesList}
                     showsVerticalScrollIndicator={false}
+                    removeClippedSubviews={true}
+                    maxToRenderPerBatch={25}
+                    updateCellsBatchingPeriod={50}
+                    initialNumToRender={20}
+                    windowSize={10}
                     onContentSizeChange={() => {
                         flatListRef.current?.scrollToEnd({ animated: false });
                     }}

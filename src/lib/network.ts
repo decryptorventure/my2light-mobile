@@ -65,13 +65,30 @@ class OfflineQueue {
                 this.queue.shift(); // Remove successful action
             } catch (error) {
                 item.retryCount++;
+                const err = error as any;
+
+                // Don't retry auth/permission errors
+                if (err.status === 401 || err.status === 403) {
+                    console.error("Auth error, discarding:", error);
+                    this.queue.shift();
+                    continue;
+                }
+
+                // Don't retry 404 errors
+                if (err.status === 404) {
+                    console.error("Not found error, discarding:", error);
+                    this.queue.shift();
+                    continue;
+                }
 
                 if (item.retryCount >= 3) {
-                    console.error("Action failed after 3 retries:", error);
-                    this.queue.shift(); // Remove failed action
+                    console.error("Max retries reached, discarding:", error);
+                    this.queue.shift();
                 } else {
-                    // Move to back of queue for retry
-                    this.queue.push(this.queue.shift()!);
+                    // Exponential backoff: 1s, 2s, 4s (max 10s)
+                    const delay = Math.min(1000 * Math.pow(2, item.retryCount - 1), 10000);
+                    await new Promise((resolve) => setTimeout(resolve, delay));
+                    // Don't re-queue, just retry current item after delay
                 }
             }
         }
