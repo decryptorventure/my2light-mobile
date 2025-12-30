@@ -2,10 +2,12 @@
 
 > 🎾 Ứng dụng iOS cho nền tảng ghi hình và tìm đối pickleball My2Light
 
-[![Version](https://img.shields.io/badge/Version-2.2.1-green.svg)]()
+[![Version](https://img.shields.io/badge/Version-2.3.0-green.svg)]()
 [![Expo](https://img.shields.io/badge/Expo-54.0-blue.svg)](https://expo.dev)
 [![React Native](https://img.shields.io/badge/React%20Native-0.81-blue.svg)](https://reactnative.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org)
+[![Tests](https://img.shields.io/badge/Tests-85%2F89%20passing-green.svg)]()
+[![Coverage](https://img.shields.io/badge/Coverage-25%25-yellow.svg)]()
 
 ## 📱 Features
 
@@ -16,6 +18,15 @@
 - **� Offline Support** - Hoạt động kể cả khi mất mạng
 
 ## 🚀 Quick Start
+
+### Prerequisites
+
+- **Node.js** 18+ ([Download](https://nodejs.org/))
+- **Expo CLI** (`npm install -g expo-cli`)
+- **iOS Simulator** (macOS) or **Android Emulator**
+- **Git**
+
+### Installation
 
 ```bash
 # Clone repository
@@ -31,6 +42,17 @@ cp .env.example .env
 
 # Start development server
 npx expo start
+```
+
+### Code Quality
+
+```bash
+npm run lint           # Run ESLint
+npm run lint:fix       # Auto-fix ESLint issues
+npm run format         # Format with Prettier
+npm run type-check     # TypeScript compilation check
+npm test               # Run Jest tests
+npm test -- --coverage # Generate coverage report
 ```
 
 ## 📁 Project Structure
