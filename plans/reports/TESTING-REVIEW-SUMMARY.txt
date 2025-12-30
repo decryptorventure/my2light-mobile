@@ -1,0 +1,246 @@
+================================================================================
+                    TESTING INFRASTRUCTURE REVIEW SUMMARY
+================================================================================
+
+PROJECT: My2Light Mobile (React Native + Expo)
+DATE: 2025-12-30
+STATUS: CRITICAL ISSUES FOUND - 6 Test Failures
+
+================================================================================
+KEY FINDINGS
+================================================================================
+
+1. TEST FAILURES: 6 out of 89 tests failing (93% pass rate)
+   - 4 failures from incomplete Supabase mock chain
+   - 1 failure from missing mock spy setup
+   - 1 failure from mock configuration issue
+
+2. CODE COVERAGE: Only 17.69% overall (needs 60%+)
+   - Hooks: 0% (4 files untested)
+   - Stores: 50% (1 of 2 tested)
+   - Services: 25% (7 of 14 untested)
+   - Lib: 12% (mostly security code untested)
+
+3. JEST CONFIGURATION: Missing critical settings
+   - No jest-expo preset (required for React Native)
+   - No coverage thresholds (can't enforce quality)
+   - collectCoverageFrom excludes hooks/ and stores/
+   - No module isolation between tests
+
+4. MOCK QUALITY: Setup.ts incomplete
+   - Missing .in() method
+   - Missing .or() method
+   - Missing .gt() method
+   - No proper method chaining support
+
+5. TEST PATTERNS: Weak testing practices
+   - Tests check literals instead of actual store state
+   - No integration tests with actual service calls
+   - Limited edge case coverage
+   - Network/error scenarios mostly untested
+
+================================================================================
+CRITICAL ISSUES TO FIX FIRST
+================================================================================
+
+ISSUE #1: Supabase Mock Chain Broken
+  File: tests/setup.ts (lines 15-30)
+  Affects: 4 failing tests
+  Fix: Add missing .in(), .or(), .gt() methods
+  Time: 30 minutes
+
+ISSUE #2: checkSlotConflict Not Mocked
+  File: tests/services/booking.service.test.ts (lines 156-193)
+  Affects: 1 failing test  
+  Fix: Add jest.spyOn(BookingService, 'checkSlotConflict').mockResolvedValue(false)
+  Time: 15 minutes
+
+ISSUE #3: Admin Service Mock Implementation
+  File: tests/services/admin.service.test.ts (lines 46-54)
+  Affects: 2 failing tests
+  Fix: Add .select() and .eq() to court_owners table mock
+  Time: 20 minutes
+
+================================================================================
+COVERAGE GAPS
+================================================================================
+
+NOT TESTED (0% coverage):
+- All 4 hooks (258-262 LOC each)
+- Recording store (135 LOC)
+- Match service (628 LOC) - CRITICAL
+- Push service (438 LOC) - CRITICAL  
+- Real-time service (207 LOC)
+- Review service (288 LOC)
+- Transaction service (99 LOC)
+- Notification service (82 LOC)
+- Base API service (55 LOC)
+- Security library (148 LOC) - CRITICAL
+
+PARTIALLY TESTED (<80% coverage):
+- Booking service: 26.81%
+- Auth service: 18.96%
+- Admin service: 29.94%
+
+WELL TESTED (>80% coverage):
+- Court service: 86.2%
+- Highlight service: 80.82%
+- Upload service: 81.9%
+
+================================================================================
+DETAILED REPORTS
+================================================================================
+
+Two comprehensive reports have been generated:
+
+1. code-reviewer-251230-1621-testing-review.md
+   - Complete analysis of all issues
+   - Test failure details
+   - Coverage breakdown by file
+   - 10-point recommendations
+
+2. code-reviewer-251230-1621-testing-action-plan.md  
+   - Step-by-step fixes for all issues
+   - Code templates for new tests
+   - 6-phase implementation plan
+   - Success criteria metrics
+
+================================================================================
+IMMEDIATE ACTIONS REQUIRED
+================================================================================
+
+Phase 1 (CRITICAL - 1-2 hours):
+  1. Fix Supabase mock chain in tests/setup.ts
+  2. Add checkSlotConflict spy to booking.service.test.ts
+  3. Fix admin service mock implementations
+  4. Verify: npm test passes 100%
+
+Phase 2 (HIGH - 45 minutes):
+  1. Add jest-expo preset to jest.config.js
+  2. Add coverage thresholds
+  3. Include hooks/ and stores/ in collectCoverageFrom
+  4. Improve test isolation in setup.ts
+
+Phase 3 (HIGH - 2-3 hours):
+  1. Add hook integration tests (4 files)
+  2. Add service tests for critical services (3 files minimum)
+  3. Improve store tests (2 files)
+
+Phase 4 (MEDIUM - 3-4 hours):
+  1. Add remaining service tests (7 services)
+  2. Add edge case coverage
+  3. Add network/error scenario tests
+
+================================================================================
+TEST FAILURE DETAILS
+================================================================================
+
+FAILING TEST #1-2: getActiveBooking tests
+  Error: TypeError: .in() is not a function
+  Root: Mock doesn't support query builder chaining
+  Location: booking.service.ts line 63
+  Fix: Add .in() to mock chain
+
+FAILING TEST #3: createBooking insufficient credits
+  Error: Got "Khung giờ này đã được đặt" instead of "Số dư không đủ"
+  Root: checkSlotConflict fails before credit check
+  Location: booking.service.test.ts line 192
+  Fix: Mock checkSlotConflict to return false
+
+FAILING TEST #4: createCourtOwnerProfile
+  Error: TypeError: .select() is not a function
+  Root: Mock doesn't return queryable chain
+  Location: admin.service.ts line 68
+  Fix: Add .select() and .eq() to court_owners mock
+
+FAILING TEST #5: getDashboardStats
+  Error: TypeError: .in() is not a function
+  Root: Same as test #1-2
+  Location: admin.service.ts line 183
+  Fix: Add .in() to mock chain
+
+FAILING TEST #6: cancelBooking
+  Error: Expected success=true but got false
+  Root: Mock chain incomplete
+  Location: admin.service.test.ts
+  Fix: Complete mock implementation
+
+================================================================================
+METRICS COMPARISON
+================================================================================
+
+                    Current     Target      Gap
+Statements:         17.69%      60%         -42.31%
+Branches:           19.58%      50%         -30.42%
+Functions:          14.68%      50%         -35.32%
+Lines:              17.84%      60%         -42.16%
+
+Test Pass Rate:     93%         100%        -7%
+Hook Coverage:      0%          70%         -70%
+Store Coverage:     50%         70%         -20%
+Service Coverage:   25%         70%         -45%
+
+================================================================================
+RISK ASSESSMENT
+================================================================================
+
+CRITICAL RISKS:
+- Booking service has 73% untested code (conflicts, edge cases)
+- Push/match services (1066 LOC) completely untested
+- Security library untested (encryption/hashing)
+- No integration tests for critical user flows
+- Mock setup prevents testing of complex queries
+
+MEDIUM RISKS:
+- Auth service (80% untested) - security relevant
+- Admin dashboard stats calculation untested
+- Network offline scenarios untested
+- Real-time subscription logic untested
+
+================================================================================
+RECOMMENDATIONS (Priority Order)
+================================================================================
+
+IMMEDIATE (Today - Fix Test Failures):
+  1. Fix Supabase mock chain
+  2. Add checkSlotConflict mock
+  3. Fix admin service mocks
+  4. Verify all 89 tests pass
+
+SHORT TERM (This Week - Enable Testing):
+  1. Update jest.config.js
+  2. Add hook tests (focus on critical hooks)
+  3. Add match/push service tests
+  4. Add security library tests
+  5. Target: 40% coverage
+
+MEDIUM TERM (Next Week - Improve Coverage):
+  1. Add remaining service tests
+  2. Add store tests
+  3. Add edge case tests
+  4. Add network/error tests
+  5. Target: 60% coverage
+
+ONGOING:
+  1. Add coverage thresholds to enforce quality
+  2. Require tests for new features
+  3. Maintain test suite health
+  4. Target: 70%+ coverage
+
+================================================================================
+FILE LOCATIONS
+================================================================================
+
+REVIEW REPORT (Full Analysis):
+/Users/tommac/Desktop/Solo Builder/my2light-mobile/plans/reports/
+code-reviewer-251230-1621-testing-review.md
+
+ACTION PLAN (Implementation Details):
+/Users/tommac/Desktop/Solo Builder/my2light-mobile/plans/reports/
+code-reviewer-251230-1621-testing-action-plan.md
+
+REVIEW SUMMARY (This File):
+/Users/tommac/Desktop/Solo Builder/my2light-mobile/plans/reports/
+TESTING-REVIEW-SUMMARY.txt
+
+================================================================================
