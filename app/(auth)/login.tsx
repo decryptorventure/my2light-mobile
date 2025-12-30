@@ -13,6 +13,7 @@ import { useAuthStore } from "../../stores/authStore";
 import { isSupabaseConfigured } from "../../lib/supabase";
 import { Button, Input } from "../../components/ui";
 import { colors, fontSize, fontWeight, spacing } from "../../constants/theme";
+import { validateEmail, validatePassword } from "../../src/shared/utils/validation";
 
 export default function LoginScreen() {
     const insets = useSafeAreaInsets();
@@ -23,19 +24,41 @@ export default function LoginScreen() {
     const [isSignUp, setIsSignUp] = useState(false);
     const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
+    // Rate limiting state
+    const [loginAttempts, setLoginAttempts] = useState(0);
+    const [lockoutTime, setLockoutTime] = useState<number | null>(null);
+
     const validate = () => {
         const newErrors: { email?: string; password?: string } = {};
 
-        if (!email) {
-            newErrors.email = "Vui lòng nhập email";
-        } else if (!/\S+@\S+\.\S+/.test(email)) {
-            newErrors.email = "Email không hợp lệ";
+        // RFC 5322 email validation
+        const emailResult = validateEmail(email);
+        if (!emailResult.valid) {
+            // Translate error to Vietnamese
+            if (emailResult.error?.includes("required")) {
+                newErrors.email = "Vui lòng nhập email";
+            } else {
+                newErrors.email = "Email không hợp lệ";
+            }
         }
 
-        if (!password) {
-            newErrors.password = "Vui lòng nhập mật khẩu";
-        } else if (password.length < 6) {
-            newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+        // Strong password validation (12+ chars, uppercase, lowercase, numbers)
+        const passwordResult = validatePassword(password);
+        if (!passwordResult.valid) {
+            // Translate errors to Vietnamese
+            if (passwordResult.error?.includes("required")) {
+                newErrors.password = "Vui lòng nhập mật khẩu";
+            } else if (passwordResult.error?.includes("12 characters")) {
+                newErrors.password = "Mật khẩu phải có ít nhất 12 ký tự";
+            } else if (passwordResult.error?.includes("uppercase")) {
+                newErrors.password = "Mật khẩu phải có ít nhất 1 chữ hoa";
+            } else if (passwordResult.error?.includes("lowercase")) {
+                newErrors.password = "Mật khẩu phải có ít nhất 1 chữ thường";
+            } else if (passwordResult.error?.includes("number")) {
+                newErrors.password = "Mật khẩu phải có ít nhất 1 số";
+            } else {
+                newErrors.password = passwordResult.error || "Mật khẩu không hợp lệ";
+            }
         }
 
         setErrors(newErrors);
@@ -43,6 +66,7 @@ export default function LoginScreen() {
     };
 
     const handleSubmit = async () => {
+        // Check Supabase configuration
         if (!isSupabaseConfigured()) {
             Alert.alert(
                 "Chưa cấu hình",
@@ -51,14 +75,48 @@ export default function LoginScreen() {
             return;
         }
 
+        // Check rate limiting lockout
+        const now = Date.now();
+        if (lockoutTime && now < lockoutTime) {
+            const remainingSeconds = Math.ceil((lockoutTime - now) / 1000);
+            Alert.alert(
+                "Quá nhiều lần thử",
+                `Vui lòng thử lại sau ${remainingSeconds} giây`
+            );
+            return;
+        }
+
+        // Validate input
         if (!validate()) return;
 
-        const { error } = isSignUp
-            ? await signUp(email, password)
-            : await signIn(email, password);
+        try {
+            // Attempt sign in/up
+            const { error } = isSignUp
+                ? await signUp(email, password)
+                : await signIn(email, password);
 
-        if (error) {
-            Alert.alert("Lỗi", error.message);
+            if (error) {
+                // Increment failed attempts
+                const newAttempts = loginAttempts + 1;
+                setLoginAttempts(newAttempts);
+
+                // Apply lockout after 5 failed attempts
+                if (newAttempts >= 5) {
+                    setLockoutTime(now + 60000); // 1 minute lockout
+                    Alert.alert(
+                        "Quá nhiều lần thử",
+                        "Bạn đã thử đăng nhập quá nhiều lần. Vui lòng thử lại sau 1 phút."
+                    );
+                } else {
+                    Alert.alert("Lỗi", error.message);
+                }
+            } else {
+                // Reset rate limiting on success
+                setLoginAttempts(0);
+                setLockoutTime(null);
+            }
+        } catch (error) {
+            Alert.alert("Lỗi", "Đã xảy ra lỗi không mong muốn");
         }
     };
 

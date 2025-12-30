@@ -5,24 +5,53 @@
 
 import { MMKV } from 'react-native-mmkv';
 
-export const storage = new MMKV({
-    id: 'my2light-storage',
-    encryptionKey: 'my2light-encryption-key', // In production, use secure key from env
-});
+// Singleton storage instance
+let storage: MMKV | null = null;
+
+/**
+ * Get encryption key from environment variables
+ * @throws Error if encryption key not configured
+ */
+const getEncryptionKey = (): string => {
+    const key = process.env.EXPO_PUBLIC_ENCRYPTION_KEY;
+
+    if (!key) {
+        throw new Error(
+            'MMKV encryption key not configured. ' +
+            'Set EXPO_PUBLIC_ENCRYPTION_KEY in your .env file.'
+        );
+    }
+
+    return key;
+};
+
+/**
+ * Get or initialize MMKV storage instance with lazy loading
+ * @returns MMKV instance with encryption enabled
+ */
+export const getStorage = (): MMKV => {
+    if (!storage) {
+        storage = new MMKV({
+            id: 'my2light-storage',
+            encryptionKey: getEncryptionKey(),
+        });
+    }
+    return storage;
+};
 
 /**
  * Storage interface for Zustand persistence
  */
 export const zustandStorage = {
     setItem: (name: string, value: string) => {
-        storage.set(name, value);
+        getStorage().set(name, value);
     },
     getItem: (name: string): string | null => {
-        const value = storage.getString(name);
+        const value = getStorage().getString(name);
         return value ?? null;
     },
     removeItem: (name: string) => {
-        storage.delete(name);
+        getStorage().delete(name);
     },
 };
 
@@ -36,11 +65,11 @@ export const cache = {
             timestamp: Date.now(),
             ttl: ttl || 300000, // Default 5 minutes
         };
-        storage.set(key, JSON.stringify(item));
+        getStorage().set(key, JSON.stringify(item));
     },
 
     get: <T = any>(key: string): T | null => {
-        const item = storage.getString(key);
+        const item = getStorage().getString(key);
         if (!item) return null;
 
         try {
@@ -48,7 +77,7 @@ export const cache = {
             const isExpired = Date.now() - parsed.timestamp > parsed.ttl;
 
             if (isExpired) {
-                storage.delete(key);
+                getStorage().delete(key);
                 return null;
             }
 
@@ -60,14 +89,14 @@ export const cache = {
 
     clear: (pattern?: string) => {
         if (pattern) {
-            const keys = storage.getAllKeys();
+            const keys = getStorage().getAllKeys();
             keys.forEach((key: string) => {
                 if (key.includes(pattern)) {
-                    storage.delete(key);
+                    getStorage().delete(key);
                 }
             });
         } else {
-            storage.clearAll();
+            getStorage().clearAll();
         }
     },
 };

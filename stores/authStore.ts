@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { supabase } from "../lib/supabase";
 import type { User, Session } from "@supabase/supabase-js";
 import { authLogger } from "../lib/logger";
+import { getStorage } from "../src/lib/storage";
 
 interface AuthState {
     user: User | null;
@@ -28,6 +29,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         try {
             // Get initial session
             const { data: { session } } = await supabase.auth.getSession();
+
+            // Check token expiry (security enhancement)
+            if (session?.expires_at) {
+                const expiryTime = session.expires_at * 1000; // Convert to milliseconds
+                const now = Date.now();
+
+                if (expiryTime < now) {
+                    authLogger.warn('Session token expired, signing out');
+                    await supabase.auth.signOut();
+                    set({ loading: false, initialized: true });
+                    return;
+                }
+            }
 
             set({
                 session,
@@ -126,12 +140,44 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     signOut: async () => {
         set({ loading: true });
-        await supabase.auth.signOut();
-        set({
-            user: null,
-            session: null,
-            loading: false,
-        });
+
+        try {
+            // Sign out from Supabase
+            await supabase.auth.signOut();
+
+            // Explicit storage cleanup (security enhancement)
+            try {
+                const storage = getStorage();
+                const keys = storage.getAllKeys();
+
+                // Clear all auth-related storage keys
+                keys.forEach((key: string) => {
+                    if (
+                        key.includes('auth') ||
+                        key.includes('session') ||
+                        key.includes('user') ||
+                        key.includes('token')
+                    ) {
+                        storage.delete(key);
+                        authLogger.debug('Cleared storage key on logout', { key });
+                    }
+                });
+            } catch (storageError) {
+                authLogger.error('Storage cleanup error during logout', storageError);
+            }
+
+            // Clear state
+            set({
+                user: null,
+                session: null,
+                loading: false,
+            });
+
+            authLogger.debug('User signed out successfully');
+        } catch (error) {
+            authLogger.error('Sign out error', error);
+            set({ loading: false });
+        }
     },
 
     setUser: (user) => set({ user }),

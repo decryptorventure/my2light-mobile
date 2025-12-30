@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { User, ApiResponse } from '../types';
+import { maskSensitiveData } from '../../../lib/security';
 
 export const AuthService = {
     getCurrentUser: async (): Promise<ApiResponse<User>> => {
@@ -102,7 +103,9 @@ export const AuthService = {
 
             return { success: true, data: user };
         } catch (e) {
-            console.error('getCurrentUser error:', e);
+            // Mask sensitive data in error logs
+            const maskedError = maskSensitiveData(JSON.stringify(e));
+            console.error('getCurrentUser error:', maskedError);
             return { success: false, data: null as any, error: 'Failed to fetch user' };
         }
     },
@@ -132,7 +135,9 @@ export const AuthService = {
 
             return { success: true, data: true };
         } catch (e) {
-            console.error("Exception in updateUserProfile", e);
+            // Mask sensitive data in error logs
+            const maskedError = maskSensitiveData(JSON.stringify(e));
+            console.error("Exception in updateUserProfile:", maskedError);
             return { success: false, data: false, error: 'Internal error' };
         }
     }

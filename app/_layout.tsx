@@ -6,6 +6,7 @@ import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthService } from "../services/auth.service";
 import { usePushNotifications } from "../hooks/usePushNotifications";
+import { validateClientEnv } from "../lib/security";
 
 // Create a client with sensible defaults
 const queryClient = new QueryClient({
@@ -26,6 +27,17 @@ function RootLayoutNav() {
 
     // Register for push notifications
     usePushNotifications();
+
+    // Security validation on app startup (production only)
+    useEffect(() => {
+        if (!__DEV__) {
+            try {
+                validateClientEnv();
+            } catch (error) {
+                console.error('Security validation failed:', error);
+            }
+        }
+    }, []);
 
     // Initialize auth on app load
     useEffect(() => {
