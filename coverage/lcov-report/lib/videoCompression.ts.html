@@ -236,7 +236,8 @@
 <a name='L171'></a><a href='#L171'>171</a>
 <a name='L172'></a><a href='#L172'>172</a>
 <a name='L173'></a><a href='#L173'>173</a>
-<a name='L174'></a><a href='#L174'>174</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L174'></a><a href='#L174'>174</a>
+<a name='L175'></a><a href='#L175'>175</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -319,8 +320,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -402,6 +401,9 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -414,15 +416,15 @@
  * Compresses videos before upload to reduce file size and upload time
  */
 &nbsp;
-<span class="cstat-no" title="statement not covered" >import * as FileSystem from 'expo-file-system/legacy';</span>
-<span class="cstat-no" title="statement not covered" >import { logger } from '../lib/logger';</span>
+<span class="cstat-no" title="statement not covered" >import * as FileSystem from "expo-file-system/legacy";</span>
+<span class="cstat-no" title="statement not covered" >import { logger } from "../lib/logger";</span>
 &nbsp;
-const compressLogger = <span class="cstat-no" title="statement not covered" >logger.create('VideoCompress');</span>
+const compressLogger = <span class="cstat-no" title="statement not covered" >logger.create("VideoCompress");</span>
 &nbsp;
 export interface CompressionOptions {
     maxWidth?: number;
     maxHeight?: number;
-    quality?: 'low' | 'medium' | 'high';
+    quality?: "low" | "medium" | "high";
     maxDurationSec?: number;
 }
 &nbsp;
@@ -436,9 +438,9 @@ export interface CompressionResult {
 }
 &nbsp;
 const QUALITY_SETTINGS = <span class="cstat-no" title="statement not covered" >{</span>
-    low: { bitrate: 1_000_000, scale: 0.5 },     // 1 Mbps, 50% scale
+    low: { bitrate: 1_000_000, scale: 0.5 }, // 1 Mbps, 50% scale
     medium: { bitrate: 2_500_000, scale: 0.75 }, // 2.5 Mbps, 75% scale
-    high: { bitrate: 5_000_000, scale: 1.0 },    // 5 Mbps, full scale
+    high: { bitrate: 5_000_000, scale: 1.0 }, // 5 Mbps, full scale
 };
 &nbsp;
 /**
@@ -447,12 +449,12 @@ const QUALITY_SETTINGS = <span class="cstat-no" title="statement not covered" >{
 <span class="cstat-no" title="statement not covered" >export a</span>sync function <span class="fstat-no" title="function not covered" >getVideoFileSize(</span>uri: string): Promise&lt;number&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
         const fileInfo = <span class="cstat-no" title="statement not covered" >await FileSystem.getInfoAsync(uri);</span>
-<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (fileInfo.exists &amp;&amp; 'size' in fileInfo) {</span>
+<span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (fileInfo.exists &amp;&amp; "size" in fileInfo) {</span>
 <span class="cstat-no" title="statement not covered" >            return fileInfo.size as number;</span>
         }
 <span class="cstat-no" title="statement not covered" >        return 0;</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >        compressLogger.error('Failed to get video size', error);</span>
+<span class="cstat-no" title="statement not covered" >        compressLogger.error("Failed to get video size", error);</span>
 <span class="cstat-no" title="statement not covered" >        return 0;</span>
     }
 }
@@ -472,12 +474,12 @@ const QUALITY_SETTINGS = <span class="cstat-no" title="statement not covered" >{
  */
 <span class="cstat-no" title="statement not covered" >export function <span class="fstat-no" title="function not covered" >e</span>stimateCompressedSize(</span>
     originalSize: number,
-    quality: 'low' | 'medium' | 'high' = <span class="branch-0 cbranch-no" title="branch not covered" >'medium'</span>
+    quality: "low" | "medium" | "high" = <span class="branch-0 cbranch-no" title="branch not covered" >"medium"</span>
 ): number {
     const compressionFactors = <span class="cstat-no" title="statement not covered" >{</span>
-        low: 0.2,    // ~80% reduction
+        low: 0.2, // ~80% reduction
         medium: 0.4, // ~60% reduction
-        high: 0.6,   // ~40% reduction
+        high: 0.6, // ~40% reduction
     };
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    return Math.round(originalSize * compressionFactors[quality]);</span>
@@ -492,19 +494,17 @@ const QUALITY_SETTINGS = <span class="cstat-no" title="statement not covered" >{
     inputUri: string,
     options: CompressionOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{}</span>
 ): Promise&lt;CompressionResult | null&gt; {
-    const {
-        quality = <span class="branch-0 cbranch-no" title="branch not covered" >'medium',</span>
-    } = <span class="cstat-no" title="statement not covered" >options;</span>
+    const { quality = <span class="branch-0 cbranch-no" title="branch not covered" >"medium" </span>} = <span class="cstat-no" title="statement not covered" >options;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
-<span class="cstat-no" title="statement not covered" >        compressLogger.debug('Starting video compression', { quality });</span>
+<span class="cstat-no" title="statement not covered" >        compressLogger.debug("Starting video compression", { quality });</span>
 &nbsp;
         // Get original file size
         const originalSize = <span class="cstat-no" title="statement not covered" >await getVideoFileSize(inputUri);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (!needsCompression(originalSize)) {</span>
-<span class="cstat-no" title="statement not covered" >            compressLogger.debug('Video does not need compression', {</span>
-                sizeMB: Math.round(originalSize / 1024 / 1024 * 100) / 100
+<span class="cstat-no" title="statement not covered" >            compressLogger.debug("Video does not need compression", {</span>
+                sizeMB: Math.round((originalSize / 1024 / 1024) * 100) / 100,
             });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >            return {</span>
@@ -519,11 +519,11 @@ const QUALITY_SETTINGS = <span class="cstat-no" title="statement not covered" >{
          * Note: For actual video compression, you would need to:
          * 1. Install expo-video-thumbnails or react-native-video-processing
          * 2. Use FFmpeg or similar for actual compression
-         * 
+         *
          * Example with react-native-video-processing:
-         * 
+         *
          * import { ProcessingManager } from 'react-native-video-processing';
-         * 
+         *
          * const compressed = await ProcessingManager.compress(inputUri, {
          *   width: 1080,
          *   height: 1920,
@@ -532,7 +532,7 @@ const QUALITY_SETTINGS = <span class="cstat-no" title="statement not covered" >{
          * });
          */
 &nbsp;
-<span class="cstat-no" title="statement not covered" >        compressLogger.warn('Full compression not implemented - returning original');</span>
+<span class="cstat-no" title="statement not covered" >        compressLogger.warn("Full compression not implemented - returning original");</span>
 &nbsp;
         // For now, return original with metadata
         const estimatedSize = <span class="cstat-no" title="statement not covered" >estimateCompressedSize(originalSize, quality);</span>
@@ -544,7 +544,7 @@ const QUALITY_SETTINGS = <span class="cstat-no" title="statement not covered" >{
             compressionRatio: 1,
         };
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >        compressLogger.error('Video compression failed', error);</span>
+<span class="cstat-no" title="statement not covered" >        compressLogger.error("Video compression failed", error);</span>
 <span class="cstat-no" title="statement not covered" >        return null;</span>
     }
 }
@@ -559,7 +559,7 @@ const QUALITY_SETTINGS = <span class="cstat-no" title="statement not covered" >{
     const fileSize = <span class="cstat-no" title="statement not covered" >await getVideoFileSize(inputUri);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!needsCompression(fileSize)) {</span>
-<span class="cstat-no" title="statement not covered" >        compressLogger.debug('Compression not needed');</span>
+<span class="cstat-no" title="statement not covered" >        compressLogger.debug("Compression not needed");</span>
 <span class="cstat-no" title="statement not covered" >        return inputUri;</span>
     }
 &nbsp;
@@ -577,9 +577,12 @@ const QUALITY_SETTINGS = <span class="cstat-no" title="statement not covered" >{
 <span class="cstat-no" title="statement not covered" >    return {</span>
         sizeMB: Math.round(sizeMB * 100) / 100,
         needsCompression: needs,
-        estimatedLow: Math.round(estimateCompressedSize(fileSizeBytes, 'low') / 1024 / 1024 * 100) / 100,
-        estimatedMedium: Math.round(estimateCompressedSize(fileSizeBytes, 'medium') / 1024 / 1024 * 100) / 100,
-        estimatedHigh: Math.round(estimateCompressedSize(fileSizeBytes, 'high') / 1024 / 1024 * 100) / 100,
+        estimatedLow:
+            Math.round((estimateCompressedSize(fileSizeBytes, "low") / 1024 / 1024) * 100) / 100,
+        estimatedMedium:
+            Math.round((estimateCompressedSize(fileSizeBytes, "medium") / 1024 / 1024) * 100) / 100,
+        estimatedHigh:
+            Math.round((estimateCompressedSize(fileSizeBytes, "high") / 1024 / 1024) * 100) / 100,
     };
 }
 &nbsp;</pre></td></tr></table></pre>
@@ -589,7 +592,7 @@ const QUALITY_SETTINGS = <span class="cstat-no" title="statement not covered" >{
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-30T09:22:12.465Z
+                at 2025-12-30T10:27:27.783Z
             </div>
         <script src="../prettify.js"></script>
         <script>

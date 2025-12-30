@@ -46,6 +46,12 @@ describe("AdminService", () => {
             (supabase.from as jest.Mock).mockImplementation((table) => {
                 if (table === "court_owners") {
                     return {
+                        select: jest.fn().mockReturnThis(),
+                        eq: jest.fn().mockReturnThis(),
+                        maybeSingle: jest.fn().mockResolvedValue({
+                            data: null, // No existing owner
+                            error: null,
+                        }),
                         insert: jest.fn().mockResolvedValue({
                             data: null,
                             error: null,

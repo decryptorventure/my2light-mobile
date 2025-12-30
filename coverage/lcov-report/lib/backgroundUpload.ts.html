@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/49</span>
+                <span class='fraction'>0/48</span>
             </div>
         
             
@@ -306,35 +306,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -346,6 +323,29 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -484,13 +484,13 @@
  * Handles video uploads in background using expo-task-manager
  */
 &nbsp;
-<span class="cstat-no" title="statement not covered" >import { logger } from './logger';</span>
-<span class="cstat-no" title="statement not covered" >import AsyncStorage from '@react-native-async-storage/async-storage';</span>
+<span class="cstat-no" title="statement not covered" >import { logger } from "./logger";</span>
+<span class="cstat-no" title="statement not covered" >import AsyncStorage from "@react-native-async-storage/async-storage";</span>
 &nbsp;
-const bgLogger = <span class="cstat-no" title="statement not covered" >logger.create('BackgroundUpload');</span>
+const bgLogger = <span class="cstat-no" title="statement not covered" >logger.create("BackgroundUpload");</span>
 &nbsp;
-const UPLOAD_QUEUE_KEY = <span class="cstat-no" title="statement not covered" >'@pending_uploads';</span>
-const UPLOAD_PROGRESS_KEY = <span class="cstat-no" title="statement not covered" >'@upload_progress';</span>
+const UPLOAD_QUEUE_KEY = <span class="cstat-no" title="statement not covered" >"@pending_uploads";</span>
+const UPLOAD_PROGRESS_KEY = <span class="cstat-no" title="statement not covered" >"@upload_progress";</span>
 &nbsp;
 export interface PendingUpload {
     id: string;
@@ -499,7 +499,7 @@ export interface PendingUpload {
     title: string;
     description?: string;
     highlightEvents?: any[];
-    status: 'pending' | 'uploading' | 'completed' | 'failed';
+    status: "pending" | "uploading" | "completed" | "failed";
     progress: number;
     createdAt: number;
     error?: string;
@@ -513,13 +513,15 @@ export const <span class="cstat-no" title="statement not covered" >BackgroundUpl
     /**
      * Add video to upload queue
      */
-    queueUpload: <span class="fstat-no" title="function not covered" >async </span>(upload: Omit&lt;PendingUpload, 'id' | 'status' | 'progress' | 'createdAt' | 'retries'&gt;): Promise&lt;string&gt; =&gt; {
+    queueUpload: <span class="fstat-no" title="function not covered" >async </span>(
+        upload: Omit&lt;PendingUpload, "id" | "status" | "progress" | "createdAt" | "retries"&gt;
+    ): Promise&lt;string&gt; =&gt; {
         const id = <span class="cstat-no" title="statement not covered" >`upload_${Date.now()}_${Math.random().toString(36).slice(2)}`;</span>
 &nbsp;
         const pendingUpload: PendingUpload = <span class="cstat-no" title="statement not covered" >{</span>
             ...upload,
             id,
-            status: 'pending',
+            status: "pending",
             progress: 0,
             createdAt: Date.now(),
             retries: 0,
@@ -529,7 +531,7 @@ export const <span class="cstat-no" title="statement not covered" >BackgroundUpl
 <span class="cstat-no" title="statement not covered" >        queue.push(pendingUpload);</span>
 <span class="cstat-no" title="statement not covered" >        await AsyncStorage.setItem(UPLOAD_QUEUE_KEY, JSON.stringify(queue));</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >        bgLogger.debug('Upload queued', { id, title: upload.title });</span>
+<span class="cstat-no" title="statement not covered" >        bgLogger.debug("Upload queued", { id, title: upload.title });</span>
 <span class="cstat-no" title="statement not covered" >        return id;</span>
     },
 &nbsp;
@@ -551,9 +553,7 @@ export const <span class="cstat-no" title="statement not covered" >BackgroundUpl
      */
     updateUpload: <span class="fstat-no" title="function not covered" >async </span>(id: string, updates: Partial&lt;PendingUpload&gt;): Promise&lt;void&gt; =&gt; {
         const queue = <span class="cstat-no" title="statement not covered" >await BackgroundUploadManager.getQueue();</span>
-        const updatedQueue = <span class="cstat-no" title="statement not covered" >queue.map(<span class="fstat-no" title="function not covered" >u </span>=&gt;</span>
-<span class="cstat-no" title="statement not covered" >            u.id === id ? { ...u, ...updates } : u</span>
-        );
+        const updatedQueue = <span class="cstat-no" title="statement not covered" >queue.map(<span class="fstat-no" title="function not covered" >(u</span>) =&gt; (<span class="cstat-no" title="statement not covered" >u.id === id ? { ...u, ...updates } : u)</span>);</span>
 <span class="cstat-no" title="statement not covered" >        await AsyncStorage.setItem(UPLOAD_QUEUE_KEY, JSON.stringify(updatedQueue));</span>
     },
 &nbsp;
@@ -579,10 +579,10 @@ export const <span class="cstat-no" title="statement not covered" >BackgroundUpl
      */
     completeUpload: <span class="fstat-no" title="function not covered" >async </span>(id: string): Promise&lt;void&gt; =&gt; {
 <span class="cstat-no" title="statement not covered" >        await BackgroundUploadManager.updateUpload(id, {</span>
-            status: 'completed',
-            progress: 100
+            status: "completed",
+            progress: 100,
         });
-<span class="cstat-no" title="statement not covered" >        bgLogger.info('Upload completed', { id });</span>
+<span class="cstat-no" title="statement not covered" >        bgLogger.info("Upload completed", { id });</span>
     },
 &nbsp;
     /**
@@ -590,14 +590,14 @@ export const <span class="cstat-no" title="statement not covered" >BackgroundUpl
      */
     failUpload: <span class="fstat-no" title="function not covered" >async </span>(id: string, error: string): Promise&lt;void&gt; =&gt; {
         const queue = <span class="cstat-no" title="statement not covered" >await BackgroundUploadManager.getQueue();</span>
-        const upload = <span class="cstat-no" title="statement not covered" >queue.find(<span class="fstat-no" title="function not covered" >u </span>=&gt; <span class="cstat-no" title="statement not covered" >u.id === id)</span>;</span>
+        const upload = <span class="cstat-no" title="statement not covered" >queue.find(<span class="fstat-no" title="function not covered" >(u</span>) =&gt; <span class="cstat-no" title="statement not covered" >u.id === id)</span>;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        await BackgroundUploadManager.updateUpload(id, {</span>
-            status: 'failed',
+            status: "failed",
             error,
-            retries: (upload?.retries || 0) + 1
+            retries: (upload?.retries || 0) + 1,
         });
-<span class="cstat-no" title="statement not covered" >        bgLogger.error('Upload failed', { id, error });</span>
+<span class="cstat-no" title="statement not covered" >        bgLogger.error("Upload failed", { id, error });</span>
     },
 &nbsp;
     /**
@@ -605,7 +605,7 @@ export const <span class="cstat-no" title="statement not covered" >BackgroundUpl
      */
     removeUpload: <span class="fstat-no" title="function not covered" >async </span>(id: string): Promise&lt;void&gt; =&gt; {
         const queue = <span class="cstat-no" title="statement not covered" >await BackgroundUploadManager.getQueue();</span>
-        const filtered = <span class="cstat-no" title="statement not covered" >queue.filter(<span class="fstat-no" title="function not covered" >u </span>=&gt; <span class="cstat-no" title="statement not covered" >u.id !== id)</span>;</span>
+        const filtered = <span class="cstat-no" title="statement not covered" >queue.filter(<span class="fstat-no" title="function not covered" >(u</span>) =&gt; <span class="cstat-no" title="statement not covered" >u.id !== id)</span>;</span>
 <span class="cstat-no" title="statement not covered" >        await AsyncStorage.setItem(UPLOAD_QUEUE_KEY, JSON.stringify(filtered));</span>
 <span class="cstat-no" title="statement not covered" >        await AsyncStorage.removeItem(`${UPLOAD_PROGRESS_KEY}_${id}`);</span>
     },
@@ -615,7 +615,7 @@ export const <span class="cstat-no" title="statement not covered" >BackgroundUpl
      */
     getPendingCount: <span class="fstat-no" title="function not covered" >async </span>(): Promise&lt;number&gt; =&gt; {
         const queue = <span class="cstat-no" title="statement not covered" >await BackgroundUploadManager.getQueue();</span>
-<span class="cstat-no" title="statement not covered" >        return queue.filter(<span class="fstat-no" title="function not covered" >u </span>=&gt; <span class="cstat-no" title="statement not covered" >u.status === 'pending' || u.status === 'uploading')</span>.length;</span>
+<span class="cstat-no" title="statement not covered" >        return queue.filter(<span class="fstat-no" title="function not covered" >(u</span>) =&gt; <span class="cstat-no" title="statement not covered" >u.status === "pending" || u.status === "uploading")</span>.length;</span>
     },
 &nbsp;
     /**
@@ -623,7 +623,7 @@ export const <span class="cstat-no" title="statement not covered" >BackgroundUpl
      */
     getFailedUploads: <span class="fstat-no" title="function not covered" >async </span>(): Promise&lt;PendingUpload[]&gt; =&gt; {
         const queue = <span class="cstat-no" title="statement not covered" >await BackgroundUploadManager.getQueue();</span>
-<span class="cstat-no" title="statement not covered" >        return queue.filter(<span class="fstat-no" title="function not covered" >u </span>=&gt; <span class="cstat-no" title="statement not covered" >u.status === 'failed' &amp;&amp; u.retries &lt; 3)</span>;</span>
+<span class="cstat-no" title="statement not covered" >        return queue.filter(<span class="fstat-no" title="function not covered" >(u</span>) =&gt; <span class="cstat-no" title="statement not covered" >u.status === "failed" &amp;&amp; u.retries &lt; 3)</span>;</span>
     },
 &nbsp;
     /**
@@ -631,11 +631,11 @@ export const <span class="cstat-no" title="statement not covered" >BackgroundUpl
      */
     retryUpload: <span class="fstat-no" title="function not covered" >async </span>(id: string): Promise&lt;void&gt; =&gt; {
 <span class="cstat-no" title="statement not covered" >        await BackgroundUploadManager.updateUpload(id, {</span>
-            status: 'pending',
+            status: "pending",
             progress: 0,
-            error: undefined
+            error: undefined,
         });
-<span class="cstat-no" title="statement not covered" >        bgLogger.debug('Upload queued for retry', { id });</span>
+<span class="cstat-no" title="statement not covered" >        bgLogger.debug("Upload queued for retry", { id });</span>
     },
 &nbsp;
     /**
@@ -643,7 +643,7 @@ export const <span class="cstat-no" title="statement not covered" >BackgroundUpl
      */
     clearCompleted: <span class="fstat-no" title="function not covered" >async </span>(): Promise&lt;void&gt; =&gt; {
         const queue = <span class="cstat-no" title="statement not covered" >await BackgroundUploadManager.getQueue();</span>
-        const pending = <span class="cstat-no" title="statement not covered" >queue.filter(<span class="fstat-no" title="function not covered" >u </span>=&gt; <span class="cstat-no" title="statement not covered" >u.status !== 'completed')</span>;</span>
+        const pending = <span class="cstat-no" title="statement not covered" >queue.filter(<span class="fstat-no" title="function not covered" >(u</span>) =&gt; <span class="cstat-no" title="statement not covered" >u.status !== "completed")</span>;</span>
 <span class="cstat-no" title="statement not covered" >        await AsyncStorage.setItem(UPLOAD_QUEUE_KEY, JSON.stringify(pending));</span>
     },
 &nbsp;
@@ -653,7 +653,7 @@ export const <span class="cstat-no" title="statement not covered" >BackgroundUpl
      */
     getNextPending: <span class="fstat-no" title="function not covered" >async </span>(): Promise&lt;PendingUpload | null&gt; =&gt; {
         const queue = <span class="cstat-no" title="statement not covered" >await BackgroundUploadManager.getQueue();</span>
-<span class="cstat-no" title="statement not covered" >        return queue.find(<span class="fstat-no" title="function not covered" >u </span>=&gt; <span class="cstat-no" title="statement not covered" >u.status === 'pending')</span> || null;</span>
+<span class="cstat-no" title="statement not covered" >        return queue.find(<span class="fstat-no" title="function not covered" >(u</span>) =&gt; <span class="cstat-no" title="statement not covered" >u.status === "pending")</span> || null;</span>
     },
 &nbsp;
     /**
@@ -661,16 +661,16 @@ export const <span class="cstat-no" title="statement not covered" >BackgroundUpl
      */
     hasActiveUpload: <span class="fstat-no" title="function not covered" >async </span>(): Promise&lt;boolean&gt; =&gt; {
         const queue = <span class="cstat-no" title="statement not covered" >await BackgroundUploadManager.getQueue();</span>
-<span class="cstat-no" title="statement not covered" >        return queue.some(<span class="fstat-no" title="function not covered" >u </span>=&gt; <span class="cstat-no" title="statement not covered" >u.status === 'uploading')</span>;</span>
+<span class="cstat-no" title="statement not covered" >        return queue.some(<span class="fstat-no" title="function not covered" >(u</span>) =&gt; <span class="cstat-no" title="statement not covered" >u.status === "uploading")</span>;</span>
     },
 };
 &nbsp;
 /**
  * Note: For full background upload support, you need:
- * 
+ *
  * 1. Install expo-task-manager and expo-background-fetch:
  *    npx expo install expo-task-manager expo-background-fetch
- * 
+ *
  * 2. Register background task:
  *    TaskManager.defineTask(BACKGROUND_UPLOAD_TASK, async () =&gt; {
  *        const next = await BackgroundUploadManager.getNextPending();
@@ -679,7 +679,7 @@ export const <span class="cstat-no" title="statement not covered" >BackgroundUpl
  *        }
  *        return BackgroundFetch.BackgroundFetchResult.NewData;
  *    });
- * 
+ *
  * 3. Request background fetch:
  *    await BackgroundFetch.registerTaskAsync(BACKGROUND_UPLOAD_TASK, {
  *        minimumInterval: 15 * 60, // 15 minutes
@@ -694,7 +694,7 @@ export const <span class="cstat-no" title="statement not covered" >BackgroundUpl
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-30T09:22:12.465Z
+                at 2025-12-30T10:27:27.783Z
             </div>
         <script src="../prettify.js"></script>
         <script>

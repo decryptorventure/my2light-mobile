@@ -325,9 +325,7 @@
 <a name='L260'></a><a href='#L260'>260</a>
 <a name='L261'></a><a href='#L261'>261</a>
 <a name='L262'></a><a href='#L262'>262</a>
-<a name='L263'></a><a href='#L263'>263</a>
-<a name='L264'></a><a href='#L264'>264</a>
-<a name='L265'></a><a href='#L265'>265</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L263'></a><a href='#L263'>263</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -488,8 +486,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -596,19 +592,19 @@
  * Monitors network status and provides offline handling utilities
  */
 &nbsp;
-<span class="cstat-no" title="statement not covered" >import { useState, useEffect, useCallback } from 'react';</span>
-<span class="cstat-no" title="statement not covered" >import NetInfo, { NetInfoState, NetInfoSubscription } from '@react-native-community/netinfo';</span>
-<span class="cstat-no" title="statement not covered" >import AsyncStorage from '@react-native-async-storage/async-storage';</span>
-<span class="cstat-no" title="statement not covered" >import { logger } from '../lib/logger';</span>
+<span class="cstat-no" title="statement not covered" >import { useState, useEffect, useCallback } from "react";</span>
+<span class="cstat-no" title="statement not covered" >import NetInfo, { NetInfoState, NetInfoSubscription } from "@react-native-community/netinfo";</span>
+<span class="cstat-no" title="statement not covered" >import AsyncStorage from "@react-native-async-storage/async-storage";</span>
+<span class="cstat-no" title="statement not covered" >import { logger } from "../lib/logger";</span>
 &nbsp;
-const networkLogger = <span class="cstat-no" title="statement not covered" >logger.create('Network');</span>
+const networkLogger = <span class="cstat-no" title="statement not covered" >logger.create("Network");</span>
 &nbsp;
 // Use AsyncStorage for offline queue (more compatible than MMKV for this use case)
-const QUEUE_STORAGE_KEY = <span class="cstat-no" title="statement not covered" >'@offline_queue';</span>
+const QUEUE_STORAGE_KEY = <span class="cstat-no" title="statement not covered" >"@offline_queue";</span>
 &nbsp;
 interface QueuedAction {
     id: string;
-    type: 'upload' | 'api_call' | 'sync';
+    type: "upload" | "api_call" | "sync";
     payload: any;
     timestamp: number;
     retries: number;
@@ -627,7 +623,7 @@ interface NetworkStatus {
     const [status, setStatus] = <span class="cstat-no" title="statement not covered" >useState&lt;NetworkStatus&gt;({</span>
         isConnected: true,
         isInternetReachable: true,
-        type: 'unknown',
+        type: "unknown",
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    useEffect(<span class="fstat-no" title="function not covered" >() =</span>&gt; {</span>
@@ -652,9 +648,9 @@ interface NetworkStatus {
 <span class="cstat-no" title="statement not covered" >            setStatus(newStatus);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >            if (!newStatus.isConnected) {</span>
-<span class="cstat-no" title="statement not covered" >                networkLogger.warn('Network disconnected');</span>
+<span class="cstat-no" title="statement not covered" >                networkLogger.warn("Network disconnected");</span>
             } else <span class="cstat-no" title="statement not covered" ><span class="missing-if-branch" title="if path not taken" >I</span>if (newStatus.isConnected &amp;&amp; !status.isConnected) {</span>
-<span class="cstat-no" title="statement not covered" >                networkLogger.info('Network reconnected');</span>
+<span class="cstat-no" title="statement not covered" >                networkLogger.info("Network reconnected");</span>
             }
         };
 &nbsp;
@@ -679,7 +675,7 @@ export const <span class="cstat-no" title="statement not covered" >OfflineQueue 
     /**
      * Add an action to the offline queue
      */
-    enqueue: <span class="fstat-no" title="function not covered" >async </span>(type: QueuedAction['type'], payload: any): Promise&lt;string&gt; =&gt; {
+    enqueue: <span class="fstat-no" title="function not covered" >async </span>(type: QueuedAction["type"], payload: any): Promise&lt;string&gt; =&gt; {
         const action: QueuedAction = <span class="cstat-no" title="statement not covered" >{</span>
             id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
             type,
@@ -692,7 +688,7 @@ export const <span class="cstat-no" title="statement not covered" >OfflineQueue 
 <span class="cstat-no" title="statement not covered" >        queue.push(action);</span>
 <span class="cstat-no" title="statement not covered" >        await AsyncStorage.setItem(OfflineQueue.QUEUE_KEY, JSON.stringify(queue));</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >        networkLogger.debug('Action queued for offline', { type, id: action.id });</span>
+<span class="cstat-no" title="statement not covered" >        networkLogger.debug("Action queued for offline", { type, id: action.id });</span>
 <span class="cstat-no" title="statement not covered" >        return action.id;</span>
     },
 &nbsp;
@@ -714,7 +710,7 @@ export const <span class="cstat-no" title="statement not covered" >OfflineQueue 
      */
     dequeue: <span class="fstat-no" title="function not covered" >async </span>(actionId: string): Promise&lt;void&gt; =&gt; {
         const queue = <span class="cstat-no" title="statement not covered" >await OfflineQueue.getQueue();</span>
-        const filtered = <span class="cstat-no" title="statement not covered" >queue.filter(<span class="fstat-no" title="function not covered" >a </span>=&gt; <span class="cstat-no" title="statement not covered" >a.id !== actionId)</span>;</span>
+        const filtered = <span class="cstat-no" title="statement not covered" >queue.filter(<span class="fstat-no" title="function not covered" >(a</span>) =&gt; <span class="cstat-no" title="statement not covered" >a.id !== actionId)</span>;</span>
 <span class="cstat-no" title="statement not covered" >        await AsyncStorage.setItem(OfflineQueue.QUEUE_KEY, JSON.stringify(filtered));</span>
     },
 &nbsp;
@@ -723,7 +719,7 @@ export const <span class="cstat-no" title="statement not covered" >OfflineQueue 
      */
     updateRetries: <span class="fstat-no" title="function not covered" >async </span>(actionId: string): Promise&lt;void&gt; =&gt; {
         const queue = <span class="cstat-no" title="statement not covered" >await OfflineQueue.getQueue();</span>
-        const updated = <span class="cstat-no" title="statement not covered" >queue.map(<span class="fstat-no" title="function not covered" >a </span>=&gt; {</span>
+        const updated = <span class="cstat-no" title="statement not covered" >queue.map(<span class="fstat-no" title="function not covered" >(a</span>) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >            <span class="missing-if-branch" title="if path not taken" >I</span>if (a.id === actionId) {</span>
 <span class="cstat-no" title="statement not covered" >                return { ...a, retries: a.retries + 1 };</span>
             }
@@ -751,9 +747,7 @@ export const <span class="cstat-no" title="statement not covered" >OfflineQueue 
 /**
  * Hook to use offline queue with automatic sync
  */
-<span class="cstat-no" title="statement not covered" >export function <span class="fstat-no" title="function not covered" >u</span>seOfflineQueue(</span>
-    processAction: (action: QueuedAction) =&gt; Promise&lt;boolean&gt;
-) {
+<span class="cstat-no" title="statement not covered" >export function <span class="fstat-no" title="function not covered" >u</span>seOfflineQueue(</span>processAction: (action: QueuedAction) =&gt; Promise&lt;boolean&gt;) {
     const { isConnected } = <span class="cstat-no" title="statement not covered" >useNetworkStatus();</span>
     const [isProcessing, setIsProcessing] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
     const [pendingCount, setPendingCount] = <span class="cstat-no" title="statement not covered" >useState(0);</span>
@@ -779,11 +773,11 @@ export const <span class="cstat-no" title="statement not covered" >OfflineQueue 
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (queue.length === 0) <span class="cstat-no" title="statement not covered" >return;</span></span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        setIsProcessing(true);</span>
-<span class="cstat-no" title="statement not covered" >        networkLogger.info('Processing offline queue', { count: queue.length });</span>
+<span class="cstat-no" title="statement not covered" >        networkLogger.info("Processing offline queue", { count: queue.length });</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        for (const action of queue) {</span>
 <span class="cstat-no" title="statement not covered" >            <span class="missing-if-branch" title="if path not taken" >I</span>if (action.retries &gt;= 3) {</span>
-<span class="cstat-no" title="statement not covered" >                networkLogger.warn('Action exceeded max retries, removing', { id: action.id });</span>
+<span class="cstat-no" title="statement not covered" >                networkLogger.warn("Action exceeded max retries, removing", { id: action.id });</span>
 <span class="cstat-no" title="statement not covered" >                await OfflineQueue.dequeue(action.id);</span>
 <span class="cstat-no" title="statement not covered" >                continue;</span>
             }
@@ -792,12 +786,12 @@ export const <span class="cstat-no" title="statement not covered" >OfflineQueue 
                 const success = <span class="cstat-no" title="statement not covered" >await processAction(action);</span>
 <span class="cstat-no" title="statement not covered" >                if (success) {</span>
 <span class="cstat-no" title="statement not covered" >                    await OfflineQueue.dequeue(action.id);</span>
-<span class="cstat-no" title="statement not covered" >                    networkLogger.debug('Queued action processed', { id: action.id });</span>
+<span class="cstat-no" title="statement not covered" >                    networkLogger.debug("Queued action processed", { id: action.id });</span>
                 } else {
 <span class="cstat-no" title="statement not covered" >                    await OfflineQueue.updateRetries(action.id);</span>
                 }
             } catch (error) {
-<span class="cstat-no" title="statement not covered" >                networkLogger.error('Failed to process queued action', error);</span>
+<span class="cstat-no" title="statement not covered" >                networkLogger.error("Failed to process queued action", error);</span>
 <span class="cstat-no" title="statement not covered" >                await OfflineQueue.updateRetries(action.id);</span>
             }
         }
@@ -807,7 +801,7 @@ export const <span class="cstat-no" title="statement not covered" >OfflineQueue 
 <span class="cstat-no" title="statement not covered" >        setIsProcessing(false);</span>
     }, [processAction]);
 &nbsp;
-    const queueAction = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >async </span>(type: QueuedAction['type'], payload: any) =&gt; {</span>
+    const queueAction = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >async </span>(type: QueuedAction["type"], payload: any) =&gt; {</span>
         const id = <span class="cstat-no" title="statement not covered" >await OfflineQueue.enqueue(type, payload);</span>
         const count = <span class="cstat-no" title="statement not covered" >await OfflineQueue.getPendingCount();</span>
 <span class="cstat-no" title="statement not covered" >        setPendingCount(count);</span>
@@ -831,7 +825,7 @@ export const <span class="cstat-no" title="statement not covered" >OfflineQueue 
     fallback: T,
     options?: {
         queueOnFailure?: boolean;
-        actionType?: QueuedAction['type'];
+        actionType?: QueuedAction["type"];
         payload?: any;
     }
 ): Promise&lt;{ data: T; fromCache: boolean }&gt; {
@@ -848,7 +842,7 @@ export const <span class="cstat-no" title="statement not covered" >OfflineQueue 
         const data = <span class="cstat-no" title="statement not covered" >await apiCall();</span>
 <span class="cstat-no" title="statement not covered" >        return { data, fromCache: false };</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >        networkLogger.error('API call failed', error);</span>
+<span class="cstat-no" title="statement not covered" >        networkLogger.error("API call failed", error);</span>
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (options?.queueOnFailure &amp;&amp; options.actionType &amp;&amp; options.payload) {</span>
 <span class="cstat-no" title="statement not covered" >            OfflineQueue.enqueue(options.actionType, options.payload);</span>
         }
@@ -862,7 +856,7 @@ export const <span class="cstat-no" title="statement not covered" >OfflineQueue 
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-30T09:22:12.465Z
+                at 2025-12-30T10:27:27.783Z
             </div>
         <script src="../prettify.js"></script>
         <script>

@@ -325,7 +325,8 @@
 <a name='L260'></a><a href='#L260'>260</a>
 <a name='L261'></a><a href='#L261'>261</a>
 <a name='L262'></a><a href='#L262'>262</a>
-<a name='L263'></a><a href='#L263'>263</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L263'></a><a href='#L263'>263</a>
+<a name='L264'></a><a href='#L264'>264</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -400,6 +401,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -587,44 +589,44 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';</span>
-<span class="cstat-no" title="statement not covered" >import { ApiService } from '../services/api';</span>
-import type { Highlight, Court, User, Booking, MatchRequest } from '../types';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";</span>
+<span class="cstat-no" title="statement not covered" >import { ApiService } from "../services/api";</span>
+import type { Highlight, Court, User, Booking, MatchRequest } from "../types";
 &nbsp;
 // Query keys - centralized for cache management
 export const <span class="cstat-no" title="statement not covered" >queryKeys = {</span>
     highlights: {
-        all: ['highlights'] as const,
-        lists: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.highlights.all, 'list'] as const,</span>
+        all: ["highlights"] as const,
+        lists: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.highlights.all, "list"] as const,</span>
         list: <span class="fstat-no" title="function not covered" >(l</span>imit: number) =&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.highlights.lists(), { limit }] as const,</span>
-        user: <span class="fstat-no" title="function not covered" >(u</span>serId: string) =&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.highlights.all, 'user', userId] as const,</span>
+        user: <span class="fstat-no" title="function not covered" >(u</span>serId: string) =&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.highlights.all, "user", userId] as const,</span>
     },
     courts: {
-        all: ['courts'] as const,
-        lists: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.courts.all, 'list'] as const,</span>
-        detail: <span class="fstat-no" title="function not covered" >(i</span>d: string) =&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.courts.all, 'detail', id] as const,</span>
+        all: ["courts"] as const,
+        lists: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.courts.all, "list"] as const,</span>
+        detail: <span class="fstat-no" title="function not covered" >(i</span>d: string) =&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.courts.all, "detail", id] as const,</span>
     },
     user: {
-        current: ['user', 'current'] as const,
-        credits: ['user', 'credits'] as const,
+        current: ["user", "current"] as const,
+        credits: ["user", "credits"] as const,
     },
     bookings: {
-        all: ['bookings'] as const,
-        history: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.bookings.all, 'history'] as const,</span>
-        active: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.bookings.all, 'active'] as const,</span>
+        all: ["bookings"] as const,
+        history: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.bookings.all, "history"] as const,</span>
+        active: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.bookings.all, "active"] as const,</span>
     },
     matches: {
-        all: ['matches'] as const,
-        open: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.matches.all, 'open'] as const,</span>
+        all: ["matches"] as const,
+        open: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.matches.all, "open"] as const,</span>
     },
     notifications: {
-        all: ['notifications'] as const,
-        list: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.notifications.all, 'list'] as const,</span>
-        unreadCount: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.notifications.all, 'unreadCount'] as const,</span>
+        all: ["notifications"] as const,
+        list: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.notifications.all, "list"] as const,</span>
+        unreadCount: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.notifications.all, "unreadCount"] as const,</span>
     },
     transactions: {
-        all: ['transactions'] as const,
-        list: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.transactions.all, 'list'] as const,</span>
+        all: ["transactions"] as const,
+        list: <span class="fstat-no" title="function not covered" >() =</span>&gt; <span class="cstat-no" title="statement not covered" >[...queryKeys.transactions.all, "list"] as const,</span>
     },
 };
 &nbsp;
@@ -662,13 +664,14 @@ export const <span class="cstat-no" title="statement not covered" >queryKeys = {
             duration?: number;
             title?: string;
             description?: string;
-        }) =&gt; <span class="cstat-no" title="statement not covered" >ApiService.createHighlight(</span>
-            params.courtId,
-            params.videoUrl,
-            params.duration,
-            params.title,
-            params.description
-        ),
+        }) =&gt;
+<span class="cstat-no" title="statement not covered" >            ApiService.createHighlight(</span>
+                params.courtId,
+                params.videoUrl,
+                params.duration,
+                params.title,
+                params.description
+            ),
         onSuccess: <span class="fstat-no" title="function not covered" >() =</span>&gt; {
 <span class="cstat-no" title="statement not covered" >            queryClient.invalidateQueries({ queryKey: queryKeys.highlights.all });</span>
         },
@@ -785,7 +788,7 @@ export const <span class="cstat-no" title="statement not covered" >queryKeys = {
     const queryClient = <span class="cstat-no" title="statement not covered" >useQueryClient();</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    return useMutation({</span>
-        mutationFn: <span class="fstat-no" title="function not covered" >(r</span>equest: Omit&lt;MatchRequest, 'id' | 'userId' | 'status' | 'createdAt'&gt;) =&gt;
+        mutationFn: <span class="fstat-no" title="function not covered" >(r</span>equest: Omit&lt;MatchRequest, "id" | "userId" | "status" | "createdAt"&gt;) =&gt;
 <span class="cstat-no" title="statement not covered" >            ApiService.createMatchRequest(request),</span>
         onSuccess: <span class="fstat-no" title="function not covered" >() =</span>&gt; {
 <span class="cstat-no" title="statement not covered" >            queryClient.invalidateQueries({ queryKey: queryKeys.matches.all });</span>
@@ -856,7 +859,7 @@ export const <span class="cstat-no" title="statement not covered" >queryKeys = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-30T09:22:12.465Z
+                at 2025-12-30T10:27:27.783Z
             </div>
         <script src="../prettify.js"></script>
         <script>

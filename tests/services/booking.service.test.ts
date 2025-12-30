@@ -164,6 +164,9 @@ describe("BookingService", () => {
             const courtMock = { data: { price_per_hour: 200000 }, error: null };
             const profileMock = { data: { credits: 50000 }, error: null }; // Not enough
 
+            // Mock checkSlotConflict to return false so we can reach credit check
+            jest.spyOn(BookingService, "checkSlotConflict").mockResolvedValue(false);
+
             (supabase.from as jest.Mock).mockImplementation((table) => {
                 if (table === "courts") {
                     return {

@@ -276,7 +276,14 @@
 <a name='L211'></a><a href='#L211'>211</a>
 <a name='L212'></a><a href='#L212'>212</a>
 <a name='L213'></a><a href='#L213'>213</a>
-<a name='L214'></a><a href='#L214'>214</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L214'></a><a href='#L214'>214</a>
+<a name='L215'></a><a href='#L215'>215</a>
+<a name='L216'></a><a href='#L216'>216</a>
+<a name='L217'></a><a href='#L217'>217</a>
+<a name='L218'></a><a href='#L218'>218</a>
+<a name='L219'></a><a href='#L219'>219</a>
+<a name='L220'></a><a href='#L220'>220</a>
+<a name='L221'></a><a href='#L221'>221</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -340,6 +347,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -422,6 +430,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -469,6 +479,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -489,11 +503,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { supabase } from '../lib/supabase';
-import { Highlight, ApiResponse } from '../types';
-import { logger } from '../lib/logger';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { supabase } from "../lib/supabase";
+import { Highlight, ApiResponse } from "../types";
+import { logger } from "../lib/logger";
 &nbsp;
-const highlightLogger = logger.create('Highlight');
+const highlightLogger = logger.create("Highlight");
 &nbsp;
 /**
  * Helper to fetch related data (profiles, courts) for highlights
@@ -502,16 +516,16 @@ async function enrichHighlights(highlights: any[]): Promise&lt;Highlight[]&gt; {
     if (!highlights.length) return [];
 &nbsp;
     // Get unique user IDs and court IDs
-    const userIds = [...new Set(highlights.map(h =&gt; h.user_id).filter(Boolean))];
-    const courtIds = [...new Set(highlights.map(h =&gt; h.court_id).filter(Boolean))];
+    const userIds = [...new Set(highlights.map((h) =&gt; h.user_id).filter(Boolean))];
+    const courtIds = [...new Set(highlights.map((h) =&gt; h.court_id).filter(Boolean))];
 &nbsp;
     // Fetch profiles
     let profileMap = new Map();
     if (userIds.length &gt; 0) {
         const { data: profiles } = await supabase
-            .from('profiles')
-            .select('id, name, avatar')
-            .in('id', userIds);
+            .from("profiles")
+            .select("id, name, avatar")
+            .in("id", userIds);
         profileMap = new Map((profiles || <span class="branch-1 cbranch-no" title="branch not covered" >[])</span>.map((p: any) =&gt; [p.id, p]));
     }
 &nbsp;
@@ -519,9 +533,9 @@ async function enrichHighlights(highlights: any[]): Promise&lt;Highlight[]&gt; {
     let courtMap = new Map();
     if (courtIds.length &gt; 0) {
         const { data: courts } = await supabase
-            .from('courts')
-            .select('id, name')
-            .in('id', courtIds);
+            .from("courts")
+            .select("id, name")
+            .in("id", courtIds);
         courtMap = new Map((courts || <span class="branch-1 cbranch-no" title="branch not covered" >[])</span>.map((c: any) =&gt; [c.id, c]));
     }
 &nbsp;
@@ -534,21 +548,22 @@ async function enrichHighlights(highlights: any[]): Promise&lt;Highlight[]&gt; {
             id: h.id,
             userId: h.user_id,
             courtId: h.court_id,
-            title: h.title || <span class="branch-1 cbranch-no" title="branch not covered" >'Highlight',</span>
-            description: h.description || '',
-            thumbnailUrl: h.thumbnail_url || '',
-            videoUrl: h.video_url || '',
+            title: h.title || <span class="branch-1 cbranch-no" title="branch not covered" >"Highlight",</span>
+            description: h.description || "",
+            thumbnailUrl: h.thumbnail_url || "",
+            videoUrl: h.video_url || "",
             durationSec: h.duration_sec || 0,
             createdAt: h.created_at,
             likes: h.likes || 0,
             views: h.views || 0,
-            courtName: court?.name || 'Sân không xác định',
-            userAvatar: profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${h.user_id}`,
-            userName: profile?.name || 'Người chơi',
+            courtName: court?.name || "Sân không xác định",
+            userAvatar:
+                profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${h.user_id}`,
+            userName: profile?.name || "Người chơi",
             isLiked: false,
             isPublic: h.is_public !== false,
             comments: 0,
-            highlightEvents: h.highlight_events || []
+            highlightEvents: h.highlight_events || [],
         };
     });
 }
@@ -562,10 +577,10 @@ export const HighlightService = {
             highlightLogger.debug("getHighlights: Fetching public highlights", { limit });
 &nbsp;
             const { data, error } = await supabase
-                .from('highlights')
-                .select('*')
-                .eq('is_public', true)
-                .order('created_at', { ascending: false })
+                .from("highlights")
+                .select("*")
+                .eq("is_public", true)
+                .order("created_at", { ascending: false })
                 .limit(limit);
 &nbsp;
             if (error) {
@@ -595,10 +610,10 @@ export const HighlightService = {
             }
 &nbsp;
             const { data, error } = await supabase
-                .from('highlights')
-                .select('*')
-                .eq('user_id', userId)
-                .order('created_at', { ascending: false })
+                .from("highlights")
+                .select("*")
+                .eq("user_id", userId)
+                .order("created_at", { ascending: false })
                 .limit(limit);
 &nbsp;
             <span class="missing-if-branch" title="if path not taken" >I</span>if (error) {
@@ -632,32 +647,34 @@ export const HighlightService = {
             highlightLogger.debug("createHighlight", {
                 hasVideo: !!videoUrl,
                 hasThumbnail: !!thumbnailUrl,
-                title
+                title,
             });
 &nbsp;
-            const { data: { user } } = await supabase.auth.getUser();
+            const {
+                data: { user },
+            } = await supabase.auth.getUser();
             if (!user) {
-                return { success: false, data: null as any, error: 'Not authenticated' };
+                return { success: false, data: null as any, error: "Not authenticated" };
             }
 &nbsp;
             const insertData = {
                 user_id: user.id,
                 court_id: courtId || <span class="branch-1 cbranch-no" title="branch not covered" >null,</span>
-                thumbnail_url: thumbnailUrl || '',
-                video_url: videoUrl || <span class="branch-1 cbranch-no" title="branch not covered" >'',</span>
+                thumbnail_url: thumbnailUrl || "",
+                video_url: videoUrl || <span class="branch-1 cbranch-no" title="branch not covered" >"",</span>
                 duration_sec: duration || <span class="branch-1 cbranch-no" title="branch not covered" >30,</span>
-                title: title || <span class="branch-1 cbranch-no" title="branch not covered" >'Highlight mới',</span>
-                description: description || '',
+                title: title || <span class="branch-1 cbranch-no" title="branch not covered" >"Highlight mới",</span>
+                description: description || "",
                 likes: 0,
                 views: 0,
                 is_public: true,
-                highlight_events: highlightEvents || null
+                highlight_events: highlightEvents || null,
             };
 &nbsp;
             highlightLogger.debug("Inserting highlight");
 &nbsp;
             const { data, error } = await supabase
-                .from('highlights')
+                .from("highlights")
                 .insert(insertData)
                 .select()
                 .single();
@@ -681,14 +698,18 @@ export const HighlightService = {
     /**
      * Toggle like on a highlight
      */
-    toggleLike: async (highlightId: string, currentLikes: number, isLiked: boolean): Promise&lt;ApiResponse&lt;boolean&gt;&gt; =&gt; {
+    toggleLike: async (
+        highlightId: string,
+        currentLikes: number,
+        isLiked: boolean
+    ): Promise&lt;ApiResponse&lt;boolean&gt;&gt; =&gt; {
         try {
             const newCount = isLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1;
 &nbsp;
             const { error } = await supabase
-                .from('highlights')
+                .from("highlights")
                 .update({ likes: newCount })
-                .eq('id', highlightId);
+                .eq("id", highlightId);
 &nbsp;
             <span class="missing-if-branch" title="if path not taken" >I</span>if (error) {
 <span class="cstat-no" title="statement not covered" >                highlightLogger.error("toggleLike error", { message: error.message });</span>
@@ -700,7 +721,7 @@ export const HighlightService = {
 <span class="cstat-no" title="statement not covered" >            highlightLogger.error("toggleLike exception", e);</span>
 <span class="cstat-no" title="statement not covered" >            return { success: false, data: false, error: e.message };</span>
         }
-    }
+    },
 };
 &nbsp;</pre></td></tr></table></pre>
 
@@ -709,7 +730,7 @@ export const HighlightService = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-30T09:22:12.465Z
+                at 2025-12-30T10:27:27.783Z
             </div>
         <script src="../prettify.js"></script>
         <script>

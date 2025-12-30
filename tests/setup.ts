@@ -14,22 +14,37 @@ jest.mock("../lib/supabase", () => ({
                 data: { subscription: { unsubscribe: jest.fn() } },
             })),
         },
-        from: jest.fn(() => ({
-            select: jest.fn().mockReturnThis(),
-            insert: jest.fn().mockReturnThis(),
-            update: jest.fn().mockReturnThis(),
-            delete: jest.fn().mockReturnThis(),
-            eq: jest.fn().mockReturnThis(),
-            neq: jest.fn().mockReturnThis(),
-            in: jest.fn().mockReturnThis(),
-            gte: jest.fn().mockReturnThis(),
-            lte: jest.fn().mockReturnThis(),
-            lt: jest.fn().mockReturnThis(),
-            order: jest.fn().mockReturnThis(),
-            limit: jest.fn().mockReturnThis(),
-            single: jest.fn(),
-            maybeSingle: jest.fn(),
-        })),
+        from: jest.fn((table) => {
+            const mockChain = {
+                select: jest.fn().mockReturnThis(),
+                insert: jest.fn().mockReturnThis(),
+                update: jest.fn().mockReturnThis(),
+                delete: jest.fn().mockReturnThis(),
+                eq: jest.fn().mockReturnThis(),
+                neq: jest.fn().mockReturnThis(),
+                in: jest.fn().mockReturnThis(),
+                gte: jest.fn().mockReturnThis(),
+                lte: jest.fn().mockReturnThis(),
+                lt: jest.fn().mockReturnThis(),
+                gt: jest.fn().mockReturnThis(),
+                or: jest.fn().mockReturnThis(),
+                order: jest.fn().mockReturnThis(),
+                limit: jest.fn().mockReturnThis(),
+                single: jest.fn().mockResolvedValue({ data: null, error: null }),
+                maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null }),
+            };
+            // Make all methods return the same chain for proper chaining
+            Object.keys(mockChain).forEach((key) => {
+                if (
+                    key !== "single" &&
+                    key !== "maybeSingle" &&
+                    typeof (mockChain as any)[key] === "function"
+                ) {
+                    (mockChain as any)[key].mockReturnValue(mockChain);
+                }
+            });
+            return mockChain;
+        }),
         storage: {
             from: jest.fn(() => ({
                 upload: jest.fn(),

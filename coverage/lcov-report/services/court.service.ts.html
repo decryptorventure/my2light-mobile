@@ -168,11 +168,7 @@
 <a name='L103'></a><a href='#L103'>103</a>
 <a name='L104'></a><a href='#L104'>104</a>
 <a name='L105'></a><a href='#L105'>105</a>
-<a name='L106'></a><a href='#L106'>106</a>
-<a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a>
-<a name='L109'></a><a href='#L109'>109</a>
-<a name='L110'></a><a href='#L110'>110</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L106'></a><a href='#L106'>106</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -183,15 +179,15 @@
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -217,10 +213,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -281,19 +273,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { supabase } from '../lib/supabase';
-import { Court, Package, ApiResponse } from '../types';
-import { logger } from '../lib/logger';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { supabase } from "../lib/supabase";
+import { Court, Package, ApiResponse } from "../types";
+import { logger } from "../lib/logger";
 &nbsp;
-const courtLogger = logger.create('Court');
+const courtLogger = logger.create("Court");
 &nbsp;
 export const CourtService = {
     getCourts: async (): Promise&lt;ApiResponse&lt;Court[]&gt;&gt; =&gt; {
         try {
-            const { data, error } = await supabase
-                .from('courts')
-                .select('*')
-                .eq('is_active', true);
+            const { data, error } = await supabase.from("courts").select("*").eq("is_active", true);
 &nbsp;
             if (error || !data) {
                 courtLogger.error("Error fetching courts", error);
@@ -305,7 +294,10 @@ export const CourtService = {
                 name: c.name,
                 address: c.address,
                 status: c.status,
-                thumbnailUrl: c.thumbnail_url || c.images?.[0] || 'https://images.unsplash.com/photo-1622163642998-1ea36b1dde3b?q=80&amp;w=800',
+                thumbnailUrl:
+                    c.thumbnail_url ||
+                    c.images?.[0] ||
+                    "https://images.unsplash.com/photo-1622163642998-1ea36b1dde3b?q=80&amp;w=800",
                 distanceKm: c.distance_km || 0,
                 pricePerHour: c.price_per_hour,
                 rating: c.rating || <span class="branch-1 cbranch-no" title="branch not covered" >0,</span>
@@ -314,26 +306,22 @@ export const CourtService = {
                 description: c.description,
                 openTime: c.open_time,
                 closeTime: c.close_time,
-                totalReviews: c.total_reviews || <span class="branch-1 cbranch-no" title="branch not covered" >0</span>
+                totalReviews: c.total_reviews || <span class="branch-1 cbranch-no" title="branch not covered" >0,</span>
             }));
 &nbsp;
             return { success: true, data: courts };
         } catch (e) {
-<span class="cstat-no" title="statement not covered" >            courtLogger.error('getCourts error', e);</span>
+<span class="cstat-no" title="statement not covered" >            courtLogger.error("getCourts error", e);</span>
 <span class="cstat-no" title="statement not covered" >            return { success: false, data: [] };</span>
         }
     },
 &nbsp;
     getCourtById: async (id: string): Promise&lt;ApiResponse&lt;Court | undefined&gt;&gt; =&gt; {
-        const { data, error } = await supabase
-            .from('courts')
-            .select('*')
-            .eq('id', id)
-            .single();
+        const { data, error } = await supabase.from("courts").select("*").eq("id", id).single();
 &nbsp;
         if (error || !data) {
-            courtLogger.error('getCourtById error', error);
-            return { success: false, data: undefined, error: error?.message || <span class="branch-1 cbranch-no" title="branch not covered" >'Court not found' </span>};
+            courtLogger.error("getCourtById error", error);
+            return { success: false, data: undefined, error: error?.message || <span class="branch-1 cbranch-no" title="branch not covered" >"Court not found" </span>};
         }
 &nbsp;
         return {
@@ -343,7 +331,7 @@ export const CourtService = {
                 name: data.name,
                 address: data.address,
                 status: data.status,
-                thumbnailUrl: data.thumbnail_url || data.images?.[0] || <span class="branch-2 cbranch-no" title="branch not covered" >'',</span>
+                thumbnailUrl: data.thumbnail_url || data.images?.[0] || <span class="branch-2 cbranch-no" title="branch not covered" >"",</span>
                 distanceKm: data.distance_km || 0,
                 pricePerHour: data.price_per_hour,
                 rating: data.rating || <span class="branch-1 cbranch-no" title="branch not covered" >0,</span>
@@ -352,21 +340,21 @@ export const CourtService = {
                 description: data.description,
                 openTime: data.open_time,
                 closeTime: data.close_time,
-                totalReviews: data.total_reviews || <span class="branch-1 cbranch-no" title="branch not covered" >0</span>
-            }
+                totalReviews: data.total_reviews || <span class="branch-1 cbranch-no" title="branch not covered" >0,</span>
+            },
         };
     },
 &nbsp;
     getPackages: async (): Promise&lt;ApiResponse&lt;Package[]&gt;&gt; =&gt; {
         try {
             const { data, error } = await supabase
-                .from('packages')
-                .select('*')
-                .eq('is_active', true)
-                .order('price', { ascending: true });
+                .from("packages")
+                .select("*")
+                .eq("is_active", true)
+                .order("price", { ascending: true });
 &nbsp;
             if (error || !data) {
-                courtLogger.error('getPackages error', error);
+                courtLogger.error("getPackages error", error);
                 return { success: false, data: [] };
             }
 &nbsp;
@@ -375,20 +363,20 @@ export const CourtService = {
                 name: p.name,
                 price: p.price,
                 durationMinutes: p.duration_minutes,
-                description: p.description || <span class="branch-1 cbranch-no" title="branch not covered" >'',</span>
+                description: p.description || <span class="branch-1 cbranch-no" title="branch not covered" >"",</span>
                 isBestValue: p.is_best_value || false,
                 features: p.features || <span class="branch-1 cbranch-no" title="branch not covered" >[],</span>
-                type: p.type || <span class="branch-1 cbranch-no" title="branch not covered" >'per_booking',</span>
+                type: p.type || <span class="branch-1 cbranch-no" title="branch not covered" >"per_booking",</span>
                 sessionCount: p.session_count,
-                validityDays: p.validity_days
+                validityDays: p.validity_days,
             }));
 &nbsp;
             return { success: true, data: packages };
         } catch (e) {
-<span class="cstat-no" title="statement not covered" >            courtLogger.error('getPackages error', e);</span>
+<span class="cstat-no" title="statement not covered" >            courtLogger.error("getPackages error", e);</span>
 <span class="cstat-no" title="statement not covered" >            return { success: false, data: [] };</span>
         }
-    }
+    },
 };
 &nbsp;</pre></td></tr></table></pre>
 
@@ -397,7 +385,7 @@ export const CourtService = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-30T09:22:12.465Z
+                at 2025-12-30T10:27:27.783Z
             </div>
         <script src="../prettify.js"></script>
         <script>

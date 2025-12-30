@@ -505,7 +505,14 @@
 <a name='L440'></a><a href='#L440'>440</a>
 <a name='L441'></a><a href='#L441'>441</a>
 <a name='L442'></a><a href='#L442'>442</a>
-<a name='L443'></a><a href='#L443'>443</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L443'></a><a href='#L443'>443</a>
+<a name='L444'></a><a href='#L444'>444</a>
+<a name='L445'></a><a href='#L445'>445</a>
+<a name='L446'></a><a href='#L446'>446</a>
+<a name='L447'></a><a href='#L447'>447</a>
+<a name='L448'></a><a href='#L448'>448</a>
+<a name='L449'></a><a href='#L449'>449</a>
+<a name='L450'></a><a href='#L450'>450</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -558,8 +565,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -568,10 +575,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -602,6 +611,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -675,6 +687,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -698,10 +713,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -799,6 +812,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -943,7 +958,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -959,7 +973,7 @@
 <span class="cstat-no" title="statement not covered" >import { supabase } from "../lib/supabase";</span>
 <span class="cstat-no" title="statement not covered" >import { logger } from "../lib/logger";</span>
 &nbsp;
-const pushLogger = <span class="cstat-no" title="statement not covered" >logger.create('Push');</span>
+const pushLogger = <span class="cstat-no" title="statement not covered" >logger.create("Push");</span>
 &nbsp;
 // Configure notification handling
 <span class="cstat-no" title="statement not covered" >Notifications.setNotificationHandler({</span>
@@ -1000,8 +1014,8 @@ export const <span class="cstat-no" title="statement not covered" >PushNotificat
             }
 &nbsp;
             // Get project ID from Constants (works in both dev and production)
-            const projectId = <span class="cstat-no" title="statement not covered" >Constants.expoConfig?.extra?.eas?.projectId</span>
-                ?? Constants.easConfig?.projectId;
+            const projectId =
+<span class="cstat-no" title="statement not covered" >                Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >            <span class="missing-if-branch" title="if path not taken" >I</span>if (!projectId) {</span>
 <span class="cstat-no" title="statement not covered" >                pushLogger.debug("No projectId found - push notifications disabled in dev mode");</span>
@@ -1014,7 +1028,9 @@ export const <span class="cstat-no" title="statement not covered" >PushNotificat
             });
 &nbsp;
             // Save token to user profile
-            const { data: { user } } = <span class="cstat-no" title="statement not covered" >await supabase.auth.getUser();</span>
+            const {
+                data: { user },
+            } = <span class="cstat-no" title="statement not covered" >await supabase.auth.getUser();</span>
 <span class="cstat-no" title="statement not covered" >            <span class="missing-if-branch" title="if path not taken" >I</span>if (user) {</span>
 <span class="cstat-no" title="statement not covered" >                await supabase</span>
                     .from("profiles")
@@ -1058,12 +1074,15 @@ export const <span class="cstat-no" title="statement not covered" >PushNotificat
      * Send push notification to court owner when new booking is created
      * This should be called from a backend/Supabase Edge Function
      */
-    notifyCourtOwner: <span class="fstat-no" title="function not covered" >async </span>(ownerId: string, bookingData: {
-        courtName: string;
-        playerName: string;
-        startTime: string;
-        totalAmount: number;
-    }) =&gt; {
+    notifyCourtOwner: <span class="fstat-no" title="function not covered" >async </span>(
+        ownerId: string,
+        bookingData: {
+            courtName: string;
+            playerName: string;
+            startTime: string;
+            totalAmount: number;
+        }
+    ) =&gt; {
         // Get owner's push token
         const { data: owner } = <span class="cstat-no" title="statement not covered" >await supabase</span>
             .from("profiles")
@@ -1111,12 +1130,15 @@ export const <span class="cstat-no" title="statement not covered" >PushNotificat
     /**
      * Create in-app notification record
      */
-    createNotification: <span class="fstat-no" title="function not covered" >async </span>(userId: string, data: {
-        type: string;
-        title: string;
-        message: string;
-        metadata?: object;
-    }) =&gt; {
+    createNotification: <span class="fstat-no" title="function not covered" >async </span>(
+        userId: string,
+        data: {
+            type: string;
+            title: string;
+            message: string;
+            metadata?: object;
+        }
+    ) =&gt; {
         const { error } = <span class="cstat-no" title="statement not covered" >await supabase.from("notifications").insert({</span>
             user_id: userId,
             type: data.type,
@@ -1139,9 +1161,7 @@ export const <span class="cstat-no" title="statement not covered" >PushNotificat
         const subscriptions: Notifications.Subscription[] = <span class="cstat-no" title="statement not covered" >[];</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (handlers.onReceive) {</span>
-<span class="cstat-no" title="statement not covered" >            subscriptions.push(</span>
-                Notifications.addNotificationReceivedListener(handlers.onReceive)
-            );
+<span class="cstat-no" title="statement not covered" >            subscriptions.push(Notifications.addNotificationReceivedListener(handlers.onReceive));</span>
         }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (handlers.onTap) {</span>
@@ -1240,7 +1260,9 @@ export const <span class="cstat-no" title="statement not covered" >PushNotificat
                 });
             }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >            pushLogger.info("Booking created notification sent", { bookingId: bookingData.bookingId });</span>
+<span class="cstat-no" title="statement not covered" >            pushLogger.info("Booking created notification sent", {</span>
+                bookingId: bookingData.bookingId,
+            });
 <span class="cstat-no" title="statement not covered" >            return true;</span>
         } catch (error) {
 <span class="cstat-no" title="statement not covered" >            pushLogger.error("Failed to send booking created notification", error);</span>
@@ -1255,7 +1277,7 @@ export const <span class="cstat-no" title="statement not covered" >PushNotificat
         bookingId: string;
         userId: string;
         courtName: string;
-        newStatus: 'approved' | 'rejected' | 'cancelled';
+        newStatus: "approved" | "rejected" | "cancelled";
         reason?: string;
     }) =&gt; {
 <span class="cstat-no" title="statement not covered" >        try {</span>
@@ -1324,7 +1346,7 @@ export const <span class="cstat-no" title="statement not covered" >PushNotificat
 &nbsp;
 <span class="cstat-no" title="statement not covered" >            pushLogger.info("Booking status notification sent", {</span>
                 bookingId: data.bookingId,
-                status: data.newStatus
+                status: data.newStatus,
             });
 <span class="cstat-no" title="statement not covered" >            return true;</span>
         } catch (error) {
@@ -1388,7 +1410,6 @@ export const <span class="cstat-no" title="statement not covered" >PushNotificat
         }
     },
 };
-&nbsp;
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -1396,7 +1417,7 @@ export const <span class="cstat-no" title="statement not covered" >PushNotificat
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-30T09:22:12.465Z
+                at 2025-12-30T10:27:27.783Z
             </div>
         <script src="../prettify.js"></script>
         <script>
