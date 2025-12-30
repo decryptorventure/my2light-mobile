@@ -8,7 +8,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
+import { colors, spacing, fontSize, fontWeight, borderRadius } from "@/shared/constants/theme";
 import haptics from "../../lib/haptics";
 
 export default function BookingSuccessScreen() {

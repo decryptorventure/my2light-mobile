@@ -7,7 +7,7 @@ import {
     ViewStyle,
     TextStyle,
 } from "react-native";
-import { colors, borderRadius, fontSize, fontWeight, spacing } from "../../constants/theme";
+import { colors, borderRadius, fontSize, fontWeight, spacing } from "@/shared/constants/theme";
 
 type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "accent";
 type ButtonSize = "sm" | "md" | "lg";

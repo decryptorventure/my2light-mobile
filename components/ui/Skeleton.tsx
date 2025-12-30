@@ -1,6 +1,6 @@
 import { View, StyleSheet, Animated } from "react-native";
 import { useEffect, useRef } from "react";
-import { colors, borderRadius, spacing } from "../../constants/theme";
+import { colors, borderRadius, spacing } from "@/shared/constants/theme";
 
 interface SkeletonProps {
     width?: number | string;

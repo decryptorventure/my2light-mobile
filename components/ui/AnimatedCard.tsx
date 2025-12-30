@@ -5,7 +5,7 @@
 
 import React from "react";
 import { View, ViewProps, StyleProp, ViewStyle } from "react-native";
-import { colors, borderRadius, spacing } from "../../constants/theme";
+import { colors, borderRadius, spacing } from "@/shared/constants/theme";
 
 interface AnimatedCardProps extends ViewProps {
     children: React.ReactNode;

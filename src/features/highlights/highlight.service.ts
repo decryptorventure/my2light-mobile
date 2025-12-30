@@ -1,5 +1,5 @@
-import { supabase } from "../lib/supabase";
-import { Highlight, ApiResponse } from "../types";
+import { supabase } from "@/lib/supabase";
+import { Highlight, ApiResponse } from "@/types";
 
 export const HighlightService = {
     getHighlights: async (limit = 10): Promise<ApiResponse<Highlight[]>> => {

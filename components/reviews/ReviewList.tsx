@@ -4,9 +4,10 @@
  */
 
 import React from "react";
-import { View, Text, StyleSheet, FlatList, Image } from "react-native";
+import { View, Text, StyleSheet, FlatList } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
-import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
+import { colors, spacing, fontSize, fontWeight, borderRadius } from "@/shared/constants/theme";
 import { Review, ReviewStats } from "../../services/review.service";
 
 interface ReviewListProps {

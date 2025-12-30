@@ -160,7 +160,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                         key.includes("user") ||
                         key.includes("token")
                     ) {
-                        storage.delete(key);
+                        storage.remove(key);
                         authLogger.debug("Cleared storage key on logout", { key });
                     }
                 });

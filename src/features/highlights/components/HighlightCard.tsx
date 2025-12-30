@@ -10,7 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { colors, spacing, fontSize, fontWeight, borderRadius } from "@/shared/constants/theme";
 import { HapticTouchable } from "@/shared/components/HapticTouchable";
-import type { Highlight } from "@/features/highlights/types/highlight.types";
+import type { Highlight } from "@/types";
 
 interface HighlightCardProps {
     highlight: Highlight;

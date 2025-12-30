@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuthStore } from "../../stores/authStore";
 import { isSupabaseConfigured } from "../../lib/supabase";
 import { Button, Input } from "../../components/ui";
-import { colors, fontSize, fontWeight, spacing } from "../../constants/theme";
+import { colors, fontSize, fontWeight, spacing } from "@/shared/constants/theme";
 import { validateEmail, validatePassword } from "../../src/shared/utils/validation";
 
 export default function LoginScreen() {

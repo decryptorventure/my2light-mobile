@@ -6,6 +6,12 @@
         "paths": {
             "@/features/*": ["src/features/*"],
             "@/shared/*": ["src/shared/*"],
+            "@/types": ["types/index"],
+            "@/stores/*": ["stores/*"],
+            "@/components/*": ["components/*"],
+            "@/hooks/*": ["hooks/*"],
+            "@/lib/*": ["src/lib/*"],
+            "@/services/*": ["services/*"],
             "@/*": ["src/*"]
         }
     }

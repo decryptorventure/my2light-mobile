@@ -9,10 +9,10 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
-import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
-import { useRecordingStore } from "../../stores/recordingStore";
-import { Card } from "../../components/ui";
-import haptics from "../../lib/haptics";
+import { colors, spacing, fontSize, fontWeight, borderRadius } from "@/shared/constants/theme";
+import { useRecordingStore } from "@/stores/recordingStore";
+import { Card } from "@/components/ui";
+import haptics from "@/lib/haptics";
 
 /**
  * RecordSettingsScreen - Configure recording settings

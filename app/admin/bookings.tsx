@@ -17,7 +17,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
+import { colors, spacing, fontSize, fontWeight, borderRadius } from "@/shared/constants/theme";
 import { AdminService, BookingManagement } from "../../services/admin.service";
 import haptics from "../../lib/haptics";
 

@@ -15,9 +15,9 @@ import {
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { colors, spacing, borderRadius, fontSize, fontWeight } from "../../constants/theme";
-import { useRecordingStore } from "../../stores/recordingStore";
-import haptics from "../../lib/haptics";
+import { colors, spacing, borderRadius, fontSize, fontWeight } from "@/shared/constants/theme";
+import { useRecordingStore } from "@/stores/recordingStore";
+import haptics from "@/lib/haptics";
 
 /**
  * CameraRecordingScreen - Main recording interface

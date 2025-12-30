@@ -3,7 +3,7 @@
  * @module lib/storage
  */
 
-import { MMKV } from "react-native-mmkv";
+import { MMKV, createMMKV } from "react-native-mmkv";
 
 // Singleton storage instance
 let storage: MMKV | null = null;
@@ -31,7 +31,7 @@ const getEncryptionKey = (): string => {
  */
 export const getStorage = (): MMKV => {
     if (!storage) {
-        storage = new MMKV({
+        storage = createMMKV({
             id: "my2light-storage",
             encryptionKey: getEncryptionKey(),
         });
@@ -51,7 +51,7 @@ export const zustandStorage = {
         return value ?? null;
     },
     removeItem: (name: string) => {
-        getStorage().delete(name);
+        getStorage().remove(name);
     },
 };
 
@@ -77,7 +77,7 @@ export const cache = {
             const isExpired = Date.now() - parsed.timestamp > parsed.ttl;
 
             if (isExpired) {
-                getStorage().delete(key);
+                getStorage().remove(key);
                 return null;
             }
 
@@ -92,7 +92,7 @@ export const cache = {
             const keys = getStorage().getAllKeys();
             keys.forEach((key: string) => {
                 if (key.includes(pattern)) {
-                    getStorage().delete(key);
+                    getStorage().remove(key);
                 }
             });
         } else {

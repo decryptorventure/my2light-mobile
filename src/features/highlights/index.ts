@@ -1,5 +1,5 @@
 // Components
-export { default as HighlightCard } from "./components/HighlightCard";
+export { HighlightCard } from "./components/HighlightCard";
 
 // Hooks
 export * from "./hooks/useHighlights";
@@ -8,4 +8,4 @@ export * from "./hooks/useHighlights";
 export { HighlightService } from "./highlight.service";
 
 // Types
-export type { Highlight, HighlightEvent } from "./types/highlight.types";
+export type { Highlight, HighlightEvent } from "@/types";

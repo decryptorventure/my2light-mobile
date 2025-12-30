@@ -19,7 +19,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
+import { colors, spacing, fontSize, fontWeight, borderRadius } from "@/shared/constants/theme";
 import haptics from "../../lib/haptics";
 
 interface CourtFormData {

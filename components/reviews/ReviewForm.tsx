@@ -16,7 +16,7 @@ import {
     Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
+import { colors, spacing, fontSize, fontWeight, borderRadius } from "@/shared/constants/theme";
 import { ReviewService } from "../../services/review.service";
 import haptics from "../../lib/haptics";
 

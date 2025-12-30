@@ -9,10 +9,10 @@ import {
     ScrollView,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useAuthStore } from "../../stores/authStore";
-import { isSupabaseConfigured } from "../../lib/supabase";
-import { Button, Input } from "../../components/ui";
-import { colors, fontSize, fontWeight, spacing } from "../../constants/theme";
+import { useAuthStore } from "@/stores/authStore";
+import { isSupabaseConfigured } from "@/lib/supabase";
+import { Button, Input } from "@/components/ui";
+import { colors, fontSize, fontWeight, spacing } from "@/shared/constants/theme";
 
 export default function LoginScreen() {
     const insets = useSafeAreaInsets();

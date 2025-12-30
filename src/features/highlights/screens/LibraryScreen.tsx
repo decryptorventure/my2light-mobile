@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
-import { useAuthStore } from "../../stores/authStore";
+import { colors, spacing, fontSize, fontWeight, borderRadius } from "@/shared/constants/theme";
+import { useAuthStore } from "@/stores/authStore";
 
 type TabType = "posts" | "saved" | "liked";
 

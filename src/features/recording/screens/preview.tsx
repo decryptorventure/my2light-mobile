@@ -11,10 +11,10 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import * as MediaLibrary from "expo-media-library";
-import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
-import { useRecordingStore } from "../../stores/recordingStore";
-import { Card } from "../../components/ui";
-import haptics from "../../lib/haptics";
+import { colors, spacing, fontSize, fontWeight, borderRadius } from "@/shared/constants/theme";
+import { useRecordingStore } from "@/stores/recordingStore";
+import { Card } from "@/components/ui";
+import haptics from "@/lib/haptics";
 
 /**
  * VideoPreviewScreen - Review highlights and upload

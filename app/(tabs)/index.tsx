@@ -6,27 +6,24 @@ import {
     ScrollView,
     FlatList,
     RefreshControl,
-    Image,
     TouchableOpacity,
     Dimensions,
     TextInput,
 } from "react-native";
+import { Image } from "expo-image";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
+import { colors, spacing, fontSize, fontWeight, borderRadius } from "@/shared/constants/theme";
 import {
     useHighlights,
     useCurrentUser,
     useUnreadNotificationCount,
     useCourts,
 } from "../../hooks/useApi";
-import {
-    HighlightCard,
-    HighlightCardSkeleton,
-    AnimatedPressable,
-    FadeInView,
-} from "../../components/ui";
+import { HighlightCardSkeleton, FadeInView } from "../../components/ui";
+import { HighlightCard } from "@/features/highlights";
+import { AnimatedPressable } from "@/shared/components/AnimatedPressable";
 import haptics from "../../lib/haptics";
 
 const { width } = Dimensions.get("window");
@@ -195,12 +192,8 @@ export default function HomeScreen() {
                             horizontal
                             data={highlights}
                             keyExtractor={(item) => item.id}
-                            renderItem={({ item, index }) => (
-                                <HighlightCard
-                                    highlight={item}
-                                    cardWidth={CARD_WIDTH}
-                                    index={index}
-                                />
+                            renderItem={({ item }) => (
+                                <HighlightCard highlight={item} cardWidth={CARD_WIDTH} />
                             )}
                             showsHorizontalScrollIndicator={false}
                             contentContainerStyle={styles.highlightsScroll}

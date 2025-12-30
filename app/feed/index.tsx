@@ -14,7 +14,7 @@ import { Video, ResizeMode, AVPlaybackStatus } from "expo-av";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { colors, spacing, fontSize, fontWeight } from "../../constants/theme";
+import { colors, spacing, fontSize, fontWeight } from "@/shared/constants/theme";
 import { useHighlights, useUserHighlights } from "../../hooks/useApi";
 import type { Highlight } from "../../types";
 

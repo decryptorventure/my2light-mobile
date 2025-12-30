@@ -1,5 +1,5 @@
-import { supabase } from "../lib/supabase";
-import { Booking, ApiResponse } from "../types";
+import { supabase } from "@/lib/supabase";
+import { Booking, ApiResponse } from "@/types";
 
 export const BookingService = {
     getBookingHistory: async (): Promise<ApiResponse<Booking[]>> => {

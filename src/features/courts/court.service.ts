@@ -1,5 +1,5 @@
-import { supabase } from "../lib/supabase";
-import { Court, ApiResponse } from "../types";
+import { supabase } from "@/lib/supabase";
+import { Court, ApiResponse } from "@/types";
 
 export const CourtService = {
     getCourts: async (): Promise<ApiResponse<Court[]>> => {

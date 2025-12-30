@@ -4,10 +4,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
-import { colors, spacing, fontSize, fontWeight, borderRadius } from "../../constants/theme";
+import { colors, spacing, fontSize, fontWeight, borderRadius } from "@/shared/constants/theme";
 import { useMatchRequests } from "../../hooks/useApi";
 import { MatchService } from "../../services/match.service";
-import { MatchCardSkeleton, EmptyState, AnimatedPressable } from "../../components/ui";
+import { MatchCardSkeleton, EmptyState } from "../../components/ui";
+import { AnimatedPressable } from "@/shared/components/AnimatedPressable";
 import haptics from "../../lib/haptics";
 
 interface MatchRequest {

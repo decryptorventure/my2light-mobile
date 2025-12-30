@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { HighlightService } from "../highlight.service";
-import type { Highlight } from "../types/highlight.types";
+import type { Highlight } from "@/types";
 
 // Query keys for highlights
 export const highlightQueryKeys = {

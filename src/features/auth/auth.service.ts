@@ -1,5 +1,5 @@
-import { supabase } from "../lib/supabase";
-import { User, ApiResponse } from "../types";
+import { supabase } from "@/lib/supabase";
+import { User, ApiResponse } from "@/types";
 import { maskSensitiveData } from "../../../lib/security";
 
 export const AuthService = {
